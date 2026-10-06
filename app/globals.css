@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-poppins);
+
+  --color-surface: #faf8f5;
+  --color-ink: #1c1917;
+  --color-muted: #57534e;
+
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #292524;
+  --color-brand-900: #1c1917;
+
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+
+  --color-panel: #1c1917;
+  --color-whatsapp: #25d366;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-x: clip;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.text-gradient-warm {
+  background-image: linear-gradient(90deg, #ea580c 0%, #dc2626 45%, #c2410c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card-shadow {
+  box-shadow: 0 4px 24px -8px rgba(28, 25, 23, 0.12);
+}
+
+.card-shadow-lg {
+  box-shadow: 0 16px 40px -12px rgba(28, 25, 23, 0.18);
+}
+
+.no-scrollbar,
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
