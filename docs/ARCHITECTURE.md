@@ -43,8 +43,10 @@ flowchart LR
 ### 3.1 Public website (existing, this repository)
 
 - **Next.js 16 (App Router)**, React 19, Tailwind CSS v4, deployed on **Vercel** (free plan).
-- Fully static pages: product pages are pre-rendered with `generateStaticParams` in [`app/products/[id]/page.tsx`](../app/products/%5Bid%5D/page.tsx).
-- **Product data source (after Sprint 5):** `data/products.json`, written only by the Publish feature and validated at build time. The validation uses the same `Product` shape as [`types/index.ts`](../types/index.ts).
+- Fully static pages: product pages are pre-rendered with `generateStaticParams` in [`src/app/products/[id]/page.tsx`](../src/app/products/%5Bid%5D/page.tsx).
+- **Data access:** pages and the REST endpoints in `src/app/api/` (`/api/products`, `/api/products/[id]`, `/api/categories`, `/api/categories/groups`, `/api/brands`) all read through [`src/services/catalog-service.ts`](../src/services/catalog-service.ts). Paths are defined once in [`src/lib/api/endpoints.ts`](../src/lib/api/endpoints.ts). Setting `CATALOG_API_URL` points the service at an external backend with the same endpoints, without changing any page.
+- **Enquiries:** `/enquiry` builds a WhatsApp message in the browser. Nothing is stored on the server.
+- **Product data source (after Sprint 5):** `src/data/products.json`, written only by the Publish feature and validated at build time. The validation uses the same `Product` shape as [`src/types/index.ts`](../src/types/index.ts).
 - **No database, no login, and no personal data.** The website can't reach the shop PC.
 
 ### 3.2 Shop Manager (new repository: `shree-balaji-shop-manager`)
@@ -228,7 +230,7 @@ sequenceDiagram
   O->>PS: Publish (with preview of changes)
   PS->>PS: build public JSON with whitelisted fields only
   PS->>PS: validate with the website Product schema
-  PS->>GH: PUT contents data/products.json on main
+  PS->>GH: PUT contents src/data/products.json on main
   GH-->>PS: commit sha
   GH->>V: push triggers build and deploy
   PS->>PS: write publish_log
