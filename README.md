@@ -2,7 +2,18 @@
 
 A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authorized Asian Paints dealer in Kotul, Maharashtra — built with Next.js 16, TypeScript, and Tailwind CSS v4.
 
-**Live demo:** _Coming soon — deploy via [Vercel](#deployment) or see instructions below._
+## Live app
+
+**[shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)**
+
+| Page | Link |
+|------|------|
+| Home | [/](https://shree-balaji-paints-plywood-hardwar.vercel.app/) |
+| Products catalogue | [/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/products) |
+| Paints | [/products?category=paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=paints) |
+| Plywood | [/products?category=plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=plywood) |
+| Hardware | [/products?category=hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=hardware) |
+| Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/ap-royale-luxury) |
 
 ## Features
 
@@ -66,15 +77,15 @@ Image credits and Pexels IDs: [`public/images/CREDITS.md`](public/images/CREDITS
 
 ## Deployment
 
-**Vercel (recommended)**
+The site is hosted on **[Vercel](https://vercel.com)** and connected to the GitHub repo [`shubhamdsk/shree-balaji-paints-plywood-hardware`](https://github.com/shubhamdsk/shree-balaji-paints-plywood-hardware).
 
-1. Push this repo to GitHub.
-2. Sign in at [vercel.com](https://vercel.com) with GitHub.
-3. **Add New Project** → import `shubhamdsk/shree-balaji-paints-plywood-hardware`.
-4. Framework is auto-detected (Next.js). No environment variables required.
-5. Deploy. Pushes to `main` trigger automatic redeploys.
+- **Production:** [shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)
+- **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Pushes to other branches (e.g. `develop`) get their own preview URL.
+- **Settings:** Framework preset **Next.js**, default build command, no environment variables required.
 
-Alternatively, with the [Vercel CLI](https://vercel.com/docs/cli): `npx vercel --prod` from the project root (after `vercel login`).
+To publish changes, merge `develop` into `main` and push.
+
+Manual deploy with the [Vercel CLI](https://vercel.com/docs/cli): `npx vercel --prod` from the project root (after `vercel login`).
 
 ## Roadmap
 

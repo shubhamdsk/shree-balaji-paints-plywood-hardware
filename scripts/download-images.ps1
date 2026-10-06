@@ -18,7 +18,7 @@ $map = @(
   @("categories\adhesives.jpg", (Pex 7508801 800)),
   @("banners\interior-living.jpg", (Pex 1571460 900)),
   @("banners\exterior-house.jpg", (Pex 106399 900)),
-  @("shop\storefront.jpg", (Pex 264636 1200)),
+  @("shop\storefront.jpg", (Pex 19756443 1200)),
   @("shop\interior.jpg", (Pex 6764240 900)),
   @("shop\counter.jpg", (Pex 7019603 900)),
   @("products\paint-interior-premium.jpg", (Pex 6920160 800)),
