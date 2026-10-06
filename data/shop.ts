@@ -1,11 +1,11 @@
-const phone = "9284463701";
+const phone = "7038499108";
 
 export const shop = {
   name: "Shree Balaji Paints Plywood and Hardware",
   shortName: "Shree Balaji",
   tagline: "Paints, Plywood & Hardware",
   phone,
-  phoneDisplay: "+91 92844 63701",
+  phoneDisplay: "+91 70384 99108",
   phoneLink: `tel:+91${phone}`,
   whatsappNumber: `91${phone}`,
   address: {
