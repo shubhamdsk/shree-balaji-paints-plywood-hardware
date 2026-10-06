@@ -10,20 +10,31 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 |------|------|
 | Home | [/](https://shree-balaji-paints-plywood-hardwar.vercel.app/) |
 | Products catalogue | [/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/products) |
-| Paints | [/products?category=paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=paints) |
-| Plywood | [/products?category=plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=plywood) |
-| Hardware | [/products?category=hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=hardware) |
+| Paints | [/products/paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints) |
+| Interior paints | [/products/paints/interior](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints/interior) |
+| Plywood | [/products/plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/plywood) |
+| Hardware | [/products/hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/hardware) |
 | Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/ap-royale-luxury) |
+| Brands | [/brands](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands) |
+| Sample brand | [Asian Paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands/asian-paints) |
+| Offers | [/offers](https://shree-balaji-paints-plywood-hardwar.vercel.app/offers) |
+| About | [/about](https://shree-balaji-paints-plywood-hardwar.vercel.app/about) |
+| Contact | [/contact](https://shree-balaji-paints-plywood-hardwar.vercel.app/contact) |
+| Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry) |
+| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry/ap-royale-luxury) |
+| Products API | [/api/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/api/products) |
 
 ## Features
 
-- **Home** — Hero, category tiles, promo banners, “Our Store” section, and footer with contact details
+- **Home** — Hero, category tiles, popular brands, featured products, offers, and a visit-us banner
 - **Products catalogue** — Browse by category with filters, sort, and pagination
 - **Product detail pages** — Specs, indicative pricing, and related items
+- **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
+- **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
-- **Google Maps** — Embedded map on the home page plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
+- **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
-- **Custom logo** — SVG wordmark and mark in the header, footer, and social preview
+- **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
 
 ## Tech stack
 
@@ -53,24 +64,46 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | Generate route types and run the TypeScript check |
+| `npm run test` | Unit tests (Vitest + React Testing Library) |
+| `npm run test:watch` | Unit tests in watch mode |
+| `npm run check` | Lint, typecheck, tests and build: run before every commit |
+
+Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
 
 ## Project structure
 
 ```
-app/                 # Routes (home, products, product detail, metadata icons)
-components/          # UI (Navbar, Hero, catalogue, WhatsApp, etc.)
-data/                # Shop info, products, categories, brands
-types/               # Shared TypeScript types
+src/
+  app/               # Routes (home, products, product detail, enquiry, metadata icons)
+    api/             # REST endpoints: products, categories, brands
+  components/
+    brand/           # Logo and brand wordmarks
+    layout/          # Navbar, footer, WhatsApp button
+    home/            # Home page sections
+    products/        # Catalogue, product cards, product detail
+    enquiry/         # Enquiry form
+    ui/              # Shared: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, Reveal
+  config/            # Shop name, phone, address, hours
+  data/              # Local catalogue (read only through services)
+  hooks/             # useConfirm, useUnsavedChanges
+  lib/api/           # API endpoint list and HTTP client
+  providers/         # App-wide confirm popup and unsaved-changes guard
+  services/          # Catalogue service used by pages and API routes
+  types/             # Shared TypeScript types
 public/images/       # Photos (see CREDITS.md); shop/ placeholders for real photos
+docs/                # Sprint plan, architecture, security, scalability, coding standards
 scripts/             # Optional Pexels image download helper
 ```
+
+Coding rules for people and AI agents: [`AGENTS.md`](AGENTS.md) (also loaded through `CLAUDE.md`) and [`docs/CODING-STANDARDS.md`](docs/CODING-STANDARDS.md).
 
 ## Updating content
 
 | What | Where |
 |------|--------|
-| Shop name, phone, address, hours, map link | `data/shop.ts` |
-| Products and categories | `data/products.ts`, `data/categoryTree.ts`, `data/brands.ts` |
+| Shop name, phone, address, hours, map link | `src/config/shop.ts` |
+| Products and categories | `src/data/products.ts`, `src/data/category-tree.ts`, `src/data/brands.ts` (or set `CATALOG_API_URL` to load them from a backend, see `.env.example`) |
 | Real shop photos | Replace `public/images/shop/storefront.jpg`, `interior.jpg`, `counter.jpg` (see `public/images/shop/README.md`) |
 
 Image credits and Pexels IDs: [`public/images/CREDITS.md`](public/images/CREDITS.md).

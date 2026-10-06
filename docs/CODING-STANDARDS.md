@@ -17,9 +17,20 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 ## 2. Project structure
 
-- The website keeps its current layout: `app/`, `components/`, `data/`, `types/`, `public/`.
+- The website uses the Next.js `src/` layout. `public/`, `docs/`, `scripts/` and config files stay at the root. The full folder map is in [AGENTS.md](../AGENTS.md).
+  - `src/app/` holds routes only, with REST Route Handlers under `src/app/api/`, one `route.ts` per resource.
+  - `src/components/` is grouped by feature (`brand`, `layout`, `home`, `products`, `enquiry`), and shared building blocks go in `ui/`.
+  - `src/services/` is the only layer that reads `src/data/` or calls a backend.
+  - `src/lib/api/endpoints.ts` lists every API path, and `src/lib/api/http-client.ts` makes every HTTP call.
+  - `src/lib/routes.ts` builds every page path. Paths are clean (`/products/paints/interior`), with no query strings or hash pages.
+  - `src/providers/` and `src/hooks/` hold the app-wide confirm popup and unsaved-changes guard.
+- **Reuse first:** before writing UI or logic, check `ui/`, `hooks/` and `lib/`. Extend an existing component with a prop rather than copying it.
+- **Confirmations:** every destructive or irreversible action uses `useConfirm()`, never `window.confirm` or a one-off modal.
+- **Unsaved changes:** every form calls `useUnsavedChanges(isDirty)`, and internal links use `AppLink`, so leaving with unsaved input always asks first.
+- **No hard-coded endpoints or data in UI:** pages get data from services and pass it to client components as props.
 - Shop Manager follows the structure in [Architecture § 4](ARCHITECTURE.md#4-application-structure-shop-manager).
-- **Import alias:** `@/` for project-root imports, as in the website. No deep relative paths like `../../../`.
+- **Import alias:** always `@/` (it points to `src/`). No relative imports. ESLint (`no-restricted-imports`) blocks relative imports, `@/data/*` outside services, `next/link` outside `AppLink`, and `lucide-react` outside `src/components/ui/icons.ts`.
+- **Icons:** one file, `src/components/ui/icons.ts`, exports every icon used in the app. Add new icons there, and import them from `@/components/ui/icons`.
 - **Layers:**
   - `domain/` is pure logic, with no imports from Next.js, React or the database.
   - `server/` is server-only. Every file that touches the database or secrets starts with `import "server-only";`.
@@ -92,12 +103,17 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 ## 8. Comments and documentation
 
-- Code should explain itself through names and small functions.
+- **Default to no comments.** Code should explain itself through names and small functions.
 - Write a comment only for a rule the code can't show, such as a GST regulation, a database constraint, or a printer quirk.
-- Every module in `domain/` and `server/services/` has a one-line header saying what it's responsible for.
+- Never write comments that restate the next line, narrate a change, or explain to a reviewer why it's correct.
+- No commented-out code, and no `TODO` without an issue link.
 - Update `docs/` in the same pull request when behaviour, architecture or security changes.
 
 ## 9. Testing
+
+**Website (this repository, in place now):** Vitest with React Testing Library (`npm run test`), with tests next to the code as `*.test.ts(x)`. Every change follows the required workflow in [AGENTS.md](../AGENTS.md#workflow-for-every-change-required): unit tests, `npm run check`, a manual regression pass over the main pages, then a self code review against [the pull request checklist](../.github/pull_request_template.md). GitHub Actions runs the same checks on every push.
+
+**Shop Manager:**
 
 | Level | Tool | What | Required |
 |-------|------|------|----------|
@@ -122,7 +138,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 ### Pull request checklist
 
-- [ ] `npm run lint`, `npm run typecheck` and `npm test` pass.
+- [ ] `npm run check` passes (lint, typecheck, tests, build).
 - [ ] Money is integer paise, and GST goes through `domain/gst.ts`.
 - [ ] Server Actions check the role and validate input with Zod.
 - [ ] Data changes run in one transaction, and nothing is hard-deleted.
@@ -137,7 +153,7 @@ On every push and pull request:
 
 1. `npm ci`
 2. `npm run lint`
-3. `npm run typecheck` (`tsc --noEmit`)
+3. `npm run typecheck` (`next typegen && tsc --noEmit`)
 4. `npm test` (unit and integration tests, with a PostgreSQL service container)
 5. `npm run build`
 6. `npm audit --omit=dev --audit-level=high`

@@ -140,11 +140,11 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
   - `Referrer-Policy: strict-origin-when-cross-origin`.
   - `Permissions-Policy` (camera, microphone and geolocation off).
   - `X-Frame-Options: DENY` (or CSP `frame-ancestors 'none'`).
-- **Published data validation:** `data/products.json` is validated at build time. A bad publish fails the build, and the previous good version stays live.
+- **Published data validation:** `src/data/products.json` is validated at build time. A bad publish fails the build, and the previous good version stays live.
 - **Rollback:** any publish can be undone by reverting its commit on GitHub. Vercel redeploys the previous version.
 - **Access control:**
   - The GitHub account and Vercel account have 2-step verification on.
-  - Branch protection is on for `main`: pull request required, except for the publish token's commits to `data/products.json`.
+  - Branch protection is on for `main`: pull request required, except for the publish token's commits to `src/data/products.json`.
 
 ---
 
