@@ -18,7 +18,7 @@ Royalty-free photos from [Pexels](https://www.pexels.com/) (free for commercial 
 | `categories/adhesives.jpg` | 7508801 | Close-up of a glue gun |
 | `banners/interior-living.jpg` | 1571460 | Living room interior |
 | `banners/exterior-house.jpg` | 106399 | House exterior |
-| `shop/storefront.jpg` | 264636 | Retail storefront (placeholder) |
+| `shop/storefront.jpg` | 24862481 | Modern stock aisle with racked boards and boxes, no people (placeholder) |
 | `shop/interior.jpg` | 6764240 | Paint cans and brushes (placeholder) |
 | `shop/counter.jpg` | 7019603 | Door handle hardware (placeholder) |
 | `products/paint-interior-premium.jpg` | 6920160 | Assorted paint cans and brushes |
@@ -60,3 +60,5 @@ Royalty-free photos from [Pexels](https://www.pexels.com/) (free for commercial 
 | 257736 | Open switchboard wiring | 14129562 (wall switches) |
 | 5691543 | Generic renovation room | 6920160 / 6764240 / 7508801 as appropriate |
 | 956107 / 162553 / 115785 | CDN 404 / wrong files | 6920160, 6068821, 4170142 |
+| 264636 | Supermarket fruit aisle (used as storefront) | 24862481 (stock aisle) |
+| 19756443 | Old-style shop with a shopkeeper, not representative of the store | 24862481 (stock aisle) |
