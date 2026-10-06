@@ -20,7 +20,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Home** — Hero, category tiles, promo banners, “Our Store” section, and footer with contact details
 - **Products catalogue** — Browse by category with filters, sort, and pagination
 - **Product detail pages** — Specs, indicative pricing, and related items
-- **WhatsApp enquiry** — One-tap message to the shop (`9284463701`)
+- **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
 - **Google Maps** — Embedded map on the home page plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
 - **Custom logo** — SVG wordmark and mark in the header, footer, and social preview
