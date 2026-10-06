@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { ArrowRight } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
+import { ROUTES } from "@/lib/routes";
 
 export default function PromoBanners() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
       <AppLink
-        href="/products?category=paints&type=Interior"
+        href={ROUTES.category("paints", "Interior")}
         className="relative flex min-h-[200px] overflow-hidden rounded-3xl bg-indigo-950 card-shadow-lg sm:min-h-[240px]"
       >
         <Image
@@ -28,7 +29,7 @@ export default function PromoBanners() {
       </AppLink>
 
       <AppLink
-        href="/products?category=paints&type=Exterior"
+        href={ROUTES.category("paints", "Exterior")}
         className="relative flex min-h-[200px] overflow-hidden rounded-3xl bg-orange-950 card-shadow-lg sm:min-h-[240px]"
       >
         <Image

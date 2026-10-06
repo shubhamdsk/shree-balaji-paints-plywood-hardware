@@ -30,8 +30,9 @@ Follow these steps for every feature, fix or refactor, however small. A change i
 3. **Unit tests.** Add or update tests next to the code (`thing.ts` gets `thing.test.ts`) for every new or changed function, hook, service, route handler and interactive component. A bug fix starts with a test that fails before the fix.
 4. **Regression check.** Run `npm run check`. Then run the app and check the main flows still work:
    - The home page.
-   - `/products` with category, brand and search filters.
+   - `/products`, a category (`/products/paints`) and a type (`/products/paints/interior`), plus the brand and search filters.
    - A product detail page.
+   - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
    - The WhatsApp and phone links.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
@@ -56,13 +57,18 @@ src/
     layout/             navbar, footer, floating buttons
     home/               home page sections
     products/           catalogue, cards, product detail
+    brands/             brand grid (home and /brands)
+    offers/             offer cards and promo banners
+    about/              store photos and details
+    contact/            contact details and map
     enquiry/            enquiry form
-    ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, Reveal
+    ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours)
   data/                 local catalogue source, read only by src/services
   hooks/                shared React hooks (use-confirm, use-unsaved-changes)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
+    routes.ts           every page path (clean URLs, no query strings)
   providers/            app-wide React context providers, composed in AppProviders
   services/             data access used by pages and API routes
   test/                 test setup and render helpers
@@ -75,6 +81,7 @@ scripts/                developer helper scripts
 
 - Put a component in the folder of the feature that uses it. Move it to `ui/` when two features share it.
 - Keep route files in `src/app` thin: get data from a service and compose components.
+- Keep URLs clean. Every page is a real path (`/brands`, `/brands/asian-paints`). Don't use hash links (`/#section`) as pages, and don't add query strings to drive page content or filters.
 - Delete unused files instead of keeping them around.
 
 ## Reuse before you build
@@ -90,6 +97,7 @@ scripts/                developer helper scripts
 
 - Pages, components and API routes get data from `src/services/*`. They never import `src/data/*` (ESLint enforces this).
 - Every API path is defined once in `src/lib/api/endpoints.ts`. Never write an `/api/...` string anywhere else.
+- Every dynamic page path is built with `ROUTES` in `src/lib/routes.ts` (`ROUTES.category("paints", "Interior")`). Never build `/products/...`, `/brands/...` or `/enquiry/...` strings by hand.
 - All HTTP calls go through `httpClient` in `src/lib/api/http-client.ts`. No direct `fetch` in components or services.
 - One `route.ts` per REST resource under `src/app/api`, delegating to a service function.
 - `CATALOG_API_URL` (see `.env.example`) switches the services from the local data to an external backend. Pages don't change when it does.

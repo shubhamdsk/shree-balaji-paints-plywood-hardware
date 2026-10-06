@@ -9,6 +9,7 @@ import BrandWordmark from "@/components/brand/BrandWordmark";
 import AppLink from "@/components/ui/AppLink";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buttonClasses } from "@/components/ui/Button";
+import { ROUTES } from "@/lib/routes";
 
 const tabs = ["Description", "Technical Details", "Application", "Downloads"] as const;
 
@@ -30,7 +31,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
         items={[
           { label: "Home", href: "/" },
           { label: "Products", href: "/products" },
-          { label: product.category.charAt(0).toUpperCase() + product.category.slice(1), href: `/products?category=${product.category}` },
+          { label: product.category.charAt(0).toUpperCase() + product.category.slice(1), href: ROUTES.category(product.category) },
           { label: product.name },
         ]}
       />
@@ -130,7 +131,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
               Enquire on WhatsApp
             </a>
             <AppLink
-              href={`/enquiry?product=${encodeURIComponent(product.id)}`}
+              href={ROUTES.enquiry(product.id)}
               className={buttonClasses("secondary")}
             >
               Get a Quote

@@ -2,6 +2,7 @@ import { Clock, MapPin, MessageCircle, Phone } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import AppLink from "@/components/ui/AppLink";
 import { shop, whatsappLink } from "@/config/shop";
+import { ROUTES } from "@/lib/routes";
 import { getCategories } from "@/services/catalog-service";
 
 export default async function Footer() {
@@ -23,7 +24,7 @@ export default async function Footer() {
           <ul className="space-y-2 text-sm">
             {categories.map((c) => (
               <li key={c.id}>
-                <AppLink href={`/products?category=${c.id}`} className="transition hover:text-accent-400">
+                <AppLink href={ROUTES.category(c.id)} className="transition hover:text-accent-400">
                   {c.name}
                 </AppLink>
               </li>

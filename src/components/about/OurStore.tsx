@@ -12,7 +12,7 @@ export default function OurStore() {
   const addressLine = `${shop.address.line1}, ${shop.address.city}, ${shop.address.state} ${shop.address.pincode}`;
 
   return (
-    <section id="about" className="scroll-mt-24 border-t border-stone-200 bg-surface py-12 sm:py-16">
+    <section className="bg-surface py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 max-w-2xl">
           <h2 className="text-2xl font-extrabold text-brand-900 sm:text-3xl">Our Store</h2>

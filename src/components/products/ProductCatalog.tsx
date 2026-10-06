@@ -1,39 +1,36 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, PackageSearch, SlidersHorizontal } from "@/components/ui/icons";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSidebar from "@/components/products/ProductSidebar";
 import { fieldClasses } from "@/components/ui/FormField";
 import { getBrandNames } from "@/lib/catalog";
-import type { Category, CategoryFilter, CategoryGroup, CategoryId, Product, SortOption } from "@/types";
+import { ROUTES } from "@/lib/routes";
+import type { CategoryFilter, CategoryGroup, Product, SortOption } from "@/types";
 
 const PAGE_SIZE = 12;
 
-function parseCategory(categories: Category[], value: string | null): CategoryFilter {
-  return categories.some((c) => c.id === value) ? (value as CategoryId) : "all";
-}
-
 interface ProductCatalogProps {
   products: Product[];
-  categories: Category[];
   categoryGroups: CategoryGroup[];
+  category?: CategoryFilter;
+  subtype?: string;
 }
 
-export default function ProductCatalog({ products, categories, categoryGroups }: ProductCatalogProps) {
-  const searchParams = useSearchParams();
+export default function ProductCatalog({
+  products,
+  categoryGroups,
+  category = "all",
+  subtype = "",
+}: ProductCatalogProps) {
   const router = useRouter();
-  const pathname = usePathname();
-
-  const category = parseCategory(categories, searchParams.get("category"));
-  const urlType = searchParams.get("type") ?? "";
 
   const [query, setQuery] = useState("");
   const [brand, setBrand] = useState("");
-  const subtype = urlType;
   const [sort, setSort] = useState<SortOption>("name");
-  const filterKey = `${category}|${urlType}`;
+  const filterKey = `${category}|${subtype}`;
   const [pagination, setPagination] = useState({ key: filterKey, page: 1 });
   const page = pagination.key === filterKey ? pagination.page : 1;
   const setPage = (next: number | ((prev: number) => number)) => {
@@ -72,11 +69,9 @@ export default function ProductCatalog({ products, categories, categoryGroups }:
   const pageItems = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
 
   const pushFilters = (nextCategory: CategoryFilter, nextSubtype: string) => {
-    const params = new URLSearchParams();
-    if (nextCategory !== "all") params.set("category", nextCategory);
-    if (nextSubtype) params.set("type", nextSubtype);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    const href =
+      nextCategory === "all" ? ROUTES.products : ROUTES.category(nextCategory, nextSubtype || undefined);
+    router.push(href, { scroll: false });
     setPage(1);
   };
 

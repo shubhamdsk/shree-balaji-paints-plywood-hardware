@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countProducts, getBrandNames } from "@/lib/catalog";
+import { countByBrand, countProducts, findBrandBySlug, findSubtypeBySlug, getBrandNames } from "@/lib/catalog";
 import type { Product } from "@/types";
 
 function product(overrides: Partial<Product>): Product {
@@ -39,5 +39,26 @@ describe("countProducts", () => {
 describe("getBrandNames", () => {
   it("returns unique brand names in alphabetical order", () => {
     expect(getBrandNames(products)).toEqual(["Asian Paints", "Berger"]);
+  });
+});
+
+describe("countByBrand", () => {
+  it("counts products for each brand across categories", () => {
+    expect(countByBrand(products)).toEqual({ "Asian Paints": 2, Berger: 1 });
+  });
+});
+
+describe("findSubtypeBySlug", () => {
+  it("finds the subtype name for a slug, or undefined", () => {
+    const group = { id: "hardware" as const, name: "Hardware", subtypes: ["Locks", "Hinges & Handles"] };
+    expect(findSubtypeBySlug(group, "hinges-handles")).toBe("Hinges & Handles");
+    expect(findSubtypeBySlug(group, "taps")).toBeUndefined();
+  });
+});
+
+describe("findBrandBySlug", () => {
+  it("finds the brand name for a slug, or undefined", () => {
+    expect(findBrandBySlug(products, "asian-paints")).toBe("Asian Paints");
+    expect(findBrandBySlug(products, "unknown")).toBeUndefined();
   });
 });

@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { ArrowRight } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
+import { ROUTES } from "@/lib/routes";
 import type { Category } from "@/types";
 
 export default function CategoryTile({ category }: { category: Category }) {
   return (
     <AppLink
-      href={`/products?category=${category.id}`}
+      href={ROUTES.category(category.id)}
       className="flex w-[140px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white card-shadow sm:w-[160px]"
     >
       <div className="relative h-28 sm:h-32">

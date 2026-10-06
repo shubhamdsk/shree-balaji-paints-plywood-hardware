@@ -1,38 +1,21 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { useState, type ComponentProps } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { useState } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppLink from "@/components/ui/AppLink";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { linkNavigated } from "@/test/mocks/next-link";
+import { router } from "@/test/mocks/next-navigation";
 import { renderWithProviders } from "@/test/render";
 
-const { push, replace, linkNavigated } = vi.hoisted(() => ({
-  push: vi.fn(),
-  replace: vi.fn(),
-  linkNavigated: vi.fn(),
-}));
+vi.mock("next/link", () => import("@/test/mocks/next-link"));
+vi.mock("next/navigation", () => import("@/test/mocks/next-navigation"));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }) }));
+const { push } = router;
 
-vi.mock("next/link", () => ({
-  default: function MockLink({
-    href,
-    onNavigate,
-    ...props
-  }: ComponentProps<"a"> & { href: string; onNavigate?: (event: { preventDefault: () => void }) => void }) {
-    return (
-      <a
-        href={href}
-        {...props}
-        onClick={(event) => {
-          event.preventDefault();
-          let prevented = false;
-          onNavigate?.({ preventDefault: () => (prevented = true) });
-          if (!prevented) linkNavigated(href);
-        }}
-      />
-    );
-  },
-}));
+beforeEach(() => {
+  linkNavigated.mockClear();
+  router.push.mockClear();
+});
 
 function EditableForm() {
   const [value, setValue] = useState("");

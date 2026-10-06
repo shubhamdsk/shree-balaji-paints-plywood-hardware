@@ -4,6 +4,11 @@ export const shop = {
   name: "Shree Balaji Paints Plywood and Hardware",
   shortName: "Shree Balaji",
   tagline: "Paints, Plywood & Hardware",
+  marathi: {
+    prefix: "श्री",
+    name: "बालाजी",
+    tagline: "पेंट्स् प्लायवुड & हार्डवेअर",
+  },
   phone,
   phoneDisplay: "+91 70384 99108",
   phoneLink: `tel:+91${phone}`,

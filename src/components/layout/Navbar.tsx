@@ -6,21 +6,19 @@ import { ClipboardList, Menu, MessageCircle, Search, X } from "@/components/ui/i
 import Logo from "@/components/brand/Logo";
 import AppLink from "@/components/ui/AppLink";
 import { shop, whatsappLink } from "@/config/shop";
-
 const links = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
-  { href: "/#brands", label: "Brands" },
-  { href: "/#offers", label: "Offers" },
-  { href: "/#about", label: "About" },
+  { href: "/brands", label: "Brands" },
+  { href: "/offers", label: "Offers" },
+  { href: "/about", label: "About" },
   { href: "/enquiry", label: "Enquiry" },
-  { href: "/#contact", label: "Contact" },
+  { href: "/contact", label: "Contact" },
 ];
 
 function isActive(href: string, pathname: string) {
   if (href === "/") return pathname === "/";
-  if (href.includes("#")) return false;
-  return pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export default function Navbar() {
@@ -39,6 +37,7 @@ export default function Navbar() {
               <li key={link.label}>
                 <AppLink
                   href={link.href}
+                  aria-current={active ? "page" : undefined}
                   className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
                     active ? "text-accent-600" : "text-stone-700 hover:text-accent-600"
                   }`}
@@ -88,17 +87,23 @@ export default function Navbar() {
       {open && (
         <div className="border-t border-stone-200 bg-white px-4 pb-4 lg:hidden">
           <ul className="flex flex-col py-2">
-            {links.map((link) => (
-              <li key={link.label}>
-                <AppLink
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="block min-h-11 rounded-lg px-3 py-3 font-semibold text-stone-800 hover:bg-stone-50"
-                >
-                  {link.label}
-                </AppLink>
-              </li>
-            ))}
+            {links.map((link) => {
+              const active = isActive(link.href, pathname);
+              return (
+                <li key={link.label}>
+                  <AppLink
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`block min-h-11 rounded-lg px-3 py-3 font-semibold hover:bg-stone-50 ${
+                      active ? "text-accent-600" : "text-stone-800"
+                    }`}
+                  >
+                    {link.label}
+                  </AppLink>
+                </li>
+              );
+            })}
           </ul>
           <a
             href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}

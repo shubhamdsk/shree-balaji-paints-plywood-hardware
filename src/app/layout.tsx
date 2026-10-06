@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Baloo_2, Poppins } from "next/font/google";
 import "@/app/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -13,6 +13,12 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+const baloo = Baloo_2({
+  variable: "--font-baloo",
+  subsets: ["devanagari", "latin"],
+  weight: ["600", "800"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: `${shop.name} | Asian Paints Dealer in Kotul`,
@@ -24,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${poppins.variable} h-full antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${poppins.variable} ${baloo.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col overflow-x-clip font-sans">
         <AppProviders>
           <Navbar />

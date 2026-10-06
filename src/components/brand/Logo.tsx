@@ -1,8 +1,7 @@
 import { LogoMark } from "@/components/brand/LogoMark";
+import { Namam } from "@/components/brand/Namam";
 import AppLink from "@/components/ui/AppLink";
 import { shop } from "@/config/shop";
-
-const LOGO_TAGLINE = "Paints · Plywood · Hardware";
 
 type LogoProps = {
   /** Light text for dark backgrounds (footer). */
@@ -13,7 +12,9 @@ type LogoProps = {
 
 export default function Logo({ light = false, compact = false }: LogoProps) {
   const mark = (
-    <LogoMark className="h-10 w-10 shrink-0 shadow-sm sm:h-11 sm:w-11" />
+    <LogoMark
+      className={`h-11 w-11 shrink-0 sm:h-13 sm:w-13 ${light ? "rounded-xl bg-white p-1" : ""}`}
+    />
   );
 
   if (compact) {
@@ -27,23 +28,26 @@ export default function Logo({ light = false, compact = false }: LogoProps) {
   return (
     <AppLink
       href="/"
-      className="flex min-w-0 max-w-[calc(100%-7rem)] items-center gap-2.5 sm:max-w-none sm:gap-3"
+      aria-label={shop.name}
+      className="flex min-w-0 max-w-[calc(100%-7rem)] items-center gap-2 sm:max-w-none"
     >
       {mark}
-      <span className="min-w-0 leading-tight">
-        <span
-          className={`block truncate text-base font-bold tracking-tight sm:text-lg ${
-            light ? "text-white" : "text-brand-900"
-          }`}
-        >
-          {shop.shortName}
+      <span className="min-w-0 font-display leading-none">
+        <span className="flex items-end gap-1">
+          <span className={`text-sm font-semibold ${light ? "text-logo-gold" : "text-logo-navy"}`}>
+            {shop.marathi.prefix}
+          </span>
+          <span className={`text-2xl font-extrabold sm:text-[1.7rem] ${light ? "text-white" : "text-logo-red"}`}>
+            {shop.marathi.name}
+          </span>
+          <Namam className="mb-1 h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
         </span>
         <span
-          className={`hidden truncate text-[10px] font-medium tracking-[0.12em] uppercase sm:block ${
-            light ? "text-stone-400" : "text-muted"
+          className={`mt-0.5 block truncate text-[11px] font-semibold sm:text-[13px] ${
+            light ? "text-stone-300" : "text-logo-navy"
           }`}
         >
-          {LOGO_TAGLINE}
+          {shop.marathi.tagline}
         </span>
       </span>
     </AppLink>

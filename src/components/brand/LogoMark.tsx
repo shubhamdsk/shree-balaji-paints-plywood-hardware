@@ -1,47 +1,38 @@
 import type { SVGProps } from "react";
 
-export function LogoMark({ className, ...props }: SVGProps<SVGSVGElement>) {
+const NAVY = "#1e2a5a";
+const GOLD = "#e09a1a";
+const SWIRL = ["#e11d2e", "#f97316", "#facc15", "#2563eb", "#7c3aed"];
+
+export function LogoMark(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      viewBox="0 0 48 48"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden
-      {...props}
-    >
-      <rect x="1" y="1" width="46" height="46" rx="12" fill="#1c1917" />
-      <rect x="10" y="31" width="28" height="9" rx="2" fill="#292524" />
-      <path d="M12 33.5H36" stroke="#78716c" strokeWidth="0.8" strokeLinecap="round" opacity="0.55" />
-      <path d="M12 35.8H36" stroke="#a8a29e" strokeWidth="0.8" strokeLinecap="round" opacity="0.45" />
-      <path d="M12 38.1H36" stroke="#78716c" strokeWidth="0.8" strokeLinecap="round" opacity="0.55" />
-      <path d="M11 30.5V22.5H37V30.5H11Z" fill="#faf8f5" />
-      <path d="M9 22.5L24 10.5L39 22.5H9Z" fill="#f97316" />
-      <path
-        d="M13.5 21.2C18 19.6 22.5 19.2 24 19.2C25.5 19.2 30 19.6 34.5 21.2"
-        stroke="#0d9488"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-      <path
-        d="M24 12.2C24 12.2 22.1 16.4 22.1 18.1C22.1 19.55 22.95 20.65 24 20.65C25.05 20.65 25.9 19.55 25.9 18.1C25.9 16.4 24 12.2 24 12.2Z"
-        fill="#dc2626"
-      />
-      <path
-        d="M19.2 24.2C19.2 24.2 18.4 26.8 18.4 28.2C18.4 29.85 19.65 31.2 21.1 31.2C22.55 31.2 23.8 29.85 23.8 28.2C23.8 26.8 23 24.2 23 24.2"
-        stroke="#ea580c"
-        strokeWidth="1.65"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M26.5 23.8H29.8C31.65 23.8 33 25.05 33 26.65C33 27.85 32.25 28.85 31.15 29.25C32.55 29.55 33.55 30.75 33.55 32.15C33.55 34.05 31.85 35.35 29.75 35.35H26.5V23.8ZM28.5 25.6V28.4H29.6C30.55 28.4 31.15 27.85 31.15 27C31.15 26.15 30.55 25.6 29.6 25.6H28.5ZM28.5 30.2V33.55H29.85C30.95 33.55 31.65 32.85 31.65 31.85C31.65 30.85 30.95 30.2 29.85 30.2H28.5Z"
-        fill="#1c1917"
-      />
-      <path
-        d="M17.35 23.8C19.55 23.8 20.85 25.05 20.85 26.65C20.85 27.75 20.25 28.55 19.25 28.95C20.45 29.25 21.25 30.25 21.25 31.55C21.25 33.45 19.65 35.35 17.15 35.35H14.15V23.8H17.35ZM16.15 25.6V28.15H17.15C18.05 28.15 18.65 27.55 18.65 26.85C18.65 26.15 18.05 25.6 17.15 25.6H16.15ZM16.15 29.95V33.55H17.35C18.45 33.55 19.15 32.85 19.15 31.75C19.15 30.65 18.45 29.95 17.35 29.95H16.15Z"
-        fill="#1c1917"
-      />
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <rect x="13" y="9" width="6" height="12" rx="1" fill={NAVY} />
+      <path d="M3 30L32 5L61 30H54.5L32 11.5L9.5 30Z" fill={NAVY} />
+      <path d="M10.5 32L32 13.5L53.5 32" stroke={GOLD} strokeWidth="2.2" strokeLinejoin="round" />
+      <g fill={NAVY}>
+        <rect x="37.5" y="23" width="4" height="4" rx="0.6" />
+        <rect x="42.5" y="23" width="4" height="4" rx="0.6" />
+        <rect x="37.5" y="28" width="4" height="4" rx="0.6" />
+        <rect x="42.5" y="28" width="4" height="4" rx="0.6" />
+      </g>
+
+      <g strokeWidth="4.2" strokeLinecap="round">
+        <path d="M5 50Q13 35 31 37" stroke={SWIRL[0]} />
+        <path d="M7 54.5Q16 40 31.5 41" stroke={SWIRL[1]} />
+        <path d="M10 58.5Q19 45 32.5 45" stroke={SWIRL[2]} />
+        <path d="M14.5 61Q22.5 50 33.5 49" stroke={SWIRL[3]} />
+        <path d="M20 62.5Q27 55 34.5 53" stroke={SWIRL[4]} />
+      </g>
+      <circle cx="4" cy="42" r="1.6" fill={SWIRL[0]} />
+      <circle cx="3.5" cy="60" r="1.4" fill={SWIRL[1]} />
+      <circle cx="27" cy="31.5" r="1.2" fill={SWIRL[4]} />
+
+      <g transform="translate(32 45) rotate(-37)">
+        <path d="M0 -4.5Q-3.5 0 0 4.5L7.5 4.5V-4.5Z" fill={SWIRL[1]} />
+        <rect x="7.5" y="-5" width="6.5" height="10" rx="1.2" fill="#cbd5e1" stroke="#64748b" strokeWidth="0.7" />
+        <path d="M14 -3.2L27 -2.2Q29.5 0 27 2.2L14 3.2Z" fill={NAVY} />
+      </g>
     </svg>
   );
 }

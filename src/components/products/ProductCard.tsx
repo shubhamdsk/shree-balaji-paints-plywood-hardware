@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, MessageCircle } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
+import { ROUTES } from "@/lib/routes";
 import type { Product } from "@/types";
 import { whatsappLink } from "@/config/shop";
 
@@ -13,7 +14,7 @@ export default function ProductCard({ product, compact = false }: { product: Pro
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white card-shadow transition hover:border-orange-200">
-      <AppLink href={`/products/${product.id}`} className="relative block h-44 bg-stone-50 sm:h-48">
+      <AppLink href={ROUTES.product(product.id)} className="relative block h-44 bg-stone-50 sm:h-48">
         <Image
           src={src}
           alt={`${product.name} — ${product.type}`}
@@ -30,7 +31,7 @@ export default function ProductCard({ product, compact = false }: { product: Pro
 
       <div className={`flex flex-1 flex-col ${compact ? "p-3" : "p-4 sm:p-5"}`}>
         <p className="text-[11px] font-bold tracking-wide text-muted uppercase">{product.brand}</p>
-        <AppLink href={`/products/${product.id}`}>
+        <AppLink href={ROUTES.product(product.id)}>
           <h3 className="mt-0.5 text-base leading-snug font-bold text-brand-900 hover:text-accent-600 sm:text-lg">
             {product.name}
           </h3>
@@ -50,7 +51,7 @@ export default function ProductCard({ product, compact = false }: { product: Pro
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-4">
           <AppLink
-            href={`/products/${product.id}`}
+            href={ROUTES.product(product.id)}
             className="inline-flex items-center gap-1 text-sm font-bold text-accent-600 hover:text-accent-700"
           >
             View Details <ArrowRight className="h-3.5 w-3.5" />

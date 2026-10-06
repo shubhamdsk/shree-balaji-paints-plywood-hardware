@@ -10,22 +10,31 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 |------|------|
 | Home | [/](https://shree-balaji-paints-plywood-hardwar.vercel.app/) |
 | Products catalogue | [/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/products) |
-| Paints | [/products?category=paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=paints) |
-| Plywood | [/products?category=plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=plywood) |
-| Hardware | [/products?category=hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products?category=hardware) |
+| Paints | [/products/paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints) |
+| Interior paints | [/products/paints/interior](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints/interior) |
+| Plywood | [/products/plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/plywood) |
+| Hardware | [/products/hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/hardware) |
 | Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/ap-royale-luxury) |
+| Brands | [/brands](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands) |
+| Sample brand | [Asian Paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands/asian-paints) |
+| Offers | [/offers](https://shree-balaji-paints-plywood-hardwar.vercel.app/offers) |
+| About | [/about](https://shree-balaji-paints-plywood-hardwar.vercel.app/about) |
+| Contact | [/contact](https://shree-balaji-paints-plywood-hardwar.vercel.app/contact) |
 | Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry) |
+| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry/ap-royale-luxury) |
 | Products API | [/api/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/api/products) |
 
 ## Features
 
-- **Home** — Hero, category tiles, promo banners, “Our Store” section, and footer with contact details
+- **Home** — Hero, category tiles, popular brands, featured products, offers, and a visit-us banner
 - **Products catalogue** — Browse by category with filters, sort, and pagination
 - **Product detail pages** — Specs, indicative pricing, and related items
+- **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
+- **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
-- **Google Maps** — Embedded map on the home page plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
+- **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
-- **Custom logo** — SVG wordmark and mark in the header, footer, and social preview
+- **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
 
 ## Tech stack
 

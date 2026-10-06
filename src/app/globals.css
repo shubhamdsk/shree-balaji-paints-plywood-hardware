@@ -2,6 +2,11 @@
 
 @theme inline {
   --font-sans: var(--font-poppins);
+  --font-display: var(--font-baloo);
+
+  --color-logo-red: #a3121b;
+  --color-logo-navy: #1e2a5a;
+  --color-logo-gold: #e09a1a;
 
   --color-surface: #faf8f5;
   --color-ink: #1c1917;
