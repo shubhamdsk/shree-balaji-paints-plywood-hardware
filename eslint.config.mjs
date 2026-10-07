@@ -15,7 +15,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   { files: ["src/**/*.{ts,tsx}"], rules: restrictImports() },
-  { files: ["src/services/**/*.ts"], rules: restrictImports({ patterns: [relativeImports] }) },
+  { files: ["src/services/**/*.ts", "src/server/db/seed.ts"], rules: restrictImports({ patterns: [relativeImports] }) },
   { files: ["src/components/ui/AppLink.tsx"], rules: restrictImports({ paths: [iconImport] }) },
   { files: ["src/components/ui/icons.ts"], rules: restrictImports({ paths: [linkImport] }) },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),

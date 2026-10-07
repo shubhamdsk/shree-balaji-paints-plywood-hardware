@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { sitemapPaths } from "@/lib/sitemap";
 import { getCategoryGroups, getProducts } from "@/services/catalog-service";
+import { setupTestDatabase } from "@/test/db";
+
+setupTestDatabase();
 
 describe("sitemapPaths", () => {
   it("lists the main pages, categories, stocked types, brands and every product once", async () => {

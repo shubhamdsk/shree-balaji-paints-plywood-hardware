@@ -1,4 +1,9 @@
+import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
+import { products } from "@/server/db/schema";
+import { setupTestDatabase } from "@/test/db";
+
+const db = setupTestDatabase();
 
 async function loadService(catalogApiUrl?: string) {
   vi.resetModules();
@@ -6,7 +11,23 @@ async function loadService(catalogApiUrl?: string) {
   return import("@/services/catalog-service");
 }
 
-describe("catalog-service with local data", () => {
+describe("catalog-service with the database", () => {
+  it("leaves hidden products out of every read", async () => {
+    await db().update(products).set({ isVisible: false }).where(eq(products.id, "ap-royale-luxury"));
+    const { getProducts, getProductById, getCalculablePaints } = await loadService();
+    expect((await getProducts()).map((p) => p.id)).not.toContain("ap-royale-luxury");
+    expect(await getProductById("ap-royale-luxury")).toBeUndefined();
+    expect((await getCalculablePaints()).map((p) => p.id)).not.toContain("ap-royale-luxury");
+  });
+
+  it("returns products in the catalogue order with their details", async () => {
+    const { getProducts, getProductById } = await loadService();
+    expect((await getProducts())[0].id).toBe("ap-royale-luxury");
+    const product = await getProductById("ap-royale-luxury");
+    expect(product?.colors.length).toBeGreaterThan(0);
+    expect(product?.features?.length).toBeGreaterThan(0);
+  });
+
   it("returns products with unique IDs", async () => {
     const { getProducts } = await loadService();
     const products = await getProducts();

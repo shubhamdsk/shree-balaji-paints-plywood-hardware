@@ -95,13 +95,14 @@ Billing software is **not** part of this plan.
   - JPEG, PNG or WebP up to 8 MB. Anything else is rejected with a clear message.
   - The photo is resized and served in modern formats through the image CDN.
 - **US-1.6:** the website shows only "In stock" or "Out of stock", never a quantity.
+- **US-1.7:** the home page shows the 8 products most recently put on it, so ticking "Show on the home page" always has a visible effect.
 - **US-1.8:** saving refreshes the affected pages (home, products, the category, the brand and the product) without a redeploy.
 
 ### Day-by-day plan
 
 | Day | Work |
 |-----|------|
-| 1 | Set up the Netlify Database and Blobs stores (the Netlify site itself is already live). Agree the product fields with the owner |
+| 1 | Create the Neon project (one branch for production, one for deploy previews) and set the Netlify environment variables; Blobs needs no setup (the Netlify site itself is already live). Agree the product fields with the owner |
 | 2 | Database schema and migrations (admin users, sessions, products, audit log). Move the services from `src/data` to the database, with a seed from the current data |
 | 3 | Owner login, sessions, lockout, the `/admin` layout and guard |
 | 4 | Product list, create, edit and hide screens. Photo upload. Cache tags and refresh on save |
@@ -110,7 +111,7 @@ Billing software is **not** part of this plan.
 
 ### Technical and security tasks
 
-- Read the Next.js 16 guides on caching (`use cache`, `cacheTag`), revalidation (`updateTag`) and Server Actions in `node_modules/next/dist/docs/` before building.
+- Read the Next.js 16 guides on caching (`unstable_cache` with tags), revalidation (`updateTag`) and Server Actions in `node_modules/next/dist/docs/` before building.
 - Catalogue reads stay in `src/services/catalog-service.ts`. Pages don't change, only the service's data source.
 - Passwords hashed with `crypto.scrypt`. Only a hash of the session token is stored. The cookie is `HttpOnly`, `Secure` and `SameSite=Lax`.
 - Zod validation on every admin action. Every change is written to the audit log.
@@ -124,7 +125,7 @@ Billing software is **not** part of this plan.
 
 ### Demo script
 
-1. Open the new address and an old shared link, and see both work.
+1. Open the Netlify address on the owner's phone and check the main pages.
 2. Log in on the owner's phone, then try a wrong password 5 times on a test account to see the lock.
 3. Add a product with a photo taken on the phone. Open the website and find it.
 4. Change a price and mark another product "Out of stock". Refresh the website after a minute.
@@ -136,7 +137,7 @@ Billing software is **not** part of this plan.
 
 ### Done when
 
-- [ ] The website runs on Netlify, and the old link redirects.
+- [x] The website runs on Netlify, and only the Netlify address is shared.
 - [ ] The owner can log in on his phone, and the lockout works.
 - [ ] Products can be added, edited, hidden and given photos.
 - [ ] Changes appear on the website within about a minute.

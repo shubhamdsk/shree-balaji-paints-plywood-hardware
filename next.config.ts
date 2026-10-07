@@ -27,6 +27,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  serverExternalPackages: ["@electric-sql/pglite"],
+  experimental: {
+    // Netlify functions reject requests over 6 MB; photos are shrunk in the browser to stay under 3 MB.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

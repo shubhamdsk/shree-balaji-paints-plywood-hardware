@@ -39,10 +39,12 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 - **Passwords:** hashed with Node's `crypto.scrypt` (16-byte random salt, 64-byte key), compared with `crypto.timingSafeEqual`. At least 10 characters. The owner sets his own at handover.
 - **Lockout:** after 5 failed attempts the account locks for 15 minutes. Every attempt is written to the audit log.
 - **Sessions:**
-  - The token is 32 random bytes, and only its SHA-256 hash is stored.
+  - The token is 32 random bytes. Only an HMAC-SHA256 of it, keyed with `SESSION_SECRET`, is stored, so a leaked database copy can't be turned into a working cookie.
+  - An unknown username takes as long to reject as a wrong password, and both get the same message.
+  - The owner account is created from `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD` on the first login, and only while no account exists.
   - The cookie is `HttpOnly`, `Secure`, `SameSite=Lax` and `Path=/admin`.
   - Lifetime is 30 days, so the owner stays logged in on his own phone. Logout deletes the session.
-  - Changing the password ends every session.
+  - Changing the password ends every session (with the change-password page, before handover).
 
 ### 3.2 Authorisation
 
@@ -52,7 +54,8 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 ### 3.3 Input and output safety
 
 - Every action input is parsed with a Zod schema, and unknown fields are rejected. Typed constraints include phone (10-digit Indian mobile), dates, prices (positive, at most 2 decimals) and text lengths.
-- Uploads: JPEG, PNG or WebP only, checked by file content, at most 8 MB, stored under random keys.
+- Uploads: JPEG, PNG or WebP only, checked by file content. The browser accepts photos up to 8 MB and shrinks them before upload; the server rejects anything over 3 MB. Photos are stored under random keys and served from `/api/photos/[key]` with `nosniff`, and only keys matching the random-key pattern are read.
+- The owner panel sends `noindex`, and `robots.txt` disallows `/admin` and `/api/` (uploaded photos stay allowed).
 - Server Actions use Next.js's built-in Origin check against CSRF. Admin Route Handlers that change data check the `Origin` header.
 - Deleting an offer, a gallery photo or hiding a product asks for confirmation through the shared `ConfirmDialog`.
 

@@ -7,7 +7,7 @@ import ProductCard from "@/components/products/ProductCard";
 import ProductSidebar from "@/components/products/ProductSidebar";
 import { fieldClasses } from "@/components/ui/FormField";
 import SelectMenu from "@/components/ui/SelectMenu";
-import { getBrandNames } from "@/lib/catalog";
+import { compareByPrice, getBrandNames } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
 import type { CategoryFilter, CategoryGroup, Product, SortOption } from "@/types";
 
@@ -67,8 +67,8 @@ export default function ProductCatalog({
         (!q || `${p.name} ${p.brand} ${p.type} ${p.description}`.toLowerCase().includes(q)),
     );
     list = [...list].sort((a, b) => {
-      if (sort === "price-asc") return a.priceFrom - b.priceFrom;
-      if (sort === "price-desc") return b.priceFrom - a.priceFrom;
+      if (sort === "price-asc") return compareByPrice(a, b, "asc");
+      if (sort === "price-desc") return compareByPrice(a, b, "desc");
       return a.name.localeCompare(b.name);
     });
     return list;
