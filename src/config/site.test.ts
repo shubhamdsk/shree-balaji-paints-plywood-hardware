@@ -13,7 +13,7 @@ afterEach(() => {
 describe("site config", () => {
   it("falls back to the current live address", async () => {
     const { siteUrl } = await loadSite();
-    expect(siteUrl).toBe("https://shree-balaji-paints-plywood-hardwar.vercel.app");
+    expect(siteUrl).toBe("https://shree-balaji-paints-plywood-hardware.netlify.app");
   });
 
   it("uses SITE_URL without a trailing slash", async () => {

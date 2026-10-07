@@ -3,7 +3,7 @@
 **Customer:** Shree Balaji Paints Plywood and Hardware, Kotul
 **Prepared by:** Shubham Deshmukh · Phone / WhatsApp: +91 72184 38401
 **Duration:** 3 sprints of 1 week each, plus 1 month of free support after handover
-**Live website:** [shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)
+**Live website:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)
 
 Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) · [Scalability](SCALABILITY.md) · [Coding standards](CODING-STANDARDS.md)
 
@@ -18,7 +18,7 @@ Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) 
 | **Enquiry inbox** | Every website enquiry is saved and listed in the owner panel, and still opens in WhatsApp | Sprint 2 |
 | **Smart features** | Paint calculator, our work gallery, dated offer banners | Sprint 2-3 |
 | **Google presence** | Google Business Profile, Search Console, sitemap | Sprint 3 |
-| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan (commercial use allowed) | Sprint 1 |
+| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan (commercial use allowed). Vercel is retired | Done |
 
 Billing software is **not** part of this plan.
 
@@ -68,8 +68,8 @@ Billing software is **not** part of this plan.
 
 | ID | As a... | I want to... | So that... |
 |----|---------|--------------|------------|
-| US-1.1 | Owner | Keep the same website on a hosting plan that allows business use | The shop website follows the hosting terms and stays free |
-| US-1.2 | Customer | Open the old link and land on the new address | Links already shared on WhatsApp keep working |
+| US-1.1 | Owner | Keep the same website on a hosting plan that allows business use | The shop website follows the hosting terms and stays free (**done**: live on Netlify) |
+| US-1.2 | Customer | Find the shop at one address | Only the Netlify address is shared (**done**: Vercel is retired, with no redirect) |
 | US-1.3 | Owner | Log in to `/admin` with my password on my phone | Only I can change the website |
 | US-1.4 | Owner | Add, edit and hide products: name, brand, category, type, sizes, price, unit, description | The website shows what I actually sell |
 | US-1.5 | Owner | Take a photo with my phone and attach it to a product | Products show real photos |
@@ -80,8 +80,8 @@ Billing software is **not** part of this plan.
 ### Acceptance criteria (highlights)
 
 - **US-1.1 and US-1.2:**
-  - Every page, the enquiry flow and the API respond the same on Netlify as on Vercel (regression pass).
-  - The old Vercel address permanently redirects (308) every path to the same path on the new address.
+  - Every page, the enquiry flow and the API respond on the Netlify address (regression pass, done).
+  - The sitemap, `robots.txt` and share previews use the Netlify address (`SITE_URL` in `netlify.toml`).
 - **US-1.3:**
   - A wrong password shows "Incorrect username or password".
   - After 5 wrong tries the login locks for 15 minutes.
@@ -101,11 +101,11 @@ Billing software is **not** part of this plan.
 
 | Day | Work |
 |-----|------|
-| 1 | Create the Netlify site from the repo, check the build and every main route. Set up the Netlify Database and Blobs stores. Agree the product fields with the owner |
+| 1 | Set up the Netlify Database and Blobs stores (the Netlify site itself is already live). Agree the product fields with the owner |
 | 2 | Database schema and migrations (admin users, sessions, products, audit log). Move the services from `src/data` to the database, with a seed from the current data |
 | 3 | Owner login, sessions, lockout, the `/admin` layout and guard |
 | 4 | Product list, create, edit and hide screens. Photo upload. Cache tags and refresh on save |
-| 5 | Switch the live address and add the Vercel redirect. Tests, regression pass, fixes |
+| 5 | Tests, regression pass, fixes |
 | 6 | **Demo** on the owner's phone and approval |
 
 ### Technical and security tasks
@@ -288,7 +288,7 @@ Nothing. The free `.netlify.app` address is used, and the owner manages the webs
 | Risk | Impact | How we handle it |
 |------|--------|------------------|
 | Netlify free credits run out | The site pauses until next month | Content edits don't redeploy, images go through the image CDN, production deploys are batched, and usage is checked monthly during support. The next plan is about Rs 800 per month if ever needed |
-| Address change confuses customers | Old links break | The old Vercel address redirects every path for at least 3 months. The new address goes on Google Business Profile |
+| Address change confuses customers | Old Vercel links stop working once Vercel is removed | Share the Netlify address on WhatsApp and put it on Google Business Profile, the shop board and visiting cards |
 | Google Business verification is slow | Shop not on Maps at handover | Started on day 1 of Sprint 3. Finished during free support if needed |
 | Owner forgets the password | Can't update the site | Reset through the developer during support, with a new password set by the owner |
 | Product list arrives late | Demo products still live at handover | Owner adds the rest himself after training. Demo products are hidden, not left live |

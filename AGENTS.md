@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Project rules
 
-Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Netlify (`netlify.toml`), with the old Vercel address kept until the move is finished. Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
+Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Netlify (`netlify.toml`). Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
 
 ## Commands
 
@@ -136,7 +136,7 @@ scripts/                developer helper scripts
 
 ## Git
 
-- Work on `develop` or a `feature/*` branch. `main` is production: Netlify and Vercel deploy every push to it.
+- Work on `develop` or a `feature/*` branch. `main` is production: Netlify deploys every push to it. Merge through a pull request so its Netlify Deploy Preview can be checked first.
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`.
 - Never commit `.env*` (except `.env.example`), secrets, customer data or build output.
 - Update `docs/` and `README.md` in the same commit when structure or behaviour changes.
