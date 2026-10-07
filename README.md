@@ -153,7 +153,7 @@ The site is hosted on **[Netlify](https://www.netlify.com)**'s free plan, which 
   - `DATABASE_URL`: Neon's pooled connection string. Give deploy previews a separate Neon branch so they never touch production data. The build fails without it.
   - `SESSION_SECRET`: at least 32 random characters.
   - `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD`: used once, on the first owner login.
-  - Netlify's secret scanning fails the build if a secret value appears in the repo or the build output. `ADMIN_USERNAME` is left out of the scan because the login name is usually a shop word; the other values must be random, not words from the site.
+  - Netlify's secret scanning fails the build if a secret value appears in the repo or the build output. `ADMIN_USERNAME` is left out of the scan because the login name is usually a shop word, and so is the build cache (`.next/cache`), where Turbopack records the env values a build reads. The other values must be random, not words from the site.
 - **Settings:** [`netlify.toml`](netlify.toml) sets the build command (`npm run db:migrate && npm run build`), the publish directory (`.next`), Node 22, `SITE_URL`, the secret-scan exception and the Next.js runtime (`@netlify/plugin-nextjs`). Leave the dashboard build settings empty and the base directory at the project root. Keep the plugin entry: without it Netlify publishes the raw `.next` folder and every page returns 404.
 - **Credits:** the free plan has 300 credits a month. A production deploy uses about 15, so batch changes before merging into `main`.
 

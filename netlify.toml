@@ -7,6 +7,8 @@
   SITE_URL = "https://shree-balaji-paints-plywood-hardware.netlify.app"
   # The owner's login name is a shop word that appears in the site and docs; secret scanning would fail every build.
   SECRETS_SCAN_OMIT_KEYS = "ADMIN_USERNAME"
+  # Turbopack's build cache records the env values a build reads; it is kept between builds, never published.
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache,.next/cache"
 
 # Without this the raw .next folder is published as static files and every page returns 404.
 [[plugins]]
