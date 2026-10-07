@@ -1,7 +1,15 @@
 import { asc } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { auditLog } from "@/server/db/schema";
-import { findSessionUser, LOCKOUT_MS, logIn, logOut, MAX_FAILED_ATTEMPTS, SESSION_TTL_MS } from "@/services/auth-service";
+import {
+  changePassword,
+  findSessionUser,
+  LOCKOUT_MS,
+  logIn,
+  logOut,
+  MAX_FAILED_ATTEMPTS,
+  SESSION_TTL_MS,
+} from "@/services/auth-service";
 import { setupTestDatabase } from "@/test/db";
 
 const db = setupTestDatabase();
@@ -88,5 +96,55 @@ describe("sessions", () => {
 
   it("ignore unknown tokens", async () => {
     expect(await findSessionUser("made-up-token", start)).toBeNull();
+  });
+});
+
+describe("changePassword", () => {
+  const NEW_PASSWORD = "green door 42 lamp";
+
+  async function openSession() {
+    const result = await logIn("owner", PASSWORD, start);
+    if (!result.ok) throw new Error("login failed");
+    return result.token;
+  }
+
+  it("replaces the password, keeps this session and ends the others", async () => {
+    const thisDevice = await openSession();
+    const otherDevice = await openSession();
+
+    expect(await changePassword(thisDevice, PASSWORD, NEW_PASSWORD, start)).toEqual({ ok: true });
+    expect(await findSessionUser(thisDevice, start)).not.toBeNull();
+    expect(await findSessionUser(otherDevice, start)).toBeNull();
+    expect(await logIn("owner", PASSWORD, start)).toEqual({ ok: false, reason: "invalid" });
+    expect((await logIn("owner", NEW_PASSWORD, start)).ok).toBe(true);
+    expect(await auditActions()).toContain("password_changed");
+  });
+
+  it("refuses a wrong current password and counts it towards the lockout", async () => {
+    const token = await openSession();
+    for (let attempt = 1; attempt < MAX_FAILED_ATTEMPTS; attempt++) {
+      expect(await changePassword(token, "wrong-password", NEW_PASSWORD, start)).toEqual({
+        ok: false,
+        reason: "wrong_password",
+      });
+    }
+    expect(await changePassword(token, "wrong-password", NEW_PASSWORD, start)).toEqual({
+      ok: false,
+      reason: "signed_out",
+    });
+    expect(await findSessionUser(token, start)).toBeNull();
+    expect(await logIn("owner", PASSWORD, minutesLater(1))).toEqual({ ok: false, reason: "locked" });
+  });
+
+  it("waits out a lockout started from the login page", async () => {
+    const token = await openSession();
+    for (let attempt = 0; attempt < MAX_FAILED_ATTEMPTS; attempt++) await logIn("owner", "wrong-password", start);
+
+    expect(await changePassword(token, PASSWORD, NEW_PASSWORD, minutesLater(1))).toEqual({ ok: false, reason: "locked" });
+    expect(await findSessionUser(token, minutesLater(1))).not.toBeNull();
+  });
+
+  it("needs a live session", async () => {
+    await expect(changePassword("made-up-token", PASSWORD, NEW_PASSWORD, start)).rejects.toThrow("No active owner session");
   });
 });

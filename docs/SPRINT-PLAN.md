@@ -76,6 +76,7 @@ Billing software is **not** part of this plan.
 | US-1.6 | Owner | Mark a product "In stock" or "Out of stock" with one tap | Customers know before they visit |
 | US-1.7 | Owner | Choose the featured products for the home page | The best items are seen first |
 | US-1.8 | Customer | See the owner's changes within about a minute | The website is always current |
+| US-1.9 | Owner | Change my password from the owner panel | Only I know it, even though the developer set up the first one |
 
 ### Acceptance criteria (highlights)
 
@@ -97,6 +98,10 @@ Billing software is **not** part of this plan.
 - **US-1.6:** the website shows only "In stock" or "Out of stock", never a quantity.
 - **US-1.7:** the home page shows the 8 products most recently put on it, so ticking "Show on the home page" always has a visible effect.
 - **US-1.8:** saving refreshes the affected pages (home, products, the category, the brand and the product) without a redeploy.
+- **US-1.9:**
+  - `/admin/password` asks for the current password, then the new one twice (at least 10 characters, different from the current one).
+  - The phone in use stays logged in. Every other phone or computer is logged out.
+  - Wrong current passwords count towards the same 15-minute lockout as the login.
 
 ### Day-by-day plan
 
@@ -122,6 +127,8 @@ Billing software is **not** part of this plan.
 - Unit: slug creation and the category-id clash rule, product validation, password hashing and checking, lockout timing.
 - Route and action: creating, editing and hiding a product updates the service output; admin actions without a session are rejected.
 - Components: product form labels, errors linked to inputs, unsaved-changes guard, confirm before hiding.
+- Browser (Playwright, `npm run test:e2e`): every main public page with its navbar highlight, the enquiry and calculator popups, and the whole owner flow from login to password change and logout.
+- CI also runs the build-time migration script twice against a real PostgreSQL, so a broken migration fails the pull request instead of the Netlify deploy.
 
 ### Demo script
 
@@ -141,6 +148,7 @@ Billing software is **not** part of this plan.
 - [ ] The owner can log in on his phone, and the lockout works.
 - [ ] Products can be added, edited, hidden and given photos.
 - [ ] Changes appear on the website within about a minute.
+- [ ] The owner can change his password from the owner panel.
 
 ---
 

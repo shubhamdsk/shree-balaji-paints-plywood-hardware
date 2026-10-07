@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ROUTES } from "@/lib/routes";
-import { logInAction, logOutAction } from "@/server/actions/auth";
+import { changePasswordAction, logInAction, logOutAction } from "@/server/actions/auth";
 import { SESSION_COOKIE } from "@/server/auth/session";
 import { findSessionUser } from "@/services/auth-service";
 import { setupTestDatabase } from "@/test/db";
@@ -56,6 +56,59 @@ describe("logInAction", () => {
     const cookie = cookieJar.get(SESSION_COOKIE);
     expect(cookie?.options).toMatchObject({ httpOnly: true, sameSite: "lax", path: ROUTES.admin });
     expect(await findSessionUser(cookie!.value)).toMatchObject({ username: "owner" });
+  });
+});
+
+describe("changePasswordAction", () => {
+  const NEW_PASSWORD = "green door 42 lamp";
+
+  function passwordForm(currentPassword: string, newPassword: string, confirmPassword = newPassword) {
+    const formData = new FormData();
+    formData.set("currentPassword", currentPassword);
+    formData.set("newPassword", newPassword);
+    formData.set("confirmPassword", confirmPassword);
+    return formData;
+  }
+
+  async function logInOwner() {
+    await logInAction({}, loginForm("owner", PASSWORD)).catch(() => undefined);
+    return cookieJar.get(SESSION_COOKIE)!.value;
+  }
+
+  it("sends a visitor without a session to the login page", async () => {
+    await expect(changePasswordAction({}, passwordForm(PASSWORD, NEW_PASSWORD))).rejects.toEqual(
+      new RedirectSignal(ROUTES.adminLogin),
+    );
+  });
+
+  it("returns the field errors before checking the password", async () => {
+    await logInOwner();
+    expect(await changePasswordAction({}, passwordForm(PASSWORD, NEW_PASSWORD, "something else"))).toEqual({
+      errors: { confirmPassword: "The two new passwords don't match" },
+    });
+  });
+
+  it("explains a wrong current password", async () => {
+    await logInOwner();
+    expect(await changePasswordAction({}, passwordForm("wrong-password", NEW_PASSWORD))).toEqual({
+      errors: { currentPassword: "Your current password is not correct" },
+    });
+  });
+
+  it("changes the password and keeps the owner logged in", async () => {
+    const token = await logInOwner();
+    expect(await changePasswordAction({}, passwordForm(PASSWORD, NEW_PASSWORD))).toEqual({ changed: true });
+    expect(await findSessionUser(token)).toMatchObject({ username: "owner" });
+  });
+
+  it("logs the owner out after too many wrong current passwords", async () => {
+    await logInOwner();
+    for (let attempt = 0; attempt < 4; attempt++) await changePasswordAction({}, passwordForm("wrong-password", NEW_PASSWORD));
+
+    await expect(changePasswordAction({}, passwordForm("wrong-password", NEW_PASSWORD))).rejects.toEqual(
+      new RedirectSignal(ROUTES.adminLogin),
+    );
+    expect(cookieJar.has(SESSION_COOKIE)).toBe(false);
   });
 });
 
