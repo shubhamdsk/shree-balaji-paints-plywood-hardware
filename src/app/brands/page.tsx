@@ -19,7 +19,7 @@ export default async function BrandsPage() {
         title="Brands"
         description="Authorized and genuine products from names you trust. Pick a brand to see what we stock."
       />
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <section className="container-page py-8 sm:py-12">
         <BrandGrid brands={getBrandNames(products)} counts={countByBrand(products)} />
       </section>
     </div>

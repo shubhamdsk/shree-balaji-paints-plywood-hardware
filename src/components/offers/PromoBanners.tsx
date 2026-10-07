@@ -3,52 +3,46 @@ import { ArrowRight } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { ROUTES } from "@/lib/routes";
 
+const banners = [
+  {
+    href: ROUTES.category("paints", "Interior"),
+    image: "/images/banners/interior-living.jpg",
+    alt: "Cosy interior living room",
+    eyebrow: "Collection",
+    title: "Interior Paints",
+    body: "Washable emulsions and shade matching in store.",
+  },
+  {
+    href: ROUTES.category("paints", "Exterior"),
+    image: "/images/banners/exterior-house.jpg",
+    alt: "Modern house exterior",
+    eyebrow: "Weather shield",
+    title: "Exterior Paints",
+    body: "Long-lasting colours for Indian sun and rain.",
+  },
+];
+
 export default function PromoBanners() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-      <AppLink
-        href={ROUTES.category("paints", "Interior")}
-        className="relative flex min-h-[200px] overflow-hidden rounded-3xl bg-indigo-950 card-shadow-lg sm:min-h-[240px]"
-      >
-        <Image
-          src="/images/banners/interior-living.jpg"
-          alt="Cosy interior living room"
-          fill
-          sizes="(max-width: 640px) 100vw, 50vw"
-          className="object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/95 via-indigo-900/75 to-indigo-900/20" />
-        <div className="relative flex flex-col justify-center p-6 sm:p-8">
-          <p className="text-xs font-bold tracking-wider text-indigo-200 uppercase">Collection</p>
-          <h3 className="mt-1 text-2xl font-extrabold text-white sm:text-3xl">Interior Paints</h3>
-          <p className="mt-2 max-w-xs text-sm text-indigo-100">Washable emulsions & shade matching in store.</p>
-          <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-indigo-900">
-            Shop Now <ArrowRight className="h-4 w-4" />
+      {banners.map((b) => (
+        <AppLink
+          key={b.href}
+          href={b.href}
+          className="group relative flex min-h-[13rem] overflow-hidden rounded-card bg-brand-950 shadow-card sm:min-h-[15rem]"
+        >
+          <Image src={b.image} alt={b.alt} fill sizes="(max-width: 640px) 100vw, 50vw" className="img-zoom object-cover" />
+          <span aria-hidden className="absolute inset-0 bg-linear-to-r from-brand-950/95 via-brand-900/70 to-brand-900/10" />
+          <span className="relative flex flex-col justify-center p-6 sm:p-8">
+            <span className="text-xs font-bold tracking-wider text-gold-300 uppercase">{b.eyebrow}</span>
+            <span className="mt-1 text-2xl font-bold text-white sm:text-3xl">{b.title}</span>
+            <span className="mt-2 max-w-xs text-sm text-brand-100">{b.body}</span>
+            <span className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-brand-900 transition group-hover:bg-paint-50">
+              Shop Now <ArrowRight className="h-4 w-4" />
+            </span>
           </span>
-        </div>
-      </AppLink>
-
-      <AppLink
-        href={ROUTES.category("paints", "Exterior")}
-        className="relative flex min-h-[200px] overflow-hidden rounded-3xl bg-orange-950 card-shadow-lg sm:min-h-[240px]"
-      >
-        <Image
-          src="/images/banners/exterior-house.jpg"
-          alt="Modern house exterior"
-          fill
-          sizes="(max-width: 640px) 100vw, 50vw"
-          className="object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-950/95 via-orange-900/70 to-orange-900/15" />
-        <div className="relative flex flex-col justify-center p-6 sm:p-8">
-          <p className="text-xs font-bold tracking-wider text-orange-200 uppercase">Weather shield</p>
-          <h3 className="mt-1 text-2xl font-extrabold text-white sm:text-3xl">Exterior Paints</h3>
-          <p className="mt-2 max-w-xs text-sm text-orange-100">Long-lasting colours for Indian sun and rain.</p>
-          <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-orange-900">
-            Shop Now <ArrowRight className="h-4 w-4" />
-          </span>
-        </div>
-      </AppLink>
+        </AppLink>
+      ))}
     </div>
   );
 }

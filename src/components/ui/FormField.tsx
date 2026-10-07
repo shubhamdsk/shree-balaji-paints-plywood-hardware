@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const fieldClasses =
-  "min-h-11 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-800 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-orange-100";
+  "min-h-11 w-full rounded-xl border border-line bg-white px-3 py-2 text-[15px] font-medium text-ink placeholder:text-subtle focus:border-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-100";
 
 interface FormFieldProps {
   label: string;
@@ -21,11 +21,11 @@ export default function FormField({ label, htmlFor, error, hint, required, child
       </label>
       {children}
       {error ? (
-        <p id={`${htmlFor}-error`} className="text-xs font-semibold text-red-600">
+        <p id={`${htmlFor}-error`} className="text-[13px] font-semibold text-accent-600">
           {error}
         </p>
       ) : (
-        hint && <p className="text-xs text-stone-500">{hint}</p>
+        hint && <p className="text-[13px] text-muted">{hint}</p>
       )}
     </div>
   );

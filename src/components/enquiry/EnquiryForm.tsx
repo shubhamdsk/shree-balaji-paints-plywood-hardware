@@ -75,7 +75,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const describedBy = (key: keyof EnquiryInput) => (errors[key] ? `${key}-error` : undefined);
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-3xl border border-stone-200 bg-white p-5 card-shadow sm:p-8">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-white p-5 card-shadow sm:p-8">
       {sent && (
         <p role="status" className="flex items-center gap-2 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
           <CheckCircle2 className="h-5 w-5 shrink-0" />
@@ -149,7 +149,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
         />
       </FormField>
 
-      <div className="flex flex-col-reverse gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:justify-end">
+      <div className="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
         <Button variant="secondary" onClick={handleClear} disabled={!isDirty}>
           Clear
         </Button>

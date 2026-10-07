@@ -35,7 +35,7 @@ export default async function BrandPage({ params }: PageProps<"/brands/[slug]">)
         parents={[{ label: "Brands", href: ROUTES.brands }]}
         description={`${brandProducts.length} genuine ${brand} ${brandProducts.length === 1 ? "product" : "products"} available at ${shop.shortName}. Ask on WhatsApp for rates.`}
       />
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <section className="container-page py-8 sm:py-12">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {brandProducts.map((p) => (
             <ProductCard key={p.id} product={p} />

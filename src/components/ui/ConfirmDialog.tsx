@@ -51,13 +51,13 @@ export default function ConfirmDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-3xl bg-white p-0 text-ink shadow-2xl backdrop:bg-stone-900/60 backdrop:backdrop-blur-sm"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-card bg-white p-0 text-ink shadow-2xl backdrop:bg-brand-950/60 backdrop:backdrop-blur-sm"
     >
       <div className="p-6 sm:p-7">
         <div className="flex items-start gap-4">
           <span
             className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${
-              tone === "danger" ? "bg-red-50 text-red-600" : "bg-orange-50 text-accent-600"
+              tone === "danger" ? "bg-accent-50 text-accent-600" : "bg-accent-50 text-accent-600"
             }`}
           >
             <Icon className="h-5 w-5" />
@@ -67,7 +67,7 @@ export default function ConfirmDialog({
               {title}
             </h2>
             {message && (
-              <p id="confirm-dialog-message" className="mt-1.5 text-sm leading-relaxed text-stone-600">
+              <p id="confirm-dialog-message" className="mt-1.5 text-sm leading-relaxed text-muted">
                 {message}
               </p>
             )}

@@ -7,6 +7,7 @@ export const ROUTES = {
   category: (category: CategoryId, type?: string) =>
     type ? `/products/${category}/${slugify(type)}` : `/products/${category}`,
   product: (id: string) => `/products/${id}`,
+  categories: "/categories",
   brands: "/brands",
   brand: (name: string) => `/brands/${slugify(name)}`,
   offers: "/offers",

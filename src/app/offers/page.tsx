@@ -16,7 +16,7 @@ export default function OffersPage() {
         title="Offers"
         description="Bulk rates for painters and builders, free colour help, and seasonal paint deals."
       />
-      <section className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-10">
+      <section className="container-page space-y-10 py-8 sm:py-12">
         <OfferCards />
         <PromoBanners />
       </section>

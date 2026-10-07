@@ -27,15 +27,18 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ## Features
 
-- **Home** — Hero, category tiles, popular brands, featured products, offers, and a visit-us banner
+- **Home** — Marathi hero, trust bar, category showcase (Paints first), shop-by-project cards, featured products, trusted brands, paint and plywood/hardware sections, offers, why choose us, about and a visit-our-store panel with map
+- **Categories** — `/categories` lists every category with its stocked types
 - **Products catalogue** — Browse by category with filters, sort, and pagination
-- **Product detail pages** — Specs, indicative pricing, and related items
+- **Product cards** — Brand, category, type and sizes, with a WhatsApp "Enquire" button that names the product (no prices shown)
+- **Product detail pages** — Specs, size picker, "Enquire for Price on WhatsApp" (includes the chosen size) and Call Us
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
 - **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
-- **Responsive layout** — Mobile-first navigation and catalogue
+- **Responsive layout** — Sticky header that shrinks on scroll, a bottom bar (Home, Products, Categories, Contact) on phones and tablets, and 44 px tap targets; checked from 360 px to 1920 px
+- **Design system** — Navy, red, paint-orange and gold theme tokens with warm neutrals, Noto Sans Devanagari for text and Baloo 2 for the wordmark (`src/app/globals.css`)
 - **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
 - **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
@@ -83,9 +86,9 @@ src/
     api/             # REST endpoints: products, categories, brands
   components/
     brand/           # Logo and brand wordmarks
-    layout/          # Navbar, footer, WhatsApp button
+    layout/          # Navbar, mobile bottom bar, footer, WhatsApp button, shared nav links
     home/            # Home page sections
-    products/        # Catalogue, product cards, product detail
+    products/        # Catalogue, product cards, product detail, category directory
     enquiry/         # Enquiry form
     ui/              # Shared: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, Reveal
   config/            # Shop name, phone, address, hours

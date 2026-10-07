@@ -12,7 +12,7 @@ export default function ContactPage() {
   return (
     <div className="bg-white">
       <PageHeader title="Contact" description="Address, phone, WhatsApp, shop hours and directions." />
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+      <section className="container-page py-8 sm:py-12">
         <ContactDetails />
       </section>
     </div>

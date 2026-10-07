@@ -1,73 +1,148 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-poppins);
-  --font-display: var(--font-baloo);
+  --font-sans: var(--font-noto-devanagari), "Noto Sans", system-ui, sans-serif;
+  --font-display: var(--font-baloo), var(--font-noto-devanagari), system-ui, sans-serif;
 
-  --color-logo-red: #a3121b;
-  --color-logo-navy: #1e2a5a;
-  --color-logo-gold: #e09a1a;
+  --color-brand-50: #eef2f8;
+  --color-brand-100: #d9e2ee;
+  --color-brand-200: #b4c4da;
+  --color-brand-300: #8aa1c0;
+  --color-brand-600: #24456f;
+  --color-brand-700: #1a3860;
+  --color-brand-800: #122e52;
+  --color-brand-900: #0b2545;
+  --color-brand-950: #071a33;
 
-  --color-surface: #faf8f5;
-  --color-ink: #1c1917;
-  --color-muted: #57534e;
+  --color-accent-50: #fdeeee;
+  --color-accent-100: #f9d6d6;
+  --color-accent-300: #f5a3a0;
+  --color-accent-400: #ef7b76;
+  --color-accent-500: #d93a32;
+  --color-accent-600: #c62828;
+  --color-accent-700: #a51f1f;
 
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c;
-  --color-brand-700: #c2410c;
-  --color-brand-800: #292524;
-  --color-brand-900: #1c1917;
+  --color-paint-50: #fef3e9;
+  --color-paint-100: #fde2cb;
+  --color-paint-500: #f47b20;
+  --color-paint-600: #d9650f;
 
-  --color-accent-400: #fb923c;
-  --color-accent-500: #f97316;
-  --color-accent-600: #ea580c;
+  --color-gold-100: #faefd8;
+  --color-gold-300: #ecc06b;
+  --color-gold-500: #d99a22;
+  --color-gold-600: #b57d12;
 
-  --color-panel: #1c1917;
+  --color-canvas: #faf9f6;
+  --color-surface: #faf9f6;
+  --color-surface-muted: #f4f1eb;
+  --color-ink: #17202a;
+  --color-muted: #5f6872;
+  --color-subtle: #8a929a;
+  --color-line: #e6e1d8;
+  --color-success: #16845b;
+
+  --color-logo-red: #c62828;
+  --color-logo-navy: #0b2545;
+  --color-logo-gold: #d99a22;
+
+  --color-panel: #0b2545;
   --color-whatsapp: #25d366;
+  --color-whatsapp-strong: #0f7f43;
+
+  --shadow-card: 0 1px 2px rgba(11, 37, 69, 0.04), 0 8px 24px -12px rgba(11, 37, 69, 0.14);
+  --shadow-card-hover: 0 2px 4px rgba(11, 37, 69, 0.05), 0 18px 36px -16px rgba(11, 37, 69, 0.24);
+  --shadow-header: 0 1px 0 rgba(11, 37, 69, 0.06), 0 6px 18px -12px rgba(11, 37, 69, 0.18);
+
+  --radius-card: 1.125rem;
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   overflow-x: clip;
 }
 
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
-}
-
 body {
-  background: var(--color-surface);
+  background: var(--color-canvas);
   color: var(--color-ink);
 }
 
-.text-gradient-warm {
-  background-image: linear-gradient(90deg, #ea580c 0%, #dc2626 45%, #c2410c 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+:focus-visible {
+  outline: 2px solid var(--color-accent-600);
+  outline-offset: 2px;
+}
+
+.container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-inline: 2rem;
+  }
 }
 
 .card-shadow {
-  box-shadow: 0 4px 24px -8px rgba(28, 25, 23, 0.12);
+  box-shadow: var(--shadow-card);
 }
 
 .card-shadow-lg {
-  box-shadow: 0 16px 40px -12px rgba(28, 25, 23, 0.18);
+  box-shadow: var(--shadow-card-hover);
 }
 
-.no-scrollbar,
-.scrollbar-none {
+.card-lift {
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow 250ms var(--ease-premium),
+    transform 250ms var(--ease-premium),
+    border-color 250ms var(--ease-premium);
+}
+
+.card-lift:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.img-zoom {
+  transition: transform 350ms var(--ease-premium);
+}
+
+.group:hover .img-zoom {
+  transform: scale(1.04);
+}
+
+.no-scrollbar {
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
-.no-scrollbar::-webkit-scrollbar,
-.scrollbar-none::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .card-lift:hover,
+  .group:hover .img-zoom {
+    transform: none;
+  }
 }
