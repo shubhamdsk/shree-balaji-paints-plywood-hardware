@@ -22,6 +22,12 @@ async function logIn(page: Page, password: string) {
   await page.getByRole("button", { name: "Log in" }).click();
 }
 
+async function clickAndSave(page: Page, click: () => Promise<void>) {
+  const saved = page.waitForResponse((response) => response.request().method() === "POST" && response.ok());
+  await click();
+  await saved;
+}
+
 function productRow(page: Page, name: string) {
   return page.getByRole("listitem").filter({ has: page.getByRole("heading", { name, exact: true }) });
 }
@@ -81,14 +87,14 @@ test("the owner manages a product from login to logout", async ({ page }) => {
       await expect(publicPage.getByText("Available in store")).toBeVisible();
       const photo = publicPage.getByRole("img", { name }).first();
       await expect(photo).toBeVisible();
-      expect(await photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     });
   });
 
   await test.step("marks it out of stock with one tap", async () => {
     await page.goto("/admin/products");
     const inStock = page.getByRole("switch", { name: `${name} in stock` });
-    await inStock.click();
+    await clickAndSave(page, () => inStock.click());
     await expect(inStock).toHaveAttribute("aria-checked", "false");
     await expectPublicPage(page, productPath, async (publicPage) => {
       await expect(publicPage.getByText("Out of stock — ask for availability")).toBeVisible();
@@ -102,7 +108,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
   await test.step("puts it on the home page", async () => {
     await page.goto("/admin/products");
     const featured = page.getByRole("switch", { name: `${name} on the home page` });
-    await featured.click();
+    await clickAndSave(page, () => featured.click());
     await expect(featured).toHaveAttribute("aria-checked", "true");
     await expectPublicPage(page, "/", async (publicPage) => {
       await expect(publicPage.getByText(name).first()).toBeVisible();
@@ -113,13 +119,13 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.goto("/admin/products");
     await page.getByRole("button", { name: `Hide ${name}` }).click();
     const dialog = page.getByRole("dialog", { name: `Hide ${name}?` });
-    await dialog.getByRole("button", { name: "Hide product" }).click();
+    await clickAndSave(page, () => dialog.getByRole("button", { name: "Hide product" }).click());
     await expect(page.getByRole("button", { name: `Show ${name}` })).toBeVisible();
     await expect(async () => {
       expect((await page.request.get(productPath)).status()).toBe(404);
     }).toPass({ timeout: 15_000 });
 
-    await page.getByRole("button", { name: `Show ${name}` }).click();
+    await clickAndSave(page, () => page.getByRole("button", { name: `Show ${name}` }).click());
     await expect(page.getByRole("button", { name: `Hide ${name}` })).toBeVisible();
     await expect(async () => {
       expect((await page.request.get(productPath)).status()).toBe(200);
