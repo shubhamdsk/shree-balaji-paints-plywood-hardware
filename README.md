@@ -73,6 +73,15 @@ Open [http://localhost:3000](http://localhost:3000). The owner panel is at [/adm
 
 Without `DATABASE_URL`, the app runs an in-process Postgres (PGlite) saved in `.data/pglite` and fills it with the demo catalogue. Delete the `.data` folder (with the dev server stopped) to start again from the demo data.
 
+To develop against Neon instead, check out a Neon branch of your own. Never use `production` for this, because every save in the local owner panel would change the live site:
+
+```bash
+neon checkout dev --create   # writes the branch's DATABASE_URL into .env.local
+npm run db:migrate           # run again after every new migration
+```
+
+The project is linked in the git-ignored `.neon` file, and [`neon.ts`](neon.ts) holds the Neon branch policy (`neon deploy` applies it).
+
 ## Scripts
 
 | Command | Description |
@@ -86,7 +95,7 @@ Without `DATABASE_URL`, the app runs an in-process Postgres (PGlite) saved in `.
 | `npm run test:watch` | Unit tests in watch mode |
 | `npm run check` | Lint, typecheck, tests and build: run before every commit |
 | `npm run db:generate -- --name <change>` | Create a migration after editing `src/server/db/schema.ts` |
-| `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL` (Netlify runs it before every build) |
+| `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL`, read from `.env.local` when present (Netlify runs it before every build) |
 
 Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
 

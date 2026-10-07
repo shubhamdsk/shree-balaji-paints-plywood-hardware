@@ -21,7 +21,7 @@ Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), 
 - `npm run build`: production build
 - `npm run check`: all four above in order. It must pass before every commit and push.
 - `npm run db:generate -- --name <change>`: create a migration after editing `src/server/db/schema.ts`
-- `npm run db:migrate`: apply migrations to `DATABASE_URL` (Netlify runs it before each build). Without `DATABASE_URL` the app uses PGlite and migrates itself, including while `npm run dev` is running.
+- `npm run db:migrate`: apply migrations to `DATABASE_URL`, read from `.env.local` when present (Netlify runs it before each build). Without `DATABASE_URL` the app uses PGlite and migrates itself, including while `npm run dev` is running. With a Neon branch in `.env.local` (`neon checkout dev --create`), run it after every new migration. Never point `.env.local` at the `production` branch.
 
 ## Workflow for every change (required)
 
