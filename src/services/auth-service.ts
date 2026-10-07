@@ -1,6 +1,7 @@
-import { and, count, eq, gt, sql } from "drizzle-orm";
+import { and, count, eq, gt, ne, sql } from "drizzle-orm";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-rules";
 import { writeAudit } from "@/server/audit";
-import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "@/server/auth/password";
+import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { createSessionToken, hashSessionToken } from "@/server/auth/session-token";
 import { getDb, type Database } from "@/server/db/client";
 import { adminUsers, sessions } from "@/server/db/schema";
@@ -14,7 +15,25 @@ export type LoginResult =
   | { ok: true; user: AdminUser; token: string; expiresAt: Date }
   | { ok: false; reason: "invalid" | "locked" };
 
+export type PasswordChangeResult = { ok: true } | { ok: false; reason: "wrong_password" | "locked" | "signed_out" };
+
 let dummyHash: Promise<string> | undefined;
+
+async function recordFailedAttempt(db: Database, userId: number, now: Date) {
+  const [{ failedAttempts }] = await db
+    .update(adminUsers)
+    .set({ failedAttempts: sql`${adminUsers.failedAttempts} + 1` })
+    .where(eq(adminUsers.id, userId))
+    .returning({ failedAttempts: adminUsers.failedAttempts });
+  const locked = failedAttempts >= MAX_FAILED_ATTEMPTS;
+  if (locked) {
+    await db
+      .update(adminUsers)
+      .set({ failedAttempts: 0, lockedUntil: new Date(now.getTime() + LOCKOUT_MS) })
+      .where(eq(adminUsers.id, userId));
+  }
+  return locked;
+}
 
 async function ensureOwnerAccount(db: Database) {
   const [{ total }] = await db.select({ total: count() }).from(adminUsers);
@@ -46,18 +65,7 @@ export async function logIn(username: string, password: string, now = new Date()
   }
 
   if (!(await verifyPassword(password, user.passwordHash))) {
-    const [{ failedAttempts }] = await db
-      .update(adminUsers)
-      .set({ failedAttempts: sql`${adminUsers.failedAttempts} + 1` })
-      .where(eq(adminUsers.id, user.id))
-      .returning({ failedAttempts: adminUsers.failedAttempts });
-    const locked = failedAttempts >= MAX_FAILED_ATTEMPTS;
-    if (locked) {
-      await db
-        .update(adminUsers)
-        .set({ failedAttempts: 0, lockedUntil: new Date(now.getTime() + LOCKOUT_MS) })
-        .where(eq(adminUsers.id, user.id));
-    }
+    const locked = await recordFailedAttempt(db, user.id, now);
     await writeAudit(db, {
       userId: user.id,
       action: locked ? "login_locked" : "login_failed",
@@ -83,6 +91,40 @@ export async function findSessionUser(token: string, now = new Date()): Promise<
     .innerJoin(adminUsers, eq(sessions.userId, adminUsers.id))
     .where(and(eq(sessions.tokenHash, hashSessionToken(token)), gt(sessions.expiresAt, now)));
   return row ?? null;
+}
+
+export async function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+  now = new Date(),
+): Promise<PasswordChangeResult> {
+  const db = await getDb();
+  const tokenHash = hashSessionToken(token);
+  const [user] = await db
+    .select({ id: adminUsers.id, passwordHash: adminUsers.passwordHash, lockedUntil: adminUsers.lockedUntil })
+    .from(sessions)
+    .innerJoin(adminUsers, eq(sessions.userId, adminUsers.id))
+    .where(and(eq(sessions.tokenHash, tokenHash), gt(sessions.expiresAt, now)));
+  if (!user) throw new Error("No active owner session");
+
+  const audit = { userId: user.id, entity: "admin_user" as const, entityId: String(user.id) };
+  if (user.lockedUntil && user.lockedUntil > now) return { ok: false, reason: "locked" };
+
+  if (!(await verifyPassword(currentPassword, user.passwordHash))) {
+    const locked = await recordFailedAttempt(db, user.id, now);
+    if (locked) await db.delete(sessions).where(eq(sessions.userId, user.id));
+    await writeAudit(db, { ...audit, action: locked ? "login_locked" : "password_change_failed" });
+    return { ok: false, reason: locked ? "signed_out" : "wrong_password" };
+  }
+
+  await db
+    .update(adminUsers)
+    .set({ passwordHash: await hashPassword(newPassword), failedAttempts: 0, lockedUntil: null })
+    .where(eq(adminUsers.id, user.id));
+  await db.delete(sessions).where(and(eq(sessions.userId, user.id), ne(sessions.tokenHash, tokenHash)));
+  await writeAudit(db, { ...audit, action: "password_changed" });
+  return { ok: true };
 }
 
 export async function logOut(token: string) {

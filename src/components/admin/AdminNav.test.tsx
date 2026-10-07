@@ -28,4 +28,10 @@ describe("AdminNav", () => {
     expect(screen.getByRole("link", { name: "Products" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("aria-current")).toBeNull();
   });
+
+  it("links to the password page", () => {
+    pathname.mockReturnValue(ROUTES.adminPassword);
+    renderWithProviders(<AdminNav />);
+    expect(screen.getByRole("link", { name: "Password" }).getAttribute("aria-current")).toBe("page");
+  });
 });

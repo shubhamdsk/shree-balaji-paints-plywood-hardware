@@ -6,6 +6,8 @@ export type AuditAction =
   | "login_failed"
   | "login_locked"
   | "logout"
+  | "password_changed"
+  | "password_change_failed"
   | "product_create"
   | "product_update"
   | "product_stock"

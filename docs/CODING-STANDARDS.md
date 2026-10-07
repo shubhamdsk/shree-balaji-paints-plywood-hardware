@@ -107,6 +107,7 @@ Vitest with React Testing Library (`npm run test`), with tests next to the code 
 | Unit | Pure logic: routes, slugs, catalogue helpers, paint calculator, offer date window, validation schemas | Every function |
 | Service and action | Services and Server Actions against a test database: save product, hide product, save enquiry, status change, auth guard | Every action |
 | Component | Forms, filters, dialogs, calculator, with `renderWithProviders` | Every interactive component |
+| Browser | Playwright in `e2e/` (`npm run test:e2e`) against a production build with a fresh in-memory database: the main public pages and the whole owner flow | Every change to a page or flow they cover |
 | Manual | Regression pass in AGENTS.md, plus the owner panel on a real phone | Every release |
 
 - Tests run in CI and must pass before merge. Bugs get a test that fails before the fix.
@@ -125,13 +126,16 @@ Vitest with React Testing Library (`npm run test`), with tests next to the code 
 
 ## 11. Continuous integration (GitHub Actions, free)
 
-On every push and pull request to `develop` and `main`:
+On every push and pull request to `develop` and `main`, three jobs run in parallel:
 
-1. `npm ci`
-2. `npm run lint`
-3. `npm run typecheck` (`next typegen && tsc --noEmit`)
-4. `npm test`
-5. `npm run build`
-6. `npm audit --omit=dev --audit-level=high`
+- **check:**
+  1. `npm ci`
+  2. `npm run lint`
+  3. `npm run typecheck` (`next typegen && tsc --noEmit`)
+  4. `npm test`
+  5. `npm run build`
+  6. `npm audit --omit=dev --audit-level=high`
+- **migrate:** starts a PostgreSQL service container and runs `npm run db:migrate` twice, on an empty database and then on the migrated one. This is the script Netlify runs before each build, so a broken migration fails here first.
+- **e2e:** installs Chromium and runs `npm run test:e2e`. On failure the Playwright report is uploaded as an artifact.
 
-From Part 2, the test step also starts a PostgreSQL service container for service and action tests.
+Unit, service and action tests run against PGlite, which is real Postgres, so they don't need the service container.

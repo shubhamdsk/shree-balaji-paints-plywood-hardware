@@ -6,8 +6,6 @@ import { findSubtypeBySlug, listStockedSubtypes } from "@/lib/catalog";
 import { slugify } from "@/lib/slug";
 import { getCategoryGroups, getProducts } from "@/services/catalog-service";
 
-export const dynamicParams = false;
-
 export async function generateStaticParams() {
   const [products, groups] = await Promise.all([getProducts(), getCategoryGroups()]);
   return listStockedSubtypes(products, groups).map(({ group, subtype }) => ({ slug: group.id, type: slugify(subtype) }));

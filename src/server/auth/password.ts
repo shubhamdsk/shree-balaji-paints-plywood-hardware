@@ -1,7 +1,6 @@
 import { randomBytes, scrypt, timingSafeEqual, type BinaryLike } from "node:crypto";
 
 const KEY_LENGTH = 64;
-export const MIN_PASSWORD_LENGTH = 10;
 
 function deriveKey(password: string, salt: BinaryLike): Promise<Buffer> {
   return new Promise((resolve, reject) => {

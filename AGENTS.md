@@ -18,6 +18,7 @@ Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), 
 - `npm run lint`: ESLint, zero errors (it also enforces the import rules below)
 - `npm run typecheck`: generates Next.js route types, then runs `tsc --noEmit`
 - `npm run test`: Vitest unit tests (`npm run test:watch` while developing)
+- `npm run test:e2e`: Playwright browser tests in `e2e/`. They build and start the app on port 3200 with an empty `DATABASE_URL`, so they never touch Neon. Run `npx playwright install chromium` once first.
 - `npm run build`: production build
 - `npm run check`: all four above in order. It must pass before every commit and push.
 - `npm run db:generate -- --name <change>`: create a migration after editing `src/server/db/schema.ts`
@@ -38,7 +39,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - `/enquiry`, including the confirm and unsaved-changes popups.
    - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
    - The WhatsApp and phone links.
-   - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, and log out.
+   - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, change the password, and log out. `npm run test:e2e` covers this flow; still check it by hand on a phone-sized screen.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
    - Duplicated UI or logic.
    - Data imported directly instead of through a service.
@@ -48,7 +49,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
 6. **Docs.** Update `README.md`, this file and `docs/` in the same commit when structure or behaviour changes.
 7. **Report.** Say what changed, what was tested and anything not verified.
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, build and a dependency audit on every push and pull request to `develop` and `main`. Don't merge into `main` while CI is red.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build and a dependency audit, the migration script twice against a PostgreSQL container, and the browser tests, on every push and pull request to `develop` and `main`. Don't merge into `main` while CI is red. When you change a page or flow the browser tests cover, run `npm run test:e2e` locally too, and update the specs in `e2e/` when labels or flows change.
 
 ## Structure
 
@@ -59,7 +60,7 @@ src/
     admin/              owner panel: login/, and (panel)/ pages that require a session
     api/                REST Route Handlers, one route.ts per resource
   components/
-    admin/              owner panel header, nav, product list, product form, login form, ToggleSwitch
+    admin/              owner panel header, nav, product list, product form, login and change-password forms, ToggleSwitch
     brand/              logo and brand wordmarks
     layout/             navbar, mobile bottom bar, footer, floating buttons (WhatsApp, call, back to top), theme button, nav-links.ts (shared links and active-path check)
     home/               home page sections
@@ -81,6 +82,7 @@ src/
     sitemap.ts          every public page path for sitemap.xml
     theme.ts            light / dark / system preference, storage and the pre-paint script
     product-input.ts    product form rules, shared by the browser and the server
+    password-rules.ts   password length limits and change-password checks
     photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
     price.ts            "From ₹520 per litre" / "Ask for price"
     cache-tags.ts       cache tag names for unstable_cache and updateTag
@@ -97,6 +99,7 @@ src/
 .github/                CI workflow and pull request review checklist
 public/                 static files (images under public/images)
 docs/                   architecture, security, sprint plan
+e2e/                    Playwright browser tests (public pages, owner flow); playwright.config.ts is at the root
 scripts/                db-migrate.ts (build-time migrations) and developer helper scripts
 ```
 

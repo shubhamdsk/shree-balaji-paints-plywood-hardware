@@ -93,11 +93,12 @@ The project is linked in the git-ignored `.neon` file, and [`neon.ts`](neon.ts) 
 | `npm run typecheck` | Generate route types and run the TypeScript check |
 | `npm run test` | Unit tests (Vitest + React Testing Library) |
 | `npm run test:watch` | Unit tests in watch mode |
+| `npm run test:e2e` | Browser tests (Playwright) against a fresh production build; run `npx playwright install chromium` once first |
 | `npm run check` | Lint, typecheck, tests and build: run before every commit |
 | `npm run db:generate -- --name <change>` | Create a migration after editing `src/server/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL`, read from `.env.local` when present (Netlify runs it before every build) |
 
-Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
+Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)), plus the browser tests and the migration script against a real PostgreSQL. The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
 
 ## Project structure
 
@@ -105,10 +106,10 @@ Every push and pull request to `develop` or `main` runs the same checks in GitHu
 src/
   app/
     (site)/          # Public pages (home, products, brands, enquiry, calculator…) with the navbar and footer
-    admin/           # Owner panel: login, dashboard, products
+    admin/           # Owner panel: login, dashboard, products, password
     api/             # REST endpoints: products, categories, brands, uploaded photos
   components/
-    admin/           # Owner panel header, product list, product form, login form
+    admin/           # Owner panel header, product list, product form, login and password forms
     brand/           # Logo and brand wordmarks
     layout/          # Navbar, mobile bottom bar, footer, floating WhatsApp and back-to-top buttons, theme button, shared nav links
     home/            # Home page sections
@@ -126,6 +127,7 @@ src/
   types/             # Shared TypeScript types
 public/images/       # Photos (see CREDITS.md); shop/ placeholders for real photos
 docs/                # Part 2 sprint plan, architecture, security, scalability, coding standards
+e2e/                 # Playwright browser tests
 scripts/             # Database migration script, optional Pexels image download helper
 ```
 
