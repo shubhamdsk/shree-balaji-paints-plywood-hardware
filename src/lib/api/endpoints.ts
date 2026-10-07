@@ -1,4 +1,5 @@
 export const API_ENDPOINTS = {
+  health: "/api/health",
   products: "/api/products",
   product: (id: string) => `/api/products/${encodeURIComponent(id)}`,
   categories: "/api/categories",
