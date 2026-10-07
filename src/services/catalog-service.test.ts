@@ -34,6 +34,13 @@ describe("catalog-service with local data", () => {
     expect(featured.every((p) => p.featured)).toBe(true);
   });
 
+  it("returns only wall paints the calculator supports", async () => {
+    const { getCalculablePaints } = await loadService();
+    const paints = await getCalculablePaints();
+    expect(paints.map((p) => p.id)).toContain("ap-royale-luxury");
+    expect(paints.every((p) => p.category === "paints" && !["Enamel", "Putty"].includes(p.type))).toBe(true);
+  });
+
   it("returns the popular brands", async () => {
     const { getPopularBrands } = await loadService();
     expect(await getPopularBrands()).toContain("Asian Paints");

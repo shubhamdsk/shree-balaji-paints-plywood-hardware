@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Check, MessageCircle } from "@/components/ui/icons";
+import { Calculator, Check, MessageCircle } from "@/components/ui/icons";
 import type { Product } from "@/types";
 import { shop, whatsappLink } from "@/config/shop";
 import BrandWordmark from "@/components/brand/BrandWordmark";
 import AppLink from "@/components/ui/AppLink";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buttonClasses } from "@/components/ui/Button";
+import { isCalculablePaint } from "@/lib/paint-calculator";
 import { ROUTES } from "@/lib/routes";
 
 const tabs = ["Description", "Technical Details", "Application", "Downloads"] as const;
@@ -136,6 +137,12 @@ export default function ProductDetailView({ product }: { product: Product }) {
             >
               Get a Quote
             </AppLink>
+            {isCalculablePaint(product) && (
+              <AppLink href={ROUTES.paintCalculator(product.id)} className={buttonClasses("secondary")}>
+                <Calculator className="h-4 w-4" />
+                How much do I need?
+              </AppLink>
+            )}
           </div>
         </div>
       </div>

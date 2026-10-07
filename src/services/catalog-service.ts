@@ -3,6 +3,7 @@ import { categoryGroups } from "@/data/category-tree";
 import { categories, products } from "@/data/products";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { ApiError, httpClient } from "@/lib/api/http-client";
+import { isCalculablePaint } from "@/lib/paint-calculator";
 import type { Category, CategoryGroup, Product } from "@/types";
 
 // Must point to an external backend, never to this site's own /api, or the routes call themselves.
@@ -29,6 +30,10 @@ export async function getProductById(id: string): Promise<Product | undefined> {
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   return (await getProducts()).filter((p) => p.featured);
+}
+
+export async function getCalculablePaints(): Promise<Product[]> {
+  return (await getProducts()).filter(isCalculablePaint);
 }
 
 export function getCategories(): Promise<Category[]> {

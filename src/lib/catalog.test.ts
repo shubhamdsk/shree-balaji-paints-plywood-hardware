@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { countByBrand, countProducts, findBrandBySlug, findSubtypeBySlug, getBrandNames } from "@/lib/catalog";
+import {
+  countByBrand,
+  countProducts,
+  findBrandBySlug,
+  findSubtypeBySlug,
+  getBrandNames,
+  listStockedSubtypes,
+} from "@/lib/catalog";
 import type { Product } from "@/types";
 
 function product(overrides: Partial<Product>): Product {
@@ -53,6 +60,19 @@ describe("findSubtypeBySlug", () => {
     const group = { id: "hardware" as const, name: "Hardware", subtypes: ["Locks", "Hinges & Handles"] };
     expect(findSubtypeBySlug(group, "hinges-handles")).toBe("Hinges & Handles");
     expect(findSubtypeBySlug(group, "taps")).toBeUndefined();
+  });
+});
+
+describe("listStockedSubtypes", () => {
+  it("lists only the subtypes that have products, keeping their group", () => {
+    const groups = [
+      { id: "paints" as const, name: "Paints", subtypes: ["Interior", "Exterior", "Enamel"] },
+      { id: "hardware" as const, name: "Hardware", subtypes: ["Locks"] },
+    ];
+    expect(listStockedSubtypes(products, groups).map(({ group, subtype }) => `${group.id}/${subtype}`)).toEqual([
+      "paints/Interior",
+      "paints/Exterior",
+    ]);
   });
 });
 

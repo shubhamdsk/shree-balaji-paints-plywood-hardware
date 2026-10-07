@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { shop } from "@/config/shop";
+import { siteUrl } from "@/config/site";
 import AppProviders from "@/providers/AppProviders";
 
 const poppins = Poppins({
@@ -20,6 +21,7 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: `${shop.name} | Asian Paints Dealer in Kotul`,
     template: `%s | ${shop.shortName}`,

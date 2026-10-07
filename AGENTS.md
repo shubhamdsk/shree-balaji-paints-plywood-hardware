@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Project rules
 
-Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Vercel. Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
+Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Netlify (`netlify.toml`), with the old Vercel address kept until the move is finished. Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
 
 ## Commands
 
@@ -34,6 +34,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - A product detail page.
    - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
+   - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
    - The WhatsApp and phone links.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
    - Duplicated UI or logic.
@@ -62,13 +63,16 @@ src/
     about/              store photos and details
     contact/            contact details and map
     enquiry/            enquiry form
+    calculator/         paint calculator
     ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
-  config/               site constants (shop.ts: name, phone, address, hours)
+  config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
   data/                 local catalogue source, read only by src/services
   hooks/                shared React hooks (use-confirm, use-unsaved-changes)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
+    paint-calculator.ts paint area, litres and pack-size logic
+    sitemap.ts          every public page path for sitemap.xml
   providers/            app-wide React context providers, composed in AppProviders
   services/             data access used by pages and API routes
   test/                 test setup and render helpers
@@ -132,7 +136,7 @@ scripts/                developer helper scripts
 
 ## Git
 
-- Work on `develop` or a `feature/*` branch. `main` is production: Vercel deploys every push to it.
+- Work on `develop` or a `feature/*` branch. `main` is production: Netlify and Vercel deploy every push to it.
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`.
 - Never commit `.env*` (except `.env.example`), secrets, customer data or build output.
 - Update `docs/` and `README.md` in the same commit when structure or behaviour changes.

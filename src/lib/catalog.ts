@@ -19,6 +19,14 @@ export function findBrandBySlug(products: Product[], slug: string) {
   return getBrandNames(products).find((name) => slugify(name) === slug);
 }
 
+export function listStockedSubtypes(products: Product[], groups: CategoryGroup[]) {
+  return groups.flatMap((group) =>
+    group.subtypes
+      .filter((subtype) => countProducts(products, group.id, subtype) > 0)
+      .map((subtype) => ({ group, subtype })),
+  );
+}
+
 export function findSubtypeBySlug(group: CategoryGroup, slug: string) {
   return group.subtypes.find((subtype) => slugify(subtype) === slug);
 }

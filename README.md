@@ -22,6 +22,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Contact | [/contact](https://shree-balaji-paints-plywood-hardwar.vercel.app/contact) |
 | Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry) |
 | Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry/ap-royale-luxury) |
+| Paint calculator | [/paint-calculator](https://shree-balaji-paints-plywood-hardwar.vercel.app/paint-calculator) |
 | Products API | [/api/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/api/products) |
 
 ## Features
@@ -32,8 +33,11 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
+- **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
+- **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
+- **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
 
 ## Tech stack
@@ -92,7 +96,7 @@ src/
   services/          # Catalogue service used by pages and API routes
   types/             # Shared TypeScript types
 public/images/       # Photos (see CREDITS.md); shop/ placeholders for real photos
-docs/                # Sprint plan, architecture, security, scalability, coding standards
+docs/                # Part 2 sprint plan, architecture, security, scalability, coding standards
 scripts/             # Optional Pexels image download helper
 ```
 
@@ -114,17 +118,30 @@ The site is hosted on **[Vercel](https://vercel.com)** and connected to the GitH
 
 - **Production:** [shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)
 - **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Pushes to other branches (e.g. `develop`) get their own preview URL.
-- **Settings:** Framework preset **Next.js**, default build command, no environment variables required.
+- **Settings:** Framework preset **Next.js**, default build command. `SITE_URL` is optional and defaults to the Vercel address (see `.env.example`).
 
 To publish changes, merge `develop` into `main` and push.
 
 Manual deploy with the [Vercel CLI](https://vercel.com/docs/cli): `npx vercel --prod` from the project root (after `vercel login`).
 
+Vercel's free plan is for non-commercial use, so Sprint 1 of Part 2 moves the site to Netlify's free plan and redirects the Vercel address to the new one.
+
+### Netlify
+
+The new home is [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/), connected to the same GitHub repo with `main` as the production branch.
+
+- **Settings:** `netlify.toml` sets the build command (`npm run build`), the publish directory (`.next`), Node 22 and `SITE_URL`. Netlify adds its Next.js runtime automatically; leave the base directory empty.
+- **Deploys:** every push to `main` deploys to production. A production deploy uses about 15 of the 300 free monthly credits, so batch changes before merging into `main`.
+
 ## Roadmap
 
-- Backend and database for live inventory
-- Admin panel for stock and product updates
-- Sales records, customer CRM, billing, and enquiry tracking
+Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sprints):
+
+- Owner panel at `/admin`: products, photos, prices, in/out of stock, offers and gallery, edited from a phone
+- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
+- Our work gallery, dated offer banners
+- Google Business Profile, Search Console and sitemap
+- Move hosting to Netlify's free plan, which allows commercial sites ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 
