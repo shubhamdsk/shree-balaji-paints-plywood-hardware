@@ -1,4 +1,4 @@
-import { Calculator, ClipboardList, Clock, MapPin, MessageCircle, Phone } from "@/components/ui/icons";
+import { Calculator, ClipboardList, Clock, MapPin, Phone, WhatsAppIcon } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import AppLink from "@/components/ui/AppLink";
 import { shop, whatsappLink } from "@/config/shop";
@@ -77,7 +77,7 @@ export default async function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 hover:text-white"
               >
-                <MessageCircle className="h-4 w-4 shrink-0 text-gold-300" />
+                <WhatsAppIcon className="h-4 w-4 shrink-0 text-gold-300" />
                 WhatsApp
               </a>
             </li>

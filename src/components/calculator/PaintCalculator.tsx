@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { MessageCircle, PaintRoller } from "@/components/ui/icons";
+import { PaintRoller, WhatsAppIcon } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { whatsappLink } from "@/config/shop";
@@ -209,7 +209,7 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
               This is an estimate. Wall condition, colour change and brand affect coverage, so the shop will confirm the final quantity.
             </p>
             <Button variant="whatsapp" onClick={handleSend} className="mt-5">
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppIcon className="h-4 w-4" />
               Send estimate on WhatsApp
             </Button>
           </section>

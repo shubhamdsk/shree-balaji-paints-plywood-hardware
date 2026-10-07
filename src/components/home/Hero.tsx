@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, BadgeCheck, MessageCircle, ShieldCheck, Users } from "@/components/ui/icons";
+import { ArrowRight, BadgeCheck, ShieldCheck, Users, WhatsAppIcon } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
@@ -55,7 +55,7 @@ export default function Hero() {
               rel="noopener noreferrer"
               className={buttonClasses("whatsapp", "w-full sm:w-auto", "lg")}
             >
-              <MessageCircle className="h-5 w-5" /> WhatsApp Us
+              <WhatsAppIcon className="h-5 w-5" /> WhatsApp Us
             </a>
           </div>
         </div>

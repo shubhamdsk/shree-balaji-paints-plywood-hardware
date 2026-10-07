@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Calculator, ClipboardList, Menu, MessageCircle, Phone, Search, X } from "@/components/ui/icons";
+import { Calculator, ClipboardList, Menu, Phone, Search, WhatsAppIcon, X } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import { isActivePath, NAV_LINKS } from "@/components/layout/nav-links";
 import AppLink from "@/components/ui/AppLink";
@@ -74,7 +74,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className={buttonClasses("whatsapp")}
             >
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppIcon className="h-[18px] w-[18px]" />
               WhatsApp Us
             </a>
           </div>
@@ -135,7 +135,7 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 className={buttonClasses("whatsapp", "w-full")}
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp
+                <WhatsAppIcon className="h-4 w-4" /> WhatsApp
               </a>
             </li>
           </ul>

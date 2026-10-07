@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { CheckCircle2, MessageCircle } from "@/components/ui/icons";
+import { CheckCircle2, WhatsAppIcon } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { whatsappLink } from "@/config/shop";
@@ -154,7 +154,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
           Clear
         </Button>
         <Button type="submit" variant="whatsapp">
-          <MessageCircle className="h-4 w-4" />
+          <WhatsAppIcon className="h-4 w-4" />
           Send on WhatsApp
         </Button>
       </div>

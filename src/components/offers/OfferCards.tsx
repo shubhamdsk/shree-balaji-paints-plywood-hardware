@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HandCoins, MessageCircle, Palette } from "@/components/ui/icons";
+import { HandCoins, Palette, WhatsAppIcon } from "@/components/ui/icons";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
 
@@ -48,7 +48,7 @@ export default function OfferCards() {
               rel="noopener noreferrer"
               className={buttonClasses("whatsapp", "mt-auto w-full sm:w-fit")}
             >
-              <MessageCircle className="h-4 w-4" /> {offer.cta}
+              <WhatsAppIcon className="h-4 w-4" /> {offer.cta}
             </a>
           </div>
         </li>

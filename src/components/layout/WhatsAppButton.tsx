@@ -1,4 +1,4 @@
-import { MessageCircle, Phone } from "@/components/ui/icons";
+import { Phone, WhatsAppIcon } from "@/components/ui/icons";
 import { shop, whatsappLink } from "@/config/shop";
 
 export default function WhatsAppButton() {
@@ -16,9 +16,9 @@ export default function WhatsAppButton() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
-        className="grid h-14 w-14 place-items-center rounded-full bg-whatsapp-strong text-white shadow-card-hover transition hover:scale-105 hover:brightness-110"
+        className="btn-gloss btn-whatsapp grid h-14 w-14 place-items-center rounded-full bg-whatsapp-strong"
       >
-        <MessageCircle className="h-7 w-7" />
+        <WhatsAppIcon className="h-7 w-7" />
       </a>
     </div>
   );
