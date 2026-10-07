@@ -57,7 +57,9 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 - All database access goes through `src/services/*` and `src/server/*`. Pages and components never import the database client.
 - An owner action that changes more than one table runs inside one `db.transaction(...)`.
-- After a successful save, the action calls `updateTag(...)` for the affected cache tags. Reads in services use `use cache` with `cacheTag(...)`.
+- After a successful save, the action calls `updateTag(...)` for the affected cache tags from `src/lib/cache-tags.ts`. Reads in services are wrapped in `unstable_cache(..., { tags: [...] })`.
+- Without `DATABASE_URL` the app uses PGlite, so tests run against real Postgres. Tests that touch the database call `setupTestDatabase()` from `@/test/db`, which reseeds before each test.
+- Server code under `src/server` starts with `import "server-only"` when it reads secrets, cookies or the database. Client components may import only Server Actions from `src/server/actions`.
 - **Migrations:**
   - Generated with Drizzle Kit and committed.
   - **Never edit a migration that has run** in production. Add a new one instead.

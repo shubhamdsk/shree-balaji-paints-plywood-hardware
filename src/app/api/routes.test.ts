@@ -4,6 +4,9 @@ import { GET as getCategoryGroups } from "@/app/api/categories/groups/route";
 import { GET as getCategories } from "@/app/api/categories/route";
 import { GET as getProduct } from "@/app/api/products/[id]/route";
 import { GET as getProducts } from "@/app/api/products/route";
+import { setupTestDatabase } from "@/test/db";
+
+setupTestDatabase();
 
 type ProductRouteContext = Parameters<typeof getProduct>[1];
 

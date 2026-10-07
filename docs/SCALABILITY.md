@@ -15,7 +15,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 | Photos | 100-600 | 5,000 |
 | Enquiries per month | 20-200 | 5,000 |
 | Owner edits per day | 0-30 | 500 |
-| Database size | under 50 MB | the free plan's storage limit |
+| Database size | under 50 MB | Neon's free storage limit (0.5 GB per project) |
 
 ## 2. Performance targets
 
@@ -37,6 +37,7 @@ The free plan has 300 credits a month with a hard limit, and the site pauses if 
 | Batch code releases (a few production deploys a month) | Each deploy costs credits; preview deploys on branches are for testing |
 | All images through `next/image` and the image CDN | Bandwidth is the largest cost |
 | Check usage monthly during support | Spot growth before the limit; the next plan is about Rs 800 a month |
+| The database is on Neon, not Netlify | Database compute doesn't use Netlify credits. Neon's free plan sleeps after 5 idle minutes and has its own monthly compute allowance |
 
 ## 4. Indexes (planned)
 

@@ -2,6 +2,8 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
 import { stubColorScheme } from "@/test/mocks/match-media";
 
+vi.mock("next/cache", () => import("@/test/mocks/next-cache"));
+
 // jsdom does not implement the modal methods of <dialog>.
 if (!HTMLDialogElement.prototype.showModal) {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {

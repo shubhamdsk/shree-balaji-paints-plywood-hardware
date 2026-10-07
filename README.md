@@ -45,6 +45,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
 - **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
+- **Owner panel** — `/admin` (password login, locked for 15 minutes after 5 wrong tries) where the owner adds and edits products from his phone: name, brand, category, type, sizes, price in whole rupees, unit, description and a photo taken with the phone (shrunk in the browser before upload). One-tap switches mark a product in or out of stock or put it on the home page, and Hide (after a confirmation) removes it from every public page. Changes show on the website straight away, with no redeploy
 
 ## Tech stack
 
@@ -54,6 +55,9 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 |
 | UI | React 19, [Lucide](https://lucide.dev) icons, [Framer Motion](https://www.framer.com/motion/) |
+| Data | Postgres through [Drizzle ORM](https://orm.drizzle.team): [Neon](https://neon.tech) (free plan) in production, [PGlite](https://pglite.dev) locally and in tests |
+| Photos | [Netlify Blobs](https://docs.netlify.com/build/data-and-storage/netlify-blobs/) in production, the `.data/photos` folder locally |
+| Validation | [Zod](https://zod.dev) |
 
 ## Getting started
 
@@ -61,10 +65,13 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ```bash
 npm install
+cp .env.example .env.local   # then set ADMIN_USERNAME and ADMIN_INITIAL_PASSWORD
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). The owner panel is at [/admin](http://localhost:3000/admin): the first login with `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD` (at least 10 characters) creates the owner account.
+
+Without `DATABASE_URL`, the app runs an in-process Postgres (PGlite) saved in `.data/pglite` and fills it with the demo catalogue. Delete the `.data` folder (with the dev server stopped) to start again from the demo data.
 
 ## Scripts
 
@@ -78,6 +85,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run test` | Unit tests (Vitest + React Testing Library) |
 | `npm run test:watch` | Unit tests in watch mode |
 | `npm run check` | Lint, typecheck, tests and build: run before every commit |
+| `npm run db:generate -- --name <change>` | Create a migration after editing `src/server/db/schema.ts` |
+| `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL` (Netlify runs it before every build) |
 
 Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
 
@@ -85,9 +94,12 @@ Every push and pull request to `develop` or `main` runs the same checks in GitHu
 
 ```
 src/
-  app/               # Routes (home, products, product detail, enquiry, metadata icons)
-    api/             # REST endpoints: products, categories, brands
+  app/
+    (site)/          # Public pages (home, products, brands, enquiry, calculator…) with the navbar and footer
+    admin/           # Owner panel: login, dashboard, products
+    api/             # REST endpoints: products, categories, brands, uploaded photos
   components/
+    admin/           # Owner panel header, product list, product form, login form
     brand/           # Logo and brand wordmarks
     layout/          # Navbar, mobile bottom bar, footer, floating WhatsApp and back-to-top buttons, theme button, shared nav links
     home/            # Home page sections
@@ -95,15 +107,17 @@ src/
     enquiry/         # Enquiry form
     ui/              # Shared: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, Reveal
   config/            # Shop name, phone, address, hours
-  data/              # Local catalogue (read only through services)
+  data/              # Categories, brands and the demo products that seed the database
   hooks/             # useConfirm, useUnsavedChanges
   lib/api/           # API endpoint list and HTTP client
   providers/         # App-wide confirm popup and unsaved-changes guard
-  services/          # Catalogue service used by pages and API routes
+  server/            # Database schema and migrations, login and sessions, Server Actions, photo storage
+  services/          # Catalogue, owner products and login, used by pages, actions and API routes
+  test/              # Test setup, mocks and the in-memory test database
   types/             # Shared TypeScript types
 public/images/       # Photos (see CREDITS.md); shop/ placeholders for real photos
 docs/                # Part 2 sprint plan, architecture, security, scalability, coding standards
-scripts/             # Optional Pexels image download helper
+scripts/             # Database migration script, optional Pexels image download helper
 ```
 
 Coding rules for people and AI agents: [`AGENTS.md`](AGENTS.md) (also loaded through `CLAUDE.md`) and [`docs/CODING-STANDARDS.md`](docs/CODING-STANDARDS.md).
@@ -113,7 +127,9 @@ Coding rules for people and AI agents: [`AGENTS.md`](AGENTS.md) (also loaded thr
 | What | Where |
 |------|--------|
 | Shop name, phone, address, hours, map link | `src/config/shop.ts` |
-| Products and categories | `src/data/products.ts`, `src/data/category-tree.ts`, `src/data/brands.ts` (or set `CATALOG_API_URL` to load them from a backend, see `.env.example`) |
+| Products, photos, prices, stock | The owner panel at `/admin` |
+| Categories, their types and popular brands | `src/data/category-tree.ts`, `src/data/products.ts`, `src/data/brands.ts` (or set `CATALOG_API_URL` to load the catalogue from a backend, see `.env.example`) |
+| Demo products for a new database | `src/data/products.ts` (copied in once, when the products table is empty) |
 | Real shop photos | Replace `public/images/shop/storefront.jpg`, `interior.jpg`, `counter.jpg` (see `public/images/shop/README.md`) |
 
 Image credits and Pexels IDs: [`public/images/CREDITS.md`](public/images/CREDITS.md).
@@ -124,7 +140,11 @@ The site is hosted on **[Netlify](https://www.netlify.com)**'s free plan, which 
 
 - **Production:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)
 - **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Every pull request into `main` gets a Deploy Preview (visible to members of the Netlify team) and a status check on GitHub.
-- **Settings:** [`netlify.toml`](netlify.toml) sets the build command (`npm run build`), the publish directory (`.next`), Node 22, `SITE_URL` and the Next.js runtime (`@netlify/plugin-nextjs`). Leave the dashboard build settings empty and the base directory at the project root. Keep the plugin entry: without it Netlify publishes the raw `.next` folder and every page returns 404.
+- **Environment variables** (Netlify → Site configuration → Environment variables, never in Git):
+  - `DATABASE_URL`: Neon's pooled connection string. Give deploy previews a separate Neon branch so they never touch production data. The build fails without it.
+  - `SESSION_SECRET`: at least 32 random characters.
+  - `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD`: used once, on the first owner login.
+- **Settings:** [`netlify.toml`](netlify.toml) sets the build command (`npm run db:migrate && npm run build`), the publish directory (`.next`), Node 22, `SITE_URL` and the Next.js runtime (`@netlify/plugin-nextjs`). Leave the dashboard build settings empty and the base directory at the project root. Keep the plugin entry: without it Netlify publishes the raw `.next` folder and every page returns 404.
 - **Credits:** the free plan has 300 credits a month. A production deploy uses about 15, so batch changes before merging into `main`.
 
 To publish changes, open a pull request from `develop` into `main`, check its Deploy Preview, then merge.
@@ -133,11 +153,11 @@ To publish changes, open a pull request from `develop` into `main`, check its De
 
 Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sprints):
 
-- Owner panel at `/admin`: products, photos, prices, in/out of stock, offers and gallery, edited from a phone
+- Owner panel at `/admin`: products, photos, prices and stock status (**Sprint 1, built**); offers and gallery next
 - Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
 - Our work gallery, dated offer banners
 - Google Business Profile and Search Console
-- Database and photo storage on Netlify ([Architecture](docs/ARCHITECTURE.md))
+- Data on Neon Postgres, photos on Netlify Blobs ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  compareByPrice,
   countByBrand,
   countProducts,
   findBrandBySlug,
@@ -20,7 +21,6 @@ function product(overrides: Partial<Product>): Product {
     type: "Interior",
     description: "",
     sizes: [],
-    priceFrom: 0,
     unit: "",
     colors: [],
     inStock: true,
@@ -91,6 +91,15 @@ describe("stockedHref", () => {
 
   it("falls back to the category page when the type has none", () => {
     expect(stockedHref(products, "paints", "Primer")).toBe("/products/paints");
+  });
+});
+
+describe("compareByPrice", () => {
+  it("sorts by price in either direction and puts products without a price last", () => {
+    const list = [product({ id: "ask" }), product({ id: "high", priceFrom: 900 }), product({ id: "low", priceFrom: 100 })];
+    const ids = (direction: "asc" | "desc") => [...list].sort((a, b) => compareByPrice(a, b, direction)).map((p) => p.id);
+    expect(ids("asc")).toEqual(["low", "high", "ask"]);
+    expect(ids("desc")).toEqual(["high", "low", "ask"]);
   });
 });
 

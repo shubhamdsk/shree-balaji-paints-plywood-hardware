@@ -2,6 +2,8 @@ import { ROUTES } from "@/lib/routes";
 import { slugify } from "@/lib/slug";
 import type { CategoryGroup, CategoryId, Product } from "@/types";
 
+export const HOME_FEATURED_LIMIT = 8;
+
 export function countProducts(products: Product[], categoryId: CategoryId, subtype?: string) {
   return products.filter((p) => p.category === categoryId && (!subtype || p.type === subtype)).length;
 }
@@ -36,6 +38,13 @@ export function stockedHref(products: Product[], categoryId: CategoryId, subtype
   return countProducts(products, categoryId, subtype) > 0
     ? ROUTES.category(categoryId, subtype)
     : ROUTES.category(categoryId);
+}
+
+export function compareByPrice(a: Product, b: Product, direction: "asc" | "desc") {
+  if (a.priceFrom === b.priceFrom) return 0;
+  if (a.priceFrom === undefined) return 1;
+  if (b.priceFrom === undefined) return -1;
+  return direction === "asc" ? a.priceFrom - b.priceFrom : b.priceFrom - a.priceFrom;
 }
 
 export function findSubtypeBySlug(group: CategoryGroup, slug: string) {

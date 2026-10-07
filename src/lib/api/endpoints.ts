@@ -4,4 +4,5 @@ export const API_ENDPOINTS = {
   categories: "/api/categories",
   categoryGroups: "/api/categories/groups",
   brands: "/api/brands",
+  photo: (key: string) => `/api/photos/${encodeURIComponent(key)}`,
 } as const;

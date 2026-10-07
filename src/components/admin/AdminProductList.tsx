@@ -1,0 +1,171 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
+import ToggleSwitch from "@/components/admin/ToggleSwitch";
+import AppLink from "@/components/ui/AppLink";
+import { buttonClasses } from "@/components/ui/Button";
+import FormField, { fieldClasses } from "@/components/ui/FormField";
+import { PackageSearch, Search } from "@/components/ui/icons";
+import SelectMenu from "@/components/ui/SelectMenu";
+import { useConfirm } from "@/hooks/use-confirm";
+import { formatPrice } from "@/lib/price";
+import { ROUTES } from "@/lib/routes";
+import { matchesQuery } from "@/lib/search";
+import { setProductFlagAction } from "@/server/actions/products";
+import type { AdminProduct } from "@/types";
+
+type Filter = "all" | "visible" | "hidden" | "out-of-stock" | "featured";
+type Flag = "inStock" | "featured" | "isVisible";
+
+const FILTERS: { value: Filter; label: string; test: (p: AdminProduct) => boolean }[] = [
+  { value: "all", label: "All products", test: () => true },
+  { value: "visible", label: "On the website", test: (p) => p.isVisible },
+  { value: "hidden", label: "Hidden", test: (p) => !p.isVisible },
+  { value: "out-of-stock", label: "Out of stock", test: (p) => !p.inStock },
+  { value: "featured", label: "On the home page", test: (p) => p.featured === true },
+];
+
+export default function AdminProductList({ products }: { products: AdminProduct[] }) {
+  const confirm = useConfirm();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [error, setError] = useState("");
+  const [, startTransition] = useTransition();
+  const [list, applyChange] = useOptimistic(
+    products,
+    (current, change: { id: string; flag: Flag; value: boolean }) =>
+      current.map((p) => (p.id === change.id ? { ...p, [change.flag]: change.value } : p)),
+  );
+
+  const visible = useMemo(() => {
+    const test = FILTERS.find((f) => f.value === filter)?.test ?? (() => true);
+    return list.filter((p) => test(p) && matchesQuery(`${p.name} ${p.brand} ${p.type}`, query));
+  }, [list, filter, query]);
+
+  const change = (product: AdminProduct, flag: Flag, value: boolean) => {
+    setError("");
+    startTransition(async () => {
+      applyChange({ id: product.id, flag, value });
+      const result = await setProductFlagAction(product.id, flag, value);
+      if (!result.ok) setError(`Couldn't update ${product.name}. Please try again.`);
+    });
+  };
+
+  const toggleVisibility = async (product: AdminProduct) => {
+    if (product.isVisible) {
+      const confirmed = await confirm({
+        title: `Hide ${product.name}?`,
+        message: "It disappears from the website, search and brand pages. You can show it again at any time.",
+        confirmLabel: "Hide product",
+        tone: "danger",
+      });
+      if (!confirmed) return;
+    }
+    change(product, "isVisible", !product.isVisible);
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-[1fr_16rem]">
+        <FormField label="Search products" htmlFor="product-search">
+          <div className="relative">
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-subtle" />
+            <input
+              id="product-search"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Name, brand or type"
+              className={`${fieldClasses} pl-9`}
+            />
+          </div>
+        </FormField>
+        <div className="space-y-1.5">
+          <span className="block text-sm font-bold text-heading">Show</span>
+          <SelectMenu
+            label="Show"
+            value={filter}
+            options={FILTERS.map(({ value, label }) => ({ value, label }))}
+            onChange={(value) => setFilter(value as Filter)}
+          />
+        </div>
+      </div>
+
+      <p className="text-sm text-muted" aria-live="polite">
+        {visible.length} of {list.length} products
+      </p>
+      {error && (
+        <p role="alert" className="rounded-xl bg-accent-50 px-4 py-3 text-sm font-semibold text-accent-700">
+          {error}
+        </p>
+      )}
+
+      {visible.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line bg-card p-10 text-center text-muted">
+          <PackageSearch aria-hidden className="mx-auto mb-3 h-8 w-8" />
+          No products match.
+        </div>
+      ) : (
+        <ul className="grid gap-3">
+          {visible.map((product) => (
+            <li
+              key={product.id}
+              className={`grid gap-3 rounded-card border border-line bg-card p-4 shadow-card sm:grid-cols-[4rem_1fr_auto] sm:items-center ${
+                product.isVisible ? "" : "opacity-75"
+              }`}
+            >
+              <div className="relative hidden h-16 w-16 overflow-hidden rounded-xl bg-surface-muted sm:block">
+                {product.image && <Image src={product.image} alt="" fill sizes="64px" className="object-cover" />}
+              </div>
+              <div className="min-w-0">
+                <h2 className="font-bold text-heading">
+                  <AppLink href={ROUTES.adminProduct(product.id)} className="hover:underline">
+                    {product.name}
+                  </AppLink>
+                </h2>
+                <p className="text-sm text-muted">
+                  {product.brand} · {product.type} · {formatPrice(product.priceFrom, product.unit)}
+                </p>
+                {!product.isVisible && (
+                  <span className="mt-1 inline-block rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-bold text-muted">
+                    Hidden from the website
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <ToggleSwitch
+                  label="In stock"
+                  ariaLabel={`${product.name} in stock`}
+                  checked={product.inStock}
+                  onChange={(value) => change(product, "inStock", value)}
+                />
+                <ToggleSwitch
+                  label="Home page"
+                  ariaLabel={`${product.name} on the home page`}
+                  checked={product.featured === true}
+                  onChange={(value) => change(product, "featured", value)}
+                />
+                <AppLink
+                  href={ROUTES.adminProduct(product.id)}
+                  className={buttonClasses("secondary")}
+                  aria-label={`Edit ${product.name}`}
+                >
+                  Edit
+                </AppLink>
+                <button
+                  type="button"
+                  onClick={() => toggleVisibility(product)}
+                  className={buttonClasses("secondary")}
+                  aria-label={`${product.isVisible ? "Hide" : "Show"} ${product.name}`}
+                >
+                  {product.isVisible ? "Hide" : "Show"}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

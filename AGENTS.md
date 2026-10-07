@@ -20,6 +20,8 @@ Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), 
 - `npm run test`: Vitest unit tests (`npm run test:watch` while developing)
 - `npm run build`: production build
 - `npm run check`: all four above in order. It must pass before every commit and push.
+- `npm run db:generate -- --name <change>`: create a migration after editing `src/server/db/schema.ts`
+- `npm run db:migrate`: apply migrations to `DATABASE_URL` (Netlify runs it before each build). Without `DATABASE_URL` the app uses PGlite and migrates itself, including while `npm run dev` is running.
 
 ## Workflow for every change (required)
 
@@ -36,6 +38,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - `/enquiry`, including the confirm and unsaved-changes popups.
    - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
    - The WhatsApp and phone links.
+   - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, and log out.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
    - Duplicated UI or logic.
    - Data imported directly instead of through a service.
@@ -52,8 +55,11 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, build and a depende
 ```text
 src/
   app/                  routes, layouts, metadata files only
+    (site)/             public pages, with the navbar, footer and floating buttons in its layout
+    admin/              owner panel: login/, and (panel)/ pages that require a session
     api/                REST Route Handlers, one route.ts per resource
   components/
+    admin/              owner panel header, nav, product list, product form, login form, ToggleSwitch
     brand/              logo and brand wordmarks
     layout/             navbar, mobile bottom bar, footer, floating buttons (WhatsApp, call, back to top), theme button, nav-links.ts (shared links and active-path check)
     home/               home page sections
@@ -66,7 +72,7 @@ src/
     calculator/         paint calculator
     ui/                 shared building blocks: icons, AppLink, Button, FormField, SelectMenu, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
-  data/                 local catalogue source, read only by src/services
+  data/                 categories, brands and demo products, read only by src/services and the database seed
   hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-theme)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
@@ -74,14 +80,24 @@ src/
     paint-calculator.ts paint area, litres and pack-size logic
     sitemap.ts          every public page path for sitemap.xml
     theme.ts            light / dark / system preference, storage and the pre-paint script
+    product-input.ts    product form rules, shared by the browser and the server
+    photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
+    price.ts            "From ₹520 per litre" / "Ask for price"
+    cache-tags.ts       cache tag names for unstable_cache and updateTag
   providers/            app-wide providers (confirm, unsaved changes, theme), composed in AppProviders
-  services/             data access used by pages and API routes
-  test/                 test setup and render helpers
+  server/               server-only code
+    db/                 Drizzle schema, client (Neon or PGlite), seed, migrations/
+    auth/               password hashing, session tokens and cookie, requireOwner guard
+    actions/            Server Actions (auth.ts, products.ts)
+    storage/photos.ts   Netlify Blobs, or a local folder
+    audit.ts            audit log writer
+  services/             data access used by pages, actions and API routes
+  test/                 test setup, render helpers, mocks and setupTestDatabase (db.ts)
   types/                shared TypeScript types
 .github/                CI workflow and pull request review checklist
 public/                 static files (images under public/images)
 docs/                   architecture, security, sprint plan
-scripts/                developer helper scripts
+scripts/                db-migrate.ts (build-time migrations) and developer helper scripts
 ```
 
 - Put a component in the folder of the feature that uses it. Move it to `ui/` when two features share it.
@@ -100,9 +116,13 @@ scripts/                developer helper scripts
 
 ## Data and API
 
-- Pages, components and API routes get data from `src/services/*`. They never import `src/data/*` (ESLint enforces this).
+- Pages, components and API routes get data from `src/services/*`. They never import `src/data/*` (ESLint enforces this); only services and `src/server/db/seed.ts` do.
+- Products live in the database (`src/server/db/schema.ts`). Change the schema, then run `npm run db:generate` and commit the migration. Never edit a migration that has run in production.
+- Owner changes go through Server Actions in `src/server/actions`. Each one calls `requireOwner()` first, validates with Zod, writes the audit log, then calls `updateTag(...)` with a tag from `src/lib/cache-tags.ts`. Service reads that pages use are wrapped in `unstable_cache` with the same tags.
+- Client components may import Server Actions from `src/server/actions`, and nothing else from `src/server`.
+- Prices are whole rupees (`integer`). Format them with `formatPrice` from `src/lib/price.ts`.
 - Every API path is defined once in `src/lib/api/endpoints.ts`. Never write an `/api/...` string anywhere else.
-- Every dynamic page path is built with `ROUTES` in `src/lib/routes.ts` (`ROUTES.category("paints", "Interior")`). Never build `/products/...`, `/brands/...` or `/enquiry/...` strings by hand.
+- Every dynamic page path is built with `ROUTES` in `src/lib/routes.ts` (`ROUTES.category("paints", "Interior")`). Never build `/products/...`, `/brands/...`, `/enquiry/...` or `/admin/...` strings by hand.
 - All HTTP calls go through `httpClient` in `src/lib/api/http-client.ts`. No direct `fetch` in components or services.
 - One `route.ts` per REST resource under `src/app/api`, delegating to a service function.
 - `CATALOG_API_URL` (see `.env.example`) switches the services from the local data to an external backend. Pages don't change when it does.
@@ -125,7 +145,9 @@ scripts/                developer helper scripts
 - Test files sit next to the code they test: `src/**/*.test.ts(x)`.
 - Render components with `renderWithProviders` from `@/test/render` so the confirm and unsaved-changes providers are present.
 - Query by role and label, the way a user finds things. Don't query by class names or test IDs.
-- Mock only the edges: `fetch` (`vi.stubGlobal`), `next/navigation`, `next/link` and `window.open`. Don't mock our own modules.
+- Mock only the edges: `fetch` (`vi.stubGlobal`), `next/navigation`, `next/link`, `next/headers` (cookies), `next/cache` (mocked globally) and `window.open`. Don't mock our own modules.
+- Tests that touch the database call `setupTestDatabase()` from `@/test/db`: an in-memory PGlite per file, reseeded with the demo catalogue before each test. Server Actions and the components that call them run for real against it; log in with `logIn` and put the token in `cookieJar` from `@/test/mocks/next-headers`.
+- `redirect()` from the `next/navigation` mock throws `RedirectSignal`, so assert redirects with `rejects.toEqual(new RedirectSignal(url))`.
 - Async Server Components aren't unit-testable in Vitest. Test their services and the components they render instead.
 
 ## Comments

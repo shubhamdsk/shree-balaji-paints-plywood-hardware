@@ -15,4 +15,9 @@ export const ROUTES = {
   contact: "/contact",
   enquiry: (productId?: string) => (productId ? `/enquiry/${productId}` : "/enquiry"),
   paintCalculator: (productId?: string) => (productId ? `/paint-calculator/${productId}` : "/paint-calculator"),
+  admin: "/admin",
+  adminLogin: "/admin/login",
+  adminProducts: "/admin/products",
+  adminNewProduct: "/admin/products/new",
+  adminProduct: (id: string) => `/admin/products/${id}`,
 } as const;

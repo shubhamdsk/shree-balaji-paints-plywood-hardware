@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Baloo_2, Noto_Sans_Devanagari } from "next/font/google";
 import "@/app/globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
 import ThemeScript from "@/components/layout/ThemeScript";
-import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { shop } from "@/config/shop";
 import { siteUrl } from "@/config/site";
 import AppProviders from "@/providers/AppProviders";
@@ -43,13 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeScript />
       </head>
       <body className="flex min-h-full flex-col overflow-x-clip font-sans">
-        <AppProviders>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <WhatsAppButton />
-          <MobileNav />
-        </AppProviders>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

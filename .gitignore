@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# local database and uploaded photos
+/.data/
+
 # next.js
 /.next/
 /out/
