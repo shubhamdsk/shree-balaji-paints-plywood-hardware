@@ -21,7 +21,7 @@ export default function BrandGrid({ brands, counts }: BrandGridProps) {
               className="card-lift flex h-[72px] flex-col items-center justify-center gap-1 rounded-xl border border-line bg-white px-2 py-2 hover:border-brand-200 sm:h-20 sm:px-3"
             >
               <BrandWordmark name={name} variant="card" />
-              {countLabel && <span className="text-[11px] font-medium text-muted">{countLabel}</span>}
+              {countLabel && <span className="text-[11px] font-medium text-slate-600">{countLabel}</span>}
             </AppLink>
           </li>
         );

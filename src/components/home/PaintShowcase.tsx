@@ -45,7 +45,7 @@ export default function PaintShowcase({ products }: { products: Product[] }) {
             <li key={label}>
               <AppLink
                 href={stockedHref(products, "paints", subtype)}
-                className="group flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-[15px] font-semibold text-brand-900 transition duration-200 hover:border-paint-500 hover:bg-paint-50"
+                className="group flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-3 py-2.5 text-[15px] font-semibold text-heading transition duration-200 hover:border-paint-500 hover:bg-paint-50"
               >
                 <Icon aria-hidden className="h-5 w-5 shrink-0 text-paint-600" />
                 {label}

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const fieldClasses =
-  "min-h-11 w-full rounded-xl border border-line bg-white px-3 py-2 text-[15px] font-medium text-ink placeholder:text-subtle focus:border-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-100";
+  "min-h-11 w-full rounded-xl border border-line bg-card px-3 py-2 text-[15px] font-medium text-ink placeholder:text-subtle focus:border-heading focus:outline-none focus:ring-2 focus:ring-brand-100";
 
 interface FormFieldProps {
   label: string;
@@ -15,7 +15,7 @@ interface FormFieldProps {
 export default function FormField({ label, htmlFor, error, hint, required, children }: FormFieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-bold text-brand-900">
+      <label htmlFor={htmlFor} className="block text-sm font-bold text-heading">
         {label}
         {required && <span className="text-accent-600"> *</span>}
       </label>

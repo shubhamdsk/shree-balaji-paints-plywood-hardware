@@ -35,10 +35,13 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
+- **Searchable dropdowns** — Product, paint and brand pickers are custom themed dropdowns with a search box, a height-capped list without a scrollbar and full keyboard support; they open upward near the bottom of the screen
+- **Back to top** — A floating arrow above the WhatsApp button appears once you scroll down a long page
 - **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Sticky header that shrinks on scroll, a bottom bar (Home, Products, Categories, Contact) on phones and tablets, and 44 px tap targets; checked from 360 px to 1920 px
 - **Design system** — Navy, red, paint-orange and gold theme tokens with warm neutrals, Noto Sans Devanagari for text and Baloo 2 for the wordmark (`src/app/globals.css`)
+- **Light, dark and system themes** — One theme button in the header (in the menu on mobile) cycles Light, Dark and System, and its icon shows the current choice. System (the default) follows the device setting; the choice is saved in the browser and applied before the first paint, so pages never flash the wrong theme. Every page keeps WCAG AA text contrast in both themes
 - **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
 - **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
@@ -86,7 +89,7 @@ src/
     api/             # REST endpoints: products, categories, brands
   components/
     brand/           # Logo and brand wordmarks
-    layout/          # Navbar, mobile bottom bar, footer, WhatsApp button, shared nav links
+    layout/          # Navbar, mobile bottom bar, footer, floating WhatsApp and back-to-top buttons, theme button, shared nav links
     home/            # Home page sections
     products/        # Catalogue, product cards, product detail, category directory
     enquiry/         # Enquiry form

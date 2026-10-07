@@ -37,7 +37,7 @@ export default function PromoBanners() {
             <span className="text-xs font-bold tracking-wider text-gold-300 uppercase">{b.eyebrow}</span>
             <span className="mt-1 text-2xl font-bold text-white sm:text-3xl">{b.title}</span>
             <span className="mt-2 max-w-xs text-sm text-brand-100">{b.body}</span>
-            <span className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-brand-900 transition group-hover:bg-paint-50">
+            <span className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-brand-900 transition group-hover:bg-white/90">
               Shop Now <ArrowRight className="h-4 w-4" />
             </span>
           </span>

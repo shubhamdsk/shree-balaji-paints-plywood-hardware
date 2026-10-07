@@ -66,9 +66,9 @@ export default function ProductDetailView({ product }: { product: Product }) {
 
         <div className="min-w-0">
           <BrandWordmark name={product.brand} />
-          <h1 className="mt-4 text-[1.75rem] leading-tight font-bold text-brand-900 sm:text-[2.25rem]">{product.name}</h1>
+          <h1 className="mt-4 text-[1.75rem] leading-tight font-bold text-heading sm:text-[2.25rem]">{product.name}</h1>
           <p className="mt-1 text-sm font-semibold text-muted">{product.type}</p>
-          <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1 text-[13px] font-semibold text-brand-900 ring-1 ring-line">
+          <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1 text-[13px] font-semibold text-heading ring-1 ring-line">
             <span aria-hidden className={`h-2 w-2 rounded-full ${product.inStock ? "bg-success" : "bg-subtle"}`} />
             {product.inStock ? "Available in store" : "Out of stock — ask for availability"}
           </p>
@@ -77,7 +77,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
           </p>
 
           <div className="mt-6">
-            <p className="text-sm font-bold text-brand-900">Available Sizes</p>
+            <p className="text-sm font-bold text-heading">Available Sizes</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {product.sizes.map((s) => (
                 <button
@@ -88,7 +88,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
                   className={`min-h-11 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
                     selectedSize === s
                       ? "border-accent-600 bg-accent-50 text-accent-600"
-                      : "border-line bg-white text-ink hover:border-paint-100"
+                      : "border-line bg-card text-ink hover:border-paint-100"
                   }`}
                 >
                   {s}
@@ -99,7 +99,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
 
           {product.features && product.features.length > 0 && (
             <div className="mt-6">
-              <p className="text-sm font-bold text-brand-900">Key Features</p>
+              <p className="text-sm font-bold text-heading">Key Features</p>
               <ul className="mt-2 space-y-2">
                 {product.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-muted">
@@ -113,7 +113,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
 
           {product.suitableFor && product.suitableFor.length > 0 && (
             <div className="mt-6">
-              <p className="text-sm font-bold text-brand-900">Suitable for</p>
+              <p className="text-sm font-bold text-heading">Suitable for</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.suitableFor.map((s) => (
                   <span key={s} className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold text-ink">
@@ -125,7 +125,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
           )}
 
           <div className="mt-8 rounded-card border border-line bg-surface-muted p-4 sm:p-5">
-            <p className="text-[15px] font-semibold text-brand-900">Get the latest price</p>
+            <p className="text-[15px] font-semibold text-heading">Get the latest price</p>
             <p className="mt-0.5 text-sm text-muted">
               Prices change with size, shade and quantity. Message us and we&apos;ll reply with today&apos;s rate.
             </p>
@@ -148,14 +148,14 @@ export default function ProductDetailView({ product }: { product: Product }) {
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
             <AppLink
               href={ROUTES.enquiry(product.id)}
-              className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-900 hover:text-accent-600"
+              className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-heading hover:text-accent-600"
             >
               <ClipboardList className="h-4 w-4" /> Send a written enquiry
             </AppLink>
             {isCalculablePaint(product) && (
               <AppLink
                 href={ROUTES.paintCalculator(product.id)}
-                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-900 hover:text-accent-600"
+                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-heading hover:text-accent-600"
               >
                 <Calculator className="h-4 w-4" />
                 How much do I need?
@@ -165,7 +165,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="mt-12 rounded-2xl border border-line bg-white card-shadow">
+      <div className="mt-12 rounded-2xl border border-line bg-card card-shadow">
         <div className="flex flex-wrap gap-1 border-b border-line p-2">
           {tabs.map((tab) => (
             <button
@@ -189,7 +189,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
               {product.technical ? (
                 Object.entries(product.technical).map(([k, v]) => (
                   <div key={k}>
-                    <dt className="font-bold text-brand-900">{k}</dt>
+                    <dt className="font-bold text-heading">{k}</dt>
                     <dd>{v}</dd>
                   </div>
                 ))
@@ -206,7 +206,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
               {(product.downloads ?? [{ label: "Shade card / datasheet", note: "Message us on WhatsApp" }]).map(
                 (d) => (
                   <li key={d.label}>
-                    <span className="font-semibold text-brand-900">{d.label}</span>
+                    <span className="font-semibold text-heading">{d.label}</span>
                     {d.note ? <span className="text-muted"> — {d.note}</span> : null}
                   </li>
                 ),

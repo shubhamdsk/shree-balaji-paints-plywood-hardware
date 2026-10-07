@@ -12,7 +12,7 @@ function renderForm(initialProductId?: string) {
 describe("EnquiryForm", () => {
   it("pre-selects the product passed in", () => {
     renderForm("ap-royale-luxury");
-    expect(screen.getByLabelText("Product")).toHaveProperty("value", "ap-royale-luxury");
+    expect(screen.getByRole("button", { name: "Product: Asian Paints Royale Luxury Emulsion" })).toBeDefined();
   });
 
   it("shows linked validation errors and does not open WhatsApp", async () => {

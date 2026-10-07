@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { CheckCircle2, WhatsAppIcon } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
+import SelectMenu from "@/components/ui/SelectMenu";
 import { whatsappLink } from "@/config/shop";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
@@ -23,6 +24,10 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const initialValues = useMemo<EnquiryInput>(
     () => ({ name: "", phone: "", productId: initialProductId, quantity: "", message: "" }),
     [initialProductId],
+  );
+  const productOptions = useMemo(
+    () => [{ value: "", label: "General enquiry" }, ...products.map((p) => ({ value: p.id, label: p.label }))],
+    [products],
   );
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<EnquiryErrors>({});
@@ -75,7 +80,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const describedBy = (key: keyof EnquiryInput) => (errors[key] ? `${key}-error` : undefined);
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-white p-5 card-shadow sm:p-8">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8">
       {sent && (
         <p role="status" className="flex items-center gap-2 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
           <CheckCircle2 className="h-5 w-5 shrink-0" />
@@ -112,19 +117,13 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
 
       <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
         <FormField label="Product" htmlFor="productId" hint="Leave empty for a general enquiry">
-          <select
+          <SelectMenu
             id="productId"
+            label="Product"
             value={values.productId}
-            onChange={(e) => update("productId", e.target.value)}
-            className={fieldClasses}
-          >
-            <option value="">General enquiry</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => update("productId", value)}
+            options={productOptions}
+          />
         </FormField>
         <FormField label="Quantity" htmlFor="quantity" hint="For example 2 x 20 L">
           <input

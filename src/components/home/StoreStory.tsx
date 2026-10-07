@@ -37,7 +37,7 @@ export default function StoreStory() {
 
       <div>
         <p className="text-[13px] font-bold tracking-wider text-accent-600 uppercase">About us</p>
-        <h2 lang="mr" className="mt-2 text-[1.65rem] leading-tight font-bold text-brand-900 sm:text-3xl lg:text-[2.25rem]">
+        <h2 lang="mr" className="mt-2 text-[1.65rem] leading-tight font-bold text-heading sm:text-3xl lg:text-[2.25rem]">
           आपल्या घरासाठी, आपल्या माणसांकडून.
         </h2>
         <span aria-hidden className="mt-3 block h-1 w-12 rounded-full bg-gold-500" />

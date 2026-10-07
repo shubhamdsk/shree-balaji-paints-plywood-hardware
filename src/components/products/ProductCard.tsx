@@ -23,7 +23,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const extraSizes = product.sizes.length - MAX_SIZES;
 
   return (
-    <article className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-white hover:border-brand-200">
+    <article className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-card hover:border-brand-200">
       <AppLink href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-surface-muted">
         <Image
           src={productImage(product)}
@@ -41,7 +41,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <p className="text-[13px] font-bold tracking-wide text-accent-600 uppercase">{product.brand}</p>
-        <h3 className="mt-1 text-lg leading-snug font-semibold text-brand-900">
+        <h3 className="mt-1 text-lg leading-snug font-semibold text-heading">
           <AppLink href={href} className="hover:text-accent-600 focus-visible:underline">
             {product.name}
           </AppLink>
@@ -80,7 +80,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <AppLink
             href={href}
             aria-label={`View details of ${product.name}`}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line text-brand-900 transition duration-200 ease-premium hover:border-brand-900 hover:bg-brand-900 hover:text-white"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line text-heading transition duration-200 ease-premium hover:border-heading hover:bg-brand-900 hover:text-white"
           >
             <ArrowRight className="h-[18px] w-[18px] transition-transform duration-200 group-hover:translate-x-0.5" />
           </AppLink>

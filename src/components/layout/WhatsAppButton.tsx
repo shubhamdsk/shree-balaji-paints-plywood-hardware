@@ -1,9 +1,11 @@
+import BackToTop from "@/components/layout/BackToTop";
 import { Phone, WhatsAppIcon } from "@/components/ui/icons";
 import { shop, whatsappLink } from "@/config/shop";
 
 export default function WhatsAppButton() {
   return (
-    <div className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-end gap-3 lg:right-6 lg:bottom-6">
+    <div className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-3 lg:right-6 lg:bottom-6">
+      <BackToTop />
       <a
         href={shop.phoneLink}
         aria-label="Call the shop"

@@ -20,7 +20,7 @@ export default function CategoryDirectory({ categories, groups, products }: Prop
         );
         const total = countProducts(products, category.id);
         return (
-          <li key={category.id} className="flex flex-col overflow-hidden rounded-card border border-line bg-white shadow-card">
+          <li key={category.id} className="flex flex-col overflow-hidden rounded-card border border-line bg-card shadow-card">
             <AppLink href={ROUTES.category(category.id)} className="group relative block aspect-[16/9] overflow-hidden bg-surface-muted">
               <Image
                 src={category.image}
@@ -46,7 +46,7 @@ export default function CategoryDirectory({ categories, groups, products }: Prop
                     <li key={s}>
                       <AppLink
                         href={ROUTES.category(category.id, s)}
-                        className="inline-flex min-h-9 items-center rounded-lg border border-line bg-canvas px-3 text-[13px] font-semibold text-brand-900 transition hover:border-accent-600 hover:text-accent-600"
+                        className="inline-flex min-h-9 items-center rounded-lg border border-line bg-canvas px-3 text-[13px] font-semibold text-heading transition hover:border-accent-600 hover:text-accent-600"
                       >
                         {s}
                       </AppLink>

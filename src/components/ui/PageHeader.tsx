@@ -14,14 +14,14 @@ export default function PageHeader({ title, description, width = "wide", parents
   const crumbs = [{ label: "Home", href: "/" }, ...parents, { label: title }];
 
   return (
-    <div className="relative overflow-hidden border-b border-line bg-linear-to-b from-white to-canvas">
+    <div className="relative overflow-hidden border-b border-line bg-linear-to-b from-card to-canvas">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-paint-100/60 blur-3xl"
       />
       <div className={`relative mx-auto ${widths[width]} px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12`}>
         <Breadcrumbs items={crumbs} />
-        <h1 className="mt-4 text-[1.75rem] leading-tight font-extrabold text-brand-900 sm:text-4xl lg:text-[2.5rem]">
+        <h1 className="mt-4 text-[1.75rem] leading-tight font-extrabold text-heading sm:text-4xl lg:text-[2.5rem]">
           {title}
         </h1>
         <span aria-hidden className="mt-3 block h-1 w-12 rounded-full bg-gold-500" />

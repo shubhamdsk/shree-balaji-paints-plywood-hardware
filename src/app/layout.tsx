@@ -4,6 +4,7 @@ import "@/app/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
+import ThemeScript from "@/components/layout/ThemeScript";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { shop } from "@/config/shop";
 import { siteUrl } from "@/config/site";
@@ -36,11 +37,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       className={`${notoDevanagari.variable} ${baloo.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="flex min-h-full flex-col overflow-x-clip font-sans">
         <AppProviders>
           <Navbar />
-          <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer />
           <WhatsAppButton />
           <MobileNav />

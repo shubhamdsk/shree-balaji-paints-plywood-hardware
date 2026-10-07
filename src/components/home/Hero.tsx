@@ -15,14 +15,14 @@ const swatches = ["bg-accent-600", "bg-paint-500", "bg-gold-500", "bg-success", 
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-white to-canvas">
+    <section className="relative overflow-hidden bg-linear-to-b from-card to-canvas">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 right-0 h-[28rem] w-[28rem] rounded-full bg-paint-100/60 blur-3xl"
       />
       <div className="container-page relative grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:py-16 xl:py-20">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-1.5 text-[13px] font-semibold text-brand-900 shadow-card">
+          <p className="inline-flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] font-semibold text-heading shadow-card">
             <span aria-hidden className="h-2 w-2 rounded-full bg-paint-500" />
             Paints · Plywood · Hardware — {shop.address.city}
           </p>
@@ -31,12 +31,12 @@ export default function Hero() {
             <span className="block text-[2.6rem] font-extrabold text-accent-600 sm:text-6xl lg:text-[4rem]">
               {shop.marathi.prefix} {shop.marathi.name}
             </span>
-            <span className="mt-1 block text-[1.6rem] font-extrabold text-brand-900 sm:text-4xl lg:text-[2.6rem]">
+            <span className="mt-1 block text-[1.6rem] font-extrabold text-heading sm:text-4xl lg:text-[2.6rem]">
               {shop.marathi.tagline}
             </span>
           </h1>
 
-          <p lang="mr" className="mt-5 text-xl leading-snug font-bold text-brand-800 sm:text-2xl">
+          <p lang="mr" className="mt-5 text-xl leading-snug font-bold text-heading sm:text-2xl">
             घर बांधताना असो किंवा सजवताना — <span className="text-accent-600">सगळं एका ठिकाणी.</span>
           </p>
 
@@ -75,7 +75,7 @@ export default function Hero() {
               {highlights.map(({ icon: Icon, label }) => (
                 <li
                   key={label}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-2.5 py-1.5 text-[13px] font-semibold text-brand-900 shadow-card backdrop-blur"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-card/95 px-2.5 py-1.5 text-[13px] font-semibold text-heading shadow-card backdrop-blur"
                 >
                   <Icon aria-hidden className="h-4 w-4 text-success" />
                   {label}
@@ -86,14 +86,14 @@ export default function Hero() {
 
           <div
             aria-hidden
-            className="absolute -top-4 -right-2 hidden items-center gap-3 rounded-xl border border-line bg-white px-3 py-2.5 shadow-card-hover sm:flex lg:-right-4"
+            className="absolute -top-4 -right-2 hidden items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5 shadow-card-hover sm:flex lg:-right-4"
           >
             <span className="flex gap-1">
               {swatches.map((c) => (
                 <span key={c} className={`h-7 w-3.5 rounded-sm ${c}`} />
               ))}
             </span>
-            <span className="text-[13px] leading-tight font-semibold text-brand-900">
+            <span className="text-[13px] leading-tight font-semibold text-heading">
               Shades for
               <br />
               every room
