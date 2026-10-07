@@ -130,7 +130,7 @@ Vercel's free plan is for non-commercial use, so Sprint 1 of Part 2 moves the si
 
 The new home is [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/), connected to the same GitHub repo with `main` as the production branch.
 
-- **Settings:** `netlify.toml` sets the build command (`npm run build`), the publish directory (`.next`), Node 22 and `SITE_URL`. Netlify adds its Next.js runtime automatically; leave the base directory empty.
+- **Settings:** `netlify.toml` sets the build command (`npm run build`), the publish directory (`.next`), Node 22, `SITE_URL` and the Next.js runtime (`@netlify/plugin-nextjs`). Netlify did not attach the runtime on its own for this site, so keep the plugin entry; leave the base directory empty.
 - **Deploys:** every push to `main` deploys to production. A production deploy uses about 15 of the 300 free monthly credits, so batch changes before merging into `main`.
 
 ## Roadmap
