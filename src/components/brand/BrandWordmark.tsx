@@ -49,15 +49,21 @@ export default function BrandWordmark({
   name,
   compact = false,
   variant = "pill",
+  darkTile = false,
 }: {
   name: string;
   compact?: boolean;
   variant?: "pill" | "card";
+  darkTile?: boolean;
 }) {
   if (variant === "card") {
     const style = brandCardStyles[name] ?? "text-slate-800 font-bold";
     return (
-      <span className={`text-center text-[11px] leading-snug sm:text-sm ${style}`}>
+      <span
+        className={`text-center text-[11px] leading-snug sm:text-sm ${style} ${
+          darkTile ? "dark:rounded-md dark:bg-white dark:px-3 dark:py-1" : ""
+        }`}
+      >
         {name === "AkzoNobel" ? (
           <>
             Akzo<span className="text-[#00a0e3]">Nobel</span>

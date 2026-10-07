@@ -11,17 +11,19 @@ const items = [
 
 export default function TrustBar() {
   return (
-    <section aria-label="Why customers trust us" className="border-y border-line bg-card">
-      <ul className="container-page grid grid-cols-2 gap-x-4 gap-y-5 py-6 sm:grid-cols-3 sm:py-7 lg:grid-cols-5">
-        {items.map(({ icon: Icon, label, note }, i) => (
-          <li key={label} className={`flex items-center gap-3 ${i === items.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}>
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-heading">
-              <Icon aria-hidden className="h-5 w-5" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[15px] leading-tight font-semibold text-heading">{label}</span>
-              <span className="block text-[13px] leading-snug text-muted">{note}</span>
-            </span>
+    <section aria-label="Why customers trust us" className="border-y border-line bg-linear-to-r from-card via-surface-muted to-card">
+      <ul className="container-page grid gap-3 py-5 sm:grid-cols-2 sm:gap-4 sm:py-6 lg:grid-cols-5 lg:gap-4 lg:py-7">
+        {items.map(({ icon: Icon, label, note }) => (
+          <li key={label}>
+            <div className="flex h-full items-center gap-3 rounded-2xl border border-line bg-card/90 p-3 shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover sm:p-4">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-surface-muted text-heading ring-1 ring-line">
+                <Icon aria-hidden className="h-5 w-5" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[15px] leading-tight font-semibold text-heading">{label}</span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-muted">{note}</span>
+              </span>
+            </div>
           </li>
         ))}
       </ul>

@@ -19,7 +19,7 @@ const paintTypes = [
 export default function PaintShowcase({ products }: { products: Product[] }) {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
-      <div className="relative order-last aspect-[4/3] overflow-hidden rounded-card shadow-card-hover lg:order-first lg:aspect-[5/4]">
+      <div className="relative order-last aspect-[4/3] overflow-hidden rounded-card border border-line bg-surface-muted shadow-card-hover lg:order-first lg:aspect-[5/4]">
         <Image
           src="/images/sections/painter-wall.jpg"
           alt="Painter applying a fresh coat to an interior wall"
@@ -45,7 +45,7 @@ export default function PaintShowcase({ products }: { products: Product[] }) {
             <li key={label}>
               <AppLink
                 href={stockedHref(products, "paints", subtype)}
-                className="group flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-3 py-2.5 text-[15px] font-semibold text-heading transition duration-200 hover:border-paint-500 hover:bg-paint-50"
+                className="group flex min-h-14 items-center gap-2.5 rounded-2xl border border-line bg-card px-3 py-2.5 text-[15px] font-semibold text-heading shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-paint-500 hover:bg-paint-50"
               >
                 <Icon aria-hidden className="h-5 w-5 shrink-0 text-paint-600" />
                 {label}

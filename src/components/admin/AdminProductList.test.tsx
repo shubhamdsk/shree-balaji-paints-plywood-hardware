@@ -1,7 +1,9 @@
-import { screen, waitFor } from "@testing-library/react";
+import { eq } from "drizzle-orm";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdminProductList from "@/components/admin/AdminProductList";
 import { SESSION_COOKIE } from "@/server/auth/session";
+import { auditLog } from "@/server/db/schema";
 import { getAdminProduct, listAdminProducts } from "@/services/admin-product-service";
 import { logIn } from "@/services/auth-service";
 import { setupTestDatabase } from "@/test/db";
@@ -13,7 +15,7 @@ vi.mock("next/headers", () => import("@/test/mocks/next-headers"));
 vi.mock("next/link", () => import("@/test/mocks/next-link"));
 vi.mock("next/navigation", () => import("@/test/mocks/next-navigation"));
 
-setupTestDatabase();
+const db = setupTestDatabase();
 let products: AdminProduct[];
 
 beforeEach(async () => {
@@ -56,6 +58,19 @@ describe("AdminProductList", () => {
     await user.click(stock);
     expect(stock.getAttribute("aria-checked")).toBe("false");
     await waitFor(async () => expect((await getAdminProduct(product.id))?.inStock).toBe(false));
+  });
+
+  it("ignores repeat clicks while a product update is pending", async () => {
+    const product = products.find((p) => p.inStock)!;
+    renderWithProviders(<AdminProductList products={products} />);
+    const stock = screen.getByRole("switch", { name: `${product.name} in stock` });
+
+    fireEvent.click(stock);
+    fireEvent.click(stock);
+
+    await waitFor(async () => expect((await getAdminProduct(product.id))?.inStock).toBe(false));
+    const entries = await db().select().from(auditLog).where(eq(auditLog.entityId, product.id));
+    expect(entries.filter((entry) => entry.action === "product_stock")).toHaveLength(1);
   });
 
   it("asks before hiding a product and keeps it when cancelled", async () => {

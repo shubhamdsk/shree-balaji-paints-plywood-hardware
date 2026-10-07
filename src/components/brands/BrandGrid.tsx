@@ -18,10 +18,10 @@ export default function BrandGrid({ brands, counts }: BrandGridProps) {
             <AppLink
               href={ROUTES.brand(name)}
               aria-label={countLabel ? `${name}, ${countLabel}` : `${name} products`}
-              className="card-lift flex h-[72px] flex-col items-center justify-center gap-1 rounded-xl border border-line bg-white px-2 py-2 hover:border-brand-200 sm:h-20 sm:px-3"
+              className="group flex h-[82px] flex-col items-center justify-center gap-1 rounded-card border border-line bg-card px-3 py-2.5 shadow-card transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover sm:h-24"
             >
-              <BrandWordmark name={name} variant="card" />
-              {countLabel && <span className="text-[11px] font-medium text-slate-600">{countLabel}</span>}
+              <BrandWordmark name={name} variant="card" darkTile />
+              {countLabel && <span className="text-[11px] font-medium text-muted">{countLabel}</span>}
             </AppLink>
           </li>
         );
