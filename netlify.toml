@@ -13,3 +13,7 @@
 # Without this the raw .next folder is published as static files and every page returns 404.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[[scheduled.functions]]
+  path = "/api/health"
+  schedule = "*/3 * * * *"
