@@ -92,7 +92,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white lg:hidden">
+        <div id="mobile-menu" className="no-scrollbar max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-white lg:hidden">
           <ul className="container-page grid gap-1 py-3">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(link.href, pathname);
