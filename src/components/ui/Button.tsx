@@ -4,12 +4,12 @@ export type ButtonVariant = "primary" | "cta" | "secondary" | "light" | "danger"
 export type ButtonSize = "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-brand-900 text-white hover:bg-brand-700",
-  cta: "bg-accent-600 text-white shadow-card hover:bg-accent-700 hover:shadow-card-hover",
-  secondary: "border border-line bg-white text-brand-900 hover:border-brand-900",
-  light: "bg-white text-brand-900 hover:bg-surface-muted",
-  danger: "bg-accent-600 text-white hover:bg-accent-700",
-  whatsapp: "bg-whatsapp-strong text-white hover:brightness-110",
+  primary: "btn-gloss btn-primary bg-brand-900",
+  cta: "btn-gloss btn-cta bg-accent-600",
+  secondary: "border border-line bg-white text-brand-900 shadow-card hover:border-brand-900",
+  light: "bg-white text-brand-900 shadow-card hover:bg-surface-muted",
+  danger: "btn-gloss btn-cta bg-accent-600",
+  whatsapp: "btn-gloss btn-whatsapp bg-whatsapp-strong",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

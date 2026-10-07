@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, MessageCircle } from "@/components/ui/icons";
+import { ArrowRight, WhatsAppIcon } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { whatsappLink } from "@/config/shop";
@@ -67,19 +67,23 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
-        <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
-          <AppLink href={href} className={buttonClasses("secondary", "px-3")} aria-label={`View details of ${product.name}`}>
-            Details <ArrowRight className="h-4 w-4" />
-          </AppLink>
+        <div className="mt-auto flex gap-2 pt-5">
           <a
             href={whatsappLink(productEnquiryMessage(productLabel(product)))}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Enquire about ${product.name} on WhatsApp`}
-            className={buttonClasses("whatsapp", "px-3")}
+            className={buttonClasses("whatsapp", "flex-1 px-3 text-[15px]")}
           >
-            <MessageCircle className="h-4 w-4" /> Enquire
+            <WhatsAppIcon className="h-[18px] w-[18px]" /> Get Latest Price
           </a>
+          <AppLink
+            href={href}
+            aria-label={`View details of ${product.name}`}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line text-brand-900 transition duration-200 ease-premium hover:border-brand-900 hover:bg-brand-900 hover:text-white"
+          >
+            <ArrowRight className="h-[18px] w-[18px] transition-transform duration-200 group-hover:translate-x-0.5" />
+          </AppLink>
         </div>
       </div>
     </article>

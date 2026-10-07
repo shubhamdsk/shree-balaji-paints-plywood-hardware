@@ -1,4 +1,4 @@
-import { Clock, MapPin, MessageCircle, Navigation, Phone } from "@/components/ui/icons";
+import { Clock, MapPin, Navigation, Phone, WhatsAppIcon } from "@/components/ui/icons";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
 
@@ -61,7 +61,7 @@ export default function ContactDetails({
             rel="noopener noreferrer"
             className={buttonClasses("whatsapp", "px-3")}
           >
-            <MessageCircle className="h-4 w-4" /> WhatsApp
+            <WhatsAppIcon className="h-4 w-4" /> WhatsApp
           </a>
         </div>
       </div>

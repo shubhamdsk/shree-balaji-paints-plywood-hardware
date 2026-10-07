@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Calculator, ClipboardList, Menu, MessageCircle, Phone, Search, X } from "@/components/ui/icons";
+import { Calculator, ClipboardList, Menu, Phone, Search, WhatsAppIcon, X } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import { isActivePath, NAV_LINKS } from "@/components/layout/nav-links";
 import AppLink from "@/components/ui/AppLink";
@@ -74,7 +74,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className={buttonClasses("whatsapp")}
             >
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppIcon className="h-[18px] w-[18px]" />
               WhatsApp Us
             </a>
           </div>
@@ -92,7 +92,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white lg:hidden">
+        <div id="mobile-menu" className="no-scrollbar max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-white lg:hidden">
           <ul className="container-page grid gap-1 py-3">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(link.href, pathname);
@@ -135,7 +135,7 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 className={buttonClasses("whatsapp", "w-full")}
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp
+                <WhatsAppIcon className="h-4 w-4" /> WhatsApp
               </a>
             </li>
           </ul>

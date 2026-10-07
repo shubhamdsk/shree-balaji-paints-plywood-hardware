@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Calculator, Check, ClipboardList, MessageCircle, Phone } from "@/components/ui/icons";
+import { Calculator, Check, ClipboardList, Phone, WhatsAppIcon } from "@/components/ui/icons";
 import type { Product } from "@/types";
 import { shop, whatsappLink } from "@/config/shop";
 import BrandWordmark from "@/components/brand/BrandWordmark";
@@ -136,7 +136,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
                 rel="noopener noreferrer"
                 className={buttonClasses("whatsapp", "w-full", "lg")}
               >
-                <MessageCircle className="h-5 w-5" />
+                <WhatsAppIcon className="h-5 w-5" />
                 Enquire for Price on WhatsApp
               </a>
               <a href={shop.phoneLink} className={buttonClasses("secondary", "w-full", "lg")}>
