@@ -1,6 +1,6 @@
 # Architecture and System Design
 
-This document describes how the Shree Balaji website and the local billing software (Shop Manager) are built, how data flows between them, and how data is protected.
+How the Shree Balaji website is built today, and how Part 2 adds the owner panel, saved enquiries and smart features without giving up speed or free hosting.
 
 Related documents: [Sprint plan](SPRINT-PLAN.md) · [Security](SECURITY.md) · [Scalability](SCALABILITY.md) · [Coding standards](CODING-STANDARDS.md)
 
@@ -10,15 +10,15 @@ Related documents: [Sprint plan](SPRINT-PLAN.md) · [Security](SECURITY.md) · [
 
 | Goal | How the design meets it |
 |------|-------------------------|
-| Billing must work without internet | Shop Manager and its database run entirely on the shop PC |
-| No data loss | Transactions, an append-only ledger, cancel-not-delete, and 3-copy backups (section 7) |
-| Zero running cost | Free and open-source software only. The website is on Vercel's free plan |
-| Simple installation | One portable folder, a Windows Service, and PostgreSQL as the only installer |
-| One language for the team | TypeScript everywhere: the website and Shop Manager both use Next.js |
-| Website always matches the shop | A "Publish to website" button sends a filtered product list |
-| Correct GST | Pure, unit-tested tax functions, integer money, and stored snapshots of every bill |
+| The owner updates the site without coding | A phone-friendly owner panel at `/admin` writes to a database |
+| Changes show quickly | Pages are cached and refreshed on demand when the owner saves, in about a minute, with no redeploy |
+| Fast on every phone | Cached pages and images served from a CDN |
+| Zero running cost | Netlify free plan (commercial use allowed), with its built-in database and blob storage |
+| No enquiry is lost | Enquiries are saved first, then WhatsApp opens as before |
+| Customer data stays private | Enquiries are visible only to the logged-in owner, never on public pages or in the API |
+| Pages don't care where data comes from | All reads go through `src/services`, so moving from local data to the database changes no page |
 
-**Out of scope for v1:** multiple branches, access from a second PC, a payment gateway, e-invoice. See [Scalability](SCALABILITY.md) for the growth path.
+**Out of scope:** billing, stock quantities, online payments, staff accounts. See [Scalability](SCALABILITY.md) for the growth path.
 
 ---
 
@@ -26,106 +26,79 @@ Related documents: [Sprint plan](SPRINT-PLAN.md) · [Security](SECURITY.md) · [
 
 ```mermaid
 flowchart LR
-  Owner[Owner and staff] -->|browser on shop PC| ShopManager[Shop Manager]
-  ShopManager -->|bill image and chat link| WhatsApp[WhatsApp Desktop or Web]
-  ShopManager -->|print| Printer[Thermal or A4 printer]
-  ShopManager -->|"publish products.json (HTTPS)"| GitHub[GitHub repository]
-  GitHub -->|push triggers build| Vercel[Vercel - public website]
-  Customers[Customers] -->|mobile or desktop| Vercel
-  Customers -->|scan UPI QR| Bank[Customer UPI app to shop bank account]
-  ShopManager -->|nightly encrypted backup| GDrive[Google Drive]
+  Customers[Customers] -->|mobile or desktop| Site[Website on Netlify]
+  Site -->|enquiry message| WhatsApp[Owner's WhatsApp]
+  Owner[Owner on phone] -->|/admin, logged in| Site
+  Site --> DB[(Netlify Database: Postgres)]
+  Site --> Blobs[(Netlify Blobs: photos, backups)]
+  Site -->|sitemap| Google[Google Search and Business Profile]
+  OldLink[Old Vercel address] -->|308 redirect| Site
 ```
 
 ---
 
 ## 3. Components
 
-### 3.1 Public website (existing, this repository)
+### 3.1 Public website (Part 1, live)
 
-- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4, deployed on **Vercel** (free plan).
-- Fully static pages with clean paths and no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts) and pre-rendered with `generateStaticParams`:
-  - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`); category ids and product ids must never overlap.
+- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on Vercel today, moving to **Netlify** in Sprint 1 because Vercel's free plan is for non-commercial use only.
+- Clean paths with no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts):
+  - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`). Category ids and product ids must never overlap.
   - `/products/[slug]/[type]` is a category type (`/products/paints/interior`).
   - `/brands/[slug]` is a brand (`/brands/asian-paints`), and `/enquiry/[productId]` opens the enquiry form with that product chosen.
-  - Brands, Offers, About and Contact are their own routes, not hash links on the home page.
-- **Data access:** pages and the REST endpoints in `src/app/api/` (`/api/products`, `/api/products/[id]`, `/api/categories`, `/api/categories/groups`, `/api/brands`) all read through [`src/services/catalog-service.ts`](../src/services/catalog-service.ts). Paths are defined once in [`src/lib/api/endpoints.ts`](../src/lib/api/endpoints.ts). Setting `CATALOG_API_URL` points the service at an external backend with the same endpoints, without changing any page.
-- **Enquiries:** `/enquiry` builds a WhatsApp message in the browser. Nothing is stored on the server.
-- **Product data source (after Sprint 5):** `src/data/products.json`, written only by the Publish feature and validated at build time. The validation uses the same `Product` shape as [`src/types/index.ts`](../src/types/index.ts).
-- **No database, no login, and no personal data.** The website can't reach the shop PC.
+  - Brands, Offers, About and Contact are their own routes.
+- **Data access:** pages and the REST endpoints in `src/app/api/` read through [`src/services/catalog-service.ts`](../src/services/catalog-service.ts). Paths are defined once in [`src/lib/api/endpoints.ts`](../src/lib/api/endpoints.ts).
+- **Today:** product data comes from `src/data`, every page is pre-rendered, and enquiries are only a WhatsApp message built in the browser.
 
-### 3.2 Shop Manager (new repository: `shree-balaji-shop-manager`)
+### 3.2 What Part 2 adds
 
-| Layer | Technology | Notes |
+| Piece | Technology | Notes |
 |-------|-----------|-------|
-| UI | Next.js 16 App Router, React 19, Tailwind CSS v4 | Same look and feel as the website |
-| Server logic | Next.js Server Actions and Route Handlers | All business rules run on the server, never in the browser |
-| Validation | Zod | Every input is validated at the server boundary |
-| Domain | Pure TypeScript modules (`src/domain`) | GST, money, invoice numbering. No I/O, fully unit-tested |
-| Data access | Drizzle ORM + `pg` (pure JavaScript driver) | No native binaries. SQL migrations are kept in Git |
-| Database | PostgreSQL 16 or later (LTS) | Local only, crash-safe, point-in-time recovery |
-| Runtime | Portable `node.exe` (Node LTS ZIP) | Nothing to install for Node |
-| Process manager | WinSW (Windows Service wrapper) | Auto-start, auto-restart, log rotation |
-| Backups | PowerShell scripts + `pg_dump` + WAL archiving + 7-Zip AES-256 | Run by Windows Task Scheduler |
+| Hosting | Netlify (free plan) with its Next.js adapter | Next.js 16 supported with zero configuration, including `use cache` and tag revalidation |
+| Database | Netlify Database (managed Postgres) | Products, offers, gallery, enquiries, admin users, sessions, audit log |
+| Data access | Drizzle ORM + `pg` | SQL migrations kept in Git |
+| Photos and backups | Netlify Blobs | Uploaded photos, plus daily JSON backups |
+| Images | `next/image` through Netlify's image CDN | Resized and served as WebP or AVIF |
+| Validation | Zod | Every admin action and the enquiry action |
+| Caching | `use cache` + `cacheTag` on service reads, `updateTag` after each owner save | Pages stay cached until the owner changes something |
+| Scheduled jobs | Netlify scheduled function | Daily backup |
 
-Before building, read the relevant guides in `node_modules/next/dist/docs/` (standalone output, Server Actions, Route Handlers, request interception). Next.js 16 has breaking changes from earlier versions; see [AGENTS.md](../AGENTS.md).
-
-### 3.3 Shop PC deployment layout
-
-```
-C:\ShreeBalajiBilling\
-  node\node.exe                    # portable Node LTS
-  app\server.js                    # Next.js standalone build (output: "standalone")
-  app\.next\static\  app\public\   # static assets copied next to server.js
-  config\.env                      # DATABASE_URL, SESSION_SECRET, GITHUB_TOKEN (restricted ACL)
-  service\billing-service.exe      # WinSW renamed
-  service\billing-service.xml      # service definition, env, log rotation
-  backup\backup-nightly.ps1  backup\restore.ps1  backup\restore-test.ps1
-  logs\                            # app and service logs (rotated)
-D:\ShreeBalajiBackups\             # second disk or USB: WAL archive + nightly files
-%USERPROFILE%\Google Drive\ShreeBalajiBackups\   # synced off-site copy
-```
-
-- The app listens on **`127.0.0.1:3000` only**, so it can't be reached from the network (see [Security](SECURITY.md)).
-- A desktop shortcut `Shree Balaji Billing` opens `http://localhost:3000`.
-- **Updates:** stop the service, back up, replace `app\`, run migrations, start the service.
+Before building, read the relevant guides in `node_modules/next/dist/docs/` (caching, revalidation, Server Actions, authentication). Next.js 16 has breaking changes; see [AGENTS.md](../AGENTS.md).
 
 ---
 
-## 4. Application structure (Shop Manager)
+## 4. Application structure (Part 2 additions)
 
-```
+```text
 src/
   app/
-    (auth)/login/page.tsx
-    (shop)/layout.tsx              # requires session; sidebar navigation
-    (shop)/dashboard/page.tsx
-    (shop)/billing/new/page.tsx    # fast billing screen
-    (shop)/billing/[id]/page.tsx   # view, reprint, cancel, WhatsApp
-    (shop)/billing/[id]/print/page.tsx   # ?format=thermal|a4
-    (shop)/products/...            # list, create, edit, import
-    (shop)/stock/...               # stock-in, adjustments, ledger
-    (shop)/customers/...
-    (shop)/reports/...             # sales, payment-mode, gst, stock
-    (shop)/settings/...            # shop profile, users, backup status, publish
-    api/export/[report]/route.ts   # CSV downloads
-    api/health/route.ts            # used by the service and backup scripts
-  domain/                          # pure logic, no imports from db or next
-    money.ts  gst.ts  invoice-number.ts  stock.ts
+    admin/
+      login/page.tsx
+      (panel)/layout.tsx          # requires a session; owner navigation
+      (panel)/page.tsx            # dashboard: new enquiries, quick links
+      (panel)/products/...        # list, new, [id] edit
+      (panel)/offers/...
+      (panel)/gallery/...
+      (panel)/enquiries/page.tsx
+    gallery/page.tsx
+    paint-calculator/page.tsx
+    sitemap.ts  robots.ts
+  components/
+    admin/                        # owner panel forms and lists
+    gallery/  calculator/
+  lib/
+    paint-calculator.ts           # pure: area, litres, pack sizes
   server/
     db/schema.ts  db/client.ts  db/migrations/
-    auth/session.ts  auth/password.ts  auth/guard.ts
-    services/                      # use cases; each runs in one DB transaction
-      billing-service.ts  product-service.ts  stock-service.ts
-      report-service.ts  publish-service.ts  backup-status-service.ts
+    auth/password.ts  auth/session.ts  auth/guard.ts
+    actions/                      # Server Actions, one file per resource
+    storage/photos.ts             # Netlify Blobs wrapper
     audit.ts
-  components/                      # UI components (PascalCase.tsx)
-  lib/                             # client-safe helpers (formatting)
-tests/
-  domain/  services/  e2e/
-scripts/                           # PowerShell: install, backup, restore
+  services/                       # catalog, offers, gallery, enquiries
+netlify/functions/daily-backup.mts
 ```
 
-**Dependency rule:** `app` → `server/services` → `domain` + `server/db`. The `domain` folder imports nothing from Next.js or the database, and UI components never import `server/db`.
+**Dependency rule:** pages and components → `services` → `server/db`. Client components never import `server/`. `lib/paint-calculator.ts` imports nothing from Next.js or the database.
 
 ---
 
@@ -133,168 +106,88 @@ scripts/                           # PowerShell: install, backup, restore
 
 ```mermaid
 erDiagram
-  USERS ||--o{ SESSIONS : has
-  USERS ||--o{ INVOICES : creates
-  USERS ||--o{ AUDIT_LOG : performs
-  CATEGORIES ||--o{ PRODUCTS : groups
-  BRANDS ||--o{ PRODUCTS : makes
-  PRODUCTS ||--o{ PRODUCT_VARIANTS : "sold as"
-  PRODUCT_VARIANTS ||--o{ STOCK_MOVEMENTS : "moves by"
-  PRODUCT_VARIANTS ||--o{ INVOICE_ITEMS : "billed as"
-  CUSTOMERS ||--o{ INVOICES : receives
-  INVOICES ||--|{ INVOICE_ITEMS : contains
-  INVOICE_COUNTERS ||--o{ INVOICES : numbers
+  ADMIN_USERS ||--o{ SESSIONS : has
+  ADMIN_USERS ||--o{ AUDIT_LOG : performs
+  PRODUCTS ||--o{ ENQUIRIES : "asked about"
 ```
-
-### Key tables
 
 | Table | Important columns | Rules |
 |-------|-------------------|-------|
-| `shop_settings` | name, gstin, state_code (27 = Maharashtra), address, phone, upi_id, invoice_prefix | Single row |
-| `users` | username, password_hash, role (`owner` / `staff`), is_active, failed_attempts, locked_until | Usernames are unique |
-| `sessions` | token_hash, user_id, expires_at, last_seen_at | Only a hash of the token is stored |
-| `products` | name, brand_id, category_id, hsn, gst_rate_bp, unit, show_on_website, is_active | `gst_rate_bp` is in basis points (1800 = 18%) |
-| `product_variants` | product_id, size_label, sku, selling_price_paise, price_includes_gst, stock_qty, min_stock_qty, is_active | `stock_qty` is a cached total of the movements |
-| `stock_movements` | variant_id, qty_change, reason (`OPENING` / `PURCHASE` / `SALE` / `CANCEL` / `ADJUSTMENT`), ref_type, ref_id, note, created_by, created_at | **Append-only** |
-| `customers` | name, phone, gstin, state_code, address | GSTIN is validated and its first 2 digits become the state code |
-| `invoice_counters` | financial_year (e.g. `2026-27`), last_seq | Row-locked when a number is allocated |
-| `invoices` | number, financial_year, seq, type (`GST` / `SIMPLE`), customer snapshot (name, gstin, state), place_of_supply, subtotal, discount, cgst, sgst, igst, round_off, total (all paise), payment_mode (`CASH` / `UPI` / `CARD`), upi_ref, status (`ACTIVE` / `CANCELLED`), cancel_reason, cancelled_by, cancelled_at, created_by, created_at | Amounts are **immutable** after saving |
-| `invoice_items` | invoice_id, variant_id, **snapshot** of name, size, hsn, gst_rate_bp, qty, unit_price, discount, taxable, cgst, sgst, igst, line_total | Snapshots mean editing a product never changes old bills |
+| `admin_users` | username, password_hash, failed_attempts, locked_until | One owner account in v1 |
+| `sessions` | token_hash, user_id, expires_at | Only a hash of the token is stored |
+| `products` | id (slug), name, brand, category, type, description, sizes (jsonb), price_from, unit, image_key, featured, in_stock, is_visible, updated_at | `id` unique and never equal to a category id. `in_stock` is true or false only |
+| `offers` | title, body, image_key, starts_on, ends_on | Shown only between the two dates (Asia/Kolkata) |
+| `gallery_items` | caption, image_key, sort_order | |
+| `enquiries` | name, phone, product_id, quantity, message, source (`form` / `calculator`), status (`NEW` / `CALLED` / `DONE`), created_at | Owner-only. Deleted after 12 months |
 | `audit_log` | user_id, action, entity, entity_id, before (jsonb), after (jsonb), at | Append-only |
-| `publish_log` | user_id, at, commit_sha, products_count, status, error | |
-| `backup_log` | kind (`WAL` / `NIGHTLY` / `MANUAL` / `RESTORE_TEST`), started_at, finished_at, status, file, size_bytes, checksum, error | Written by the scripts and shown on the dashboard |
 
-### Integrity rules enforced by the database
-
-- **Money:** whole **paise** in `bigint` columns, never floating point.
-- **Unique constraints:** `invoices(financial_year, seq)` and `invoices(number)` are unique.
-- **Triggers:**
-  - A trigger **blocks `DELETE`** on `invoices`, `invoice_items`, `stock_movements` and `audit_log`.
-  - A trigger **blocks `UPDATE`** of amount columns on `invoices` and `invoice_items`. Only status and cancel fields may change, and only from `ACTIVE` to `CANCELLED`.
-- **Check constraints:**
-  - `gst_rate_bp` must be one of 0, 500, 1200, 1800 or 2800 (stored in config, editable if GST rates change).
-  - Quantities are greater than 0 on invoice items.
-- **Negative stock:** blocked by default (a setting can allow it, and every change is logged).
+Categories and their types stay in code (`src/data/category-tree.ts`), because they change rarely and drive the URL structure. Brands are derived from products, as today.
 
 ---
 
 ## 6. Key flows
 
-### 6.1 Saving a bill (one transaction)
+### 6.1 Owner saves a product
 
 ```mermaid
 sequenceDiagram
-  participant UI as Billing screen
-  participant SA as Server action saveInvoice
-  participant D as domain gst and money
-  participant DB as PostgreSQL
-  UI->>SA: items, customer, discount, payment mode
-  SA->>SA: check session and role, validate with Zod
-  SA->>D: calculate lines, tax split, round off
-  D-->>SA: totals in paise
-  SA->>DB: BEGIN
-  SA->>DB: SELECT invoice_counters FOR UPDATE
-  SA->>DB: INSERT invoice and invoice_items
-  SA->>DB: INSERT stock_movements (SALE) and UPDATE stock_qty
-  SA->>DB: INSERT audit_log
-  SA->>DB: COMMIT
-  SA-->>UI: invoice id and number
-  UI->>UI: open print view or WhatsApp
+  participant O as Owner (phone)
+  participant A as Server action saveProduct
+  participant DB as Postgres
+  participant C as Next.js cache
+  O->>A: form fields and photo
+  A->>A: check session, validate with Zod
+  A->>A: store photo in Blobs (if new)
+  A->>DB: upsert product, write audit_log
+  A->>C: updateTag("catalog")
+  A-->>O: saved
+  Note over C: next visitor gets freshly rendered pages
 ```
 
-If any step fails, the whole transaction rolls back: no number is used, no stock moves, and nothing is half-saved.
+Product and brand pages render on demand for new ids (`dynamicParams` on), and are cached after the first visit.
 
-### 6.2 GST calculation rules (domain/gst.ts)
+### 6.2 Customer sends an enquiry
 
-1. Per line: `net = qty × unit_price − line_discount`. If the price includes GST, take tax out with `taxable = round(net × 10000 / (10000 + rate_bp))`. Otherwise `taxable = net`.
-2. **Intra-state** (customer state = shop state 27, or no GSTIN): `cgst = round(taxable × rate_bp / 2 / 10000)`, and `sgst` is calculated the same way.
-3. **Inter-state** (customer GSTIN state is not 27): `igst = round(taxable × rate_bp / 10000)`.
-4. A bill-level discount is spread across lines in proportion to their value before tax, and any leftover paise go to the largest line.
-5. `total = Σ(taxable + taxes)`, rounded to the nearest rupee with a visible **Round off** line.
-6. All rounding is **half-up to the paise**. Every rule is covered by unit tests with known examples checked by the CA.
+1. The form is validated in the browser and posted to the `saveEnquiry` action (Zod, honeypot, rate limit).
+2. The action stores the enquiry and returns success.
+3. The browser opens WhatsApp with the same message as today.
+4. If step 1 or 2 fails, the browser still opens WhatsApp, so the owner always receives it.
 
-### 6.3 Cancelling a bill
+### 6.3 Paint calculator
 
-`status = CANCELLED` with a reason. Reverse `CANCEL` stock movements are added. The invoice number is never reused, and the bill still prints with a **CANCELLED** watermark.
+`src/lib/paint-calculator.ts` is a pure function:
 
-### 6.4 WhatsApp receipt (free)
+- `wallArea = 2 × (length + width) × height − doors × doorArea − windows × windowArea (+ ceiling)`, with feet converted to metres.
+- `litres = ceil(area × coats ÷ coverage)`, where the coverage per litre comes from the chosen paint type.
+- Pack sizes: the combination of the product's sizes that covers the litres with the least waste.
 
-1. The print view renders a receipt image, which is copied with `navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])`. `localhost` counts as a secure context, so this is allowed.
-2. The app opens `https://wa.me/91<customer phone>?text=<bill summary>`, and the owner presses **Ctrl+V** and **Send**.
-3. **Fallback:** save the PDF from the print dialog and attach it manually.
+The result links to `ROUTES.enquiry(productId)` with the details carried in the form state, never in the URL.
 
-### 6.5 Publish to website
+### 6.4 Daily backup
 
-```mermaid
-sequenceDiagram
-  participant O as Owner
-  participant PS as publish-service
-  participant GH as GitHub API
-  participant V as Vercel
-  O->>PS: Publish (with preview of changes)
-  PS->>PS: build public JSON with whitelisted fields only
-  PS->>PS: validate with the website Product schema
-  PS->>GH: PUT contents src/data/products.json on main
-  GH-->>PS: commit sha
-  GH->>V: push triggers build and deploy
-  PS->>PS: write publish_log
-```
-
-**Fields that can be published:** id, name, brand, category, type, description, sizes, priceFrom, unit, image, featured and `inStock` (true or false only).
-
-**Never published:** stock quantities, cost data, customers, bills and users.
+A scheduled function exports all tables (except sessions) to `backups/YYYY-MM-DD.json` in Blobs and keeps the last 30. Uploaded photos are written to a second Blobs store at upload time. Postgres also keeps its own short restore window.
 
 ---
 
-## 7. Data protection design (no data loss)
+## 7. Configuration
 
-| Layer | Protects against | Mechanism | Worst-case loss |
-|-------|------------------|-----------|-----------------|
-| Transactions + PostgreSQL WAL | App crash, power cut | ACID transactions, `fsync=on`, `synchronous_commit=on` | 0 committed bills |
-| Append-only ledger + triggers | Mistakes, misuse | No deletes; cancel only; audit log | 0 (history kept) |
-| WAL archiving to second disk/USB | Main disk failure | `archive_mode=on`, `archive_timeout=60s`, base backup weekly | About 1 minute |
-| Nightly encrypted full backup | Corruption, ransomware on the live DB | `pg_dump -Fc`, SHA-256 checksum, 7-Zip AES-256, copied to second disk and Google Drive folder | Up to 1 day (WAL covers the gap if the second disk survives) |
-| Off-site copy (Google Drive) | Fire, theft, both local disks lost | Google Drive for desktop sync | Up to 1 day |
-| Retention | Problem found late | 30 daily + 12 monthly + WAL for 14 days | n/a |
-| Monitoring | Silent backup failure | `backup_log` + red dashboard banner if a backup failed or is older than 26 hours | n/a |
-| Restore testing | Backups that don't actually work | Monthly automated restore into `shopdb_restore_test`, with row counts compared | n/a |
-| UPS | Hardware damage from power cuts | Hardware | n/a |
-
-**Recovery targets:** RPO about 1 minute (second disk available) or 24 hours (off-site only). RTO under 1 hour on the same PC, or under 4 hours on a replacement PC.
-
-**Backup encryption password:** created at go-live, printed, and kept by the owner in a sealed envelope. Without it, off-site backups can't be restored.
+| Setting | Where | Notes |
+|---------|-------|-------|
+| `DATABASE_URL` | Netlify environment (set by Netlify Database) | Never in Git |
+| `SESSION_SECRET` | Netlify environment | 32+ random bytes |
+| `ADMIN_USERNAME`, `ADMIN_INITIAL_PASSWORD` | Netlify environment | Used once to create the owner; the owner changes the password at handover |
+| `SITE_URL` | Netlify environment | Used by the sitemap, metadata and the Vercel redirect |
+| Shop name, phone, address, hours | `src/config/shop.ts` | Unchanged |
 
 ---
 
-## 8. Configuration
-
-| Setting | Where | Example |
-|---------|-------|---------|
-| `DATABASE_URL` | `config\.env` | `postgres://shop_app:***@127.0.0.1:5432/shopdb` |
-| `SESSION_SECRET` | `config\.env` | 32+ random bytes, generated at install |
-| `GITHUB_TOKEN` | `config\.env` | Fine-grained token, single repo, contents write |
-| `HOSTNAME` / `PORT` | WinSW XML | `127.0.0.1` / `3000` |
-| Shop profile, UPI ID, invoice prefix | `shop_settings` table, Settings screen | `SB` |
-
----
-
-## 9. Observability
-
-- **Structured logs** (JSON lines) go to `logs\`, rotated daily by WinSW and kept for 30 days. Passwords, tokens and full customer phone numbers are never logged.
-- `GET /api/health` checks database connectivity and the last backup age. The dashboard uses it.
-- Errors are shown to the user as plain-language messages with a reference ID that matches the log line.
-
----
-
-## 10. Architecture decisions (summary)
+## 8. Architecture decisions (summary)
 
 | # | Decision | Reason | Alternatives rejected |
 |---|----------|--------|-----------------------|
-| 1 | Next.js for Shop Manager | One language and stack with the website | ASP.NET Core (a second stack), PHP/XAMPP |
-| 2 | PostgreSQL | Point-in-time recovery, strong integrity, free | MySQL/XAMPP (weaker PITR tooling), SQLite (harder continuous backup on Windows) |
-| 3 | Drizzle + `pg` | No native binaries, so the app folder is portable | Prisma (native engine to bundle) |
-| 4 | Portable Node + WinSW | No Node install, real Windows Service with restart | PM2 on Windows (unreliable startup) |
-| 5 | Integer paise | Exact money arithmetic | Floating point |
-| 6 | Snapshot bill lines | Old bills never change when products change | Join to live product data |
-| 7 | Publish via GitHub commit | Free, versioned, and Vercel rebuilds automatically | Hosted DB/API (cost, internet dependency) |
-| 8 | Semi-automatic WhatsApp | Free and within WhatsApp terms | Business API (paid), unofficial automation (ban risk) |
+| 1 | Netlify free plan | Allows commercial use, supports Next.js 16, includes a database and blob storage | Vercel free (non-commercial only), Vercel Pro (monthly cost), Cloudflare (more adapter work, worker size limits) |
+| 2 | Owner panel inside the same Next.js app | One codebase, one deploy, shared components and services | Separate admin app, a hosted CMS |
+| 3 | Cached pages refreshed by tag | Fast pages, changes in about a minute, no redeploy (deploys cost free-plan credits) | Rebuild on every change, fully dynamic pages |
+| 4 | Postgres with Drizzle | Real constraints and migrations, free, no native binaries | Google Sheets as a CMS (no validation, fragile), JSON committed to Git (no place for enquiries) |
+| 5 | Save the enquiry, then open WhatsApp | Nothing lost, and the owner keeps his WhatsApp habit | WhatsApp only (lost chats), form only (slower replies) |
+| 6 | Categories stay in code | They define the URL structure and rarely change | Editable categories (risk of broken links) |

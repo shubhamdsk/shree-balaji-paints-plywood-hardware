@@ -92,7 +92,7 @@ src/
   services/          # Catalogue service used by pages and API routes
   types/             # Shared TypeScript types
 public/images/       # Photos (see CREDITS.md); shop/ placeholders for real photos
-docs/                # Sprint plan, architecture, security, scalability, coding standards
+docs/                # Part 2 sprint plan, architecture, security, scalability, coding standards
 scripts/             # Optional Pexels image download helper
 ```
 
@@ -120,11 +120,17 @@ To publish changes, merge `develop` into `main` and push.
 
 Manual deploy with the [Vercel CLI](https://vercel.com/docs/cli): `npx vercel --prod` from the project root (after `vercel login`).
 
+Vercel's free plan is for non-commercial use, so Sprint 1 of Part 2 moves the site to Netlify's free plan and redirects the Vercel address to the new one.
+
 ## Roadmap
 
-- Backend and database for live inventory
-- Admin panel for stock and product updates
-- Sales records, customer CRM, billing, and enquiry tracking
+Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sprints):
+
+- Owner panel at `/admin`: products, photos, prices, in/out of stock, offers and gallery, edited from a phone
+- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
+- Paint calculator, our work gallery, dated offer banners
+- Google Business Profile, Search Console and sitemap
+- Move hosting to Netlify's free plan, which allows commercial sites ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 
