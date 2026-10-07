@@ -36,6 +36,8 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
+- **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
+- **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
 
 ## Tech stack
@@ -116,7 +118,7 @@ The site is hosted on **[Vercel](https://vercel.com)** and connected to the GitH
 
 - **Production:** [shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)
 - **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Pushes to other branches (e.g. `develop`) get their own preview URL.
-- **Settings:** Framework preset **Next.js**, default build command, no environment variables required.
+- **Settings:** Framework preset **Next.js**, default build command. `SITE_URL` is optional and defaults to the Vercel address (see `.env.example`).
 
 To publish changes, merge `develop` into `main` and push.
 

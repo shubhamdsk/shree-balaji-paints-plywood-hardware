@@ -65,13 +65,14 @@ src/
     enquiry/            enquiry form
     calculator/         paint calculator
     ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
-  config/               site constants (shop.ts: name, phone, address, hours)
+  config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
   data/                 local catalogue source, read only by src/services
   hooks/                shared React hooks (use-confirm, use-unsaved-changes)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
     paint-calculator.ts paint area, litres and pack-size logic
+    sitemap.ts          every public page path for sitemap.xml
   providers/            app-wide React context providers, composed in AppProviders
   services/             data access used by pages and API routes
   test/                 test setup and render helpers

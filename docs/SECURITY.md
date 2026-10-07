@@ -78,12 +78,13 @@ GitHub secret scanning and push protection stay on.
 
 ## 4. Public website controls
 
-- **Security headers** with `headers()` in `next.config.ts`, after checking the Next.js 16 docs:
-  - `Content-Security-Policy`, allowing self, the Google Maps embed and fonts.
+- **Security headers** are set on every response with `headers()` in `next.config.ts`:
+  - `Content-Security-Policy`: only this site's own scripts, styles, images and fonts, plus the Google Maps embed (`frame-src https://www.google.com`). Pages are statically generated, so the policy follows the Next.js "without nonces" pattern and keeps `'unsafe-inline'` for scripts; `'unsafe-eval'` is added only in development.
   - `X-Content-Type-Options: nosniff`.
   - `Referrer-Policy: strict-origin-when-cross-origin`.
-  - `Permissions-Policy` with camera, microphone and geolocation off (the owner panel allows camera through the file input, which needs no permission).
-  - `frame-ancestors 'none'`.
+  - `Permissions-Policy` with camera, microphone and geolocation off (the owner panel's photo upload uses a file input, which needs no permission).
+  - `frame-ancestors 'none'`, so the site can't be embedded in another page.
+- `robots.txt` and `sitemap.xml` are generated from the same services and `ROUTES` as the pages. `/api/` is excluded from crawling.
 - `/admin` pages send `noindex` and are excluded from the sitemap and `robots.txt`.
 - The public API returns only visible products and public fields. `in_stock` is true or false, never a quantity.
 

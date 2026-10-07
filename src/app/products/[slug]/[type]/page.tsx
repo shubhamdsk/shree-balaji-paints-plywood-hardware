@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CatalogView from "@/components/products/CatalogView";
 import { shop } from "@/config/shop";
-import { countProducts, findSubtypeBySlug } from "@/lib/catalog";
+import { findSubtypeBySlug, listStockedSubtypes } from "@/lib/catalog";
 import { slugify } from "@/lib/slug";
 import { getCategoryGroups, getProducts } from "@/services/catalog-service";
 
@@ -10,11 +10,7 @@ export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const [products, groups] = await Promise.all([getProducts(), getCategoryGroups()]);
-  return groups.flatMap((g) =>
-    g.subtypes
-      .filter((subtype) => countProducts(products, g.id, subtype) > 0)
-      .map((subtype) => ({ slug: g.id, type: slugify(subtype) })),
-  );
+  return listStockedSubtypes(products, groups).map(({ group, subtype }) => ({ slug: group.id, type: slugify(subtype) }));
 }
 
 async function resolve(slug: string, type: string) {
