@@ -87,7 +87,8 @@ export default function ProductCatalog({
         <button
           type="button"
           onClick={() => setMobileFilters((v) => !v)}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white py-3 text-sm font-bold text-brand-900 lg:hidden"
+          aria-expanded={mobileFilters}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line bg-white text-sm font-semibold text-brand-900 lg:hidden"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters & Categories
@@ -105,7 +106,7 @@ export default function ProductCatalog({
           </div>
         )}
 
-        <div className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 card-shadow sm:grid-cols-[1fr_160px_160px]">
+        <div className="grid gap-3 rounded-card border border-line bg-white p-3 shadow-card sm:grid-cols-[1fr_170px_170px] sm:p-4">
           <input
             type="search"
             value={query}
@@ -148,23 +149,25 @@ export default function ProductCatalog({
           </select>
         </div>
 
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-muted">
           Showing <span className="font-semibold text-brand-900">{filtered.length}</span> of{" "}
           {inCategory.length} products
         </p>
 
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center rounded-2xl border border-dashed border-stone-300 py-16 text-center">
-            <PackageSearch className="h-12 w-12 text-stone-300" />
-            <p className="mt-4 font-semibold text-stone-700">No products match your filters</p>
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-line py-16 text-center">
+            <PackageSearch className="h-12 w-12 text-subtle" />
+            <p className="mt-4 font-semibold text-ink">No products match your filters</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">
               {pageItems.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <li key={p.id}>
+                  <ProductCard product={p} />
+                </li>
               ))}
-            </div>
+            </ul>
 
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 pt-4">
@@ -172,19 +175,19 @@ export default function ProductCatalog({
                   type="button"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-stone-200 bg-white disabled:opacity-40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-white transition enabled:hover:border-brand-200 disabled:opacity-40"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <span className="text-sm font-semibold text-stone-600">
+                <span className="text-sm font-semibold text-muted">
                   Page {pageSafe} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={pageSafe >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-stone-200 bg-white disabled:opacity-40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-white transition enabled:hover:border-brand-200 disabled:opacity-40"
                   aria-label="Next page"
                 >
                   <ChevronRight className="h-5 w-5" />

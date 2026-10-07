@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildEnquiryMessage, normalisePhone, validateEnquiry, type EnquiryInput } from "@/lib/enquiry";
+import {
+  buildEnquiryMessage,
+  normalisePhone,
+  productEnquiryMessage,
+  validateEnquiry,
+  type EnquiryInput,
+} from "@/lib/enquiry";
 
 const valid: EnquiryInput = { name: "Ramesh Patil", phone: "", productId: "", quantity: "", message: "Need 20 L white" };
 
@@ -33,6 +39,22 @@ describe("validateEnquiry", () => {
   it("needs either a product or a message", () => {
     expect(validateEnquiry({ ...valid, message: "" }).message).toBeDefined();
     expect(validateEnquiry({ ...valid, message: "", productId: "ap-royale-luxury" }).message).toBeUndefined();
+  });
+});
+
+describe("productEnquiryMessage", () => {
+  it("names the product and asks for the latest price and availability", () => {
+    expect(productEnquiryMessage("Asian Paints Royale Luxury Emulsion").split("\n")).toEqual([
+      "Hi, I'm interested in:",
+      "",
+      "Product: Asian Paints Royale Luxury Emulsion",
+      "",
+      "Can you please share the latest price and availability?",
+    ]);
+  });
+
+  it("adds the chosen size when there is one", () => {
+    expect(productEnquiryMessage("Asian Paints Royale Luxury Emulsion", "4 L")).toContain("\nSize: 4 L\n");
   });
 });
 

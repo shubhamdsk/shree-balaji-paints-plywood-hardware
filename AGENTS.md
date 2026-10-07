@@ -30,7 +30,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
 3. **Unit tests.** Add or update tests next to the code (`thing.ts` gets `thing.test.ts`) for every new or changed function, hook, service, route handler and interactive component. A bug fix starts with a test that fails before the fix.
 4. **Regression check.** Run `npm run check`. Then run the app and check the main flows still work:
    - The home page.
-   - `/products`, a category (`/products/paints`) and a type (`/products/paints/interior`), plus the brand and search filters.
+   - `/products`, `/categories`, a category (`/products/paints`) and a type (`/products/paints/interior`), plus the brand and search filters.
    - A product detail page.
    - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
@@ -55,7 +55,7 @@ src/
     api/                REST Route Handlers, one route.ts per resource
   components/
     brand/              logo and brand wordmarks
-    layout/             navbar, footer, floating buttons
+    layout/             navbar, mobile bottom bar, footer, floating buttons, nav-links.ts (shared links and active-path check)
     home/               home page sections
     products/           catalogue, cards, product detail
     brands/             brand grid (home and /brands)
@@ -113,7 +113,7 @@ scripts/                developer helper scripts
 - Imports: always the `@/` alias (it points to `src/`). No relative imports.
 - Server Components by default. Add `"use client"` only to components that need state, effects or browser APIs.
 - No `any`. Type shared shapes in `src/types`.
-- Styling: Tailwind classes with the theme tokens in `src/app/globals.css` (`brand-*`, `accent-*`, `ink`, `muted`, `surface`). No inline styles or hard-coded colours, except in SVG artwork and `ImageResponse` metadata images, which can't use Tailwind.
+- Styling: Tailwind classes with the theme tokens in `src/app/globals.css` (`brand-*` navy, `accent-*` red, `paint-*` orange, `gold-*`, `ink`, `muted`, `subtle`, `line`, `canvas`, `surface-muted`, `success`, plus `rounded-card`, `shadow-card` and `container-page`). Main buttons are red (`cta`); orange is for accents only, because white text on it fails contrast. No inline styles or hard-coded colours, except in SVG artwork and `ImageResponse` metadata images, which can't use Tailwind.
 - Images: `next/image` with real `alt` text. Credit stock photos in `public/images/CREDITS.md`.
 - Shop details (phone, address, hours) live only in `src/config/shop.ts`. Never hard-code them elsewhere.
 - Accessibility: every input has a label, errors are linked with `aria-describedby`, and dialogs use the shared `ConfirmDialog` (native `<dialog>`, focus and Esc handled).

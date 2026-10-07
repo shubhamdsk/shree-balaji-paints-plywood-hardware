@@ -120,7 +120,7 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-3xl border border-stone-200 bg-white p-5 card-shadow sm:p-8">
+      <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-white p-5 card-shadow sm:p-8">
         <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
           <FormField label="Paint" htmlFor="productId" error={errors.productId} required>
             <select
@@ -173,12 +173,12 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
             type="checkbox"
             checked={values.includeCeiling}
             onChange={(e) => update("includeCeiling", e.target.checked)}
-            className="h-5 w-5 rounded border-stone-300 accent-accent-500"
+            className="h-5 w-5 rounded border-line accent-accent-600"
           />
           Paint the ceiling too
         </label>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
           <Button variant="secondary" onClick={handleClear} disabled={!isDirty}>
             Clear
           </Button>
@@ -191,21 +191,21 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
 
       <div aria-live="polite">
         {estimate && product && (
-          <section aria-labelledby="estimate-heading" className="rounded-3xl border border-orange-200 bg-orange-50 p-5 sm:p-8">
+          <section aria-labelledby="estimate-heading" className="rounded-card border border-paint-100 bg-accent-50 p-5 sm:p-8">
             <h2 id="estimate-heading" className="text-lg font-extrabold text-brand-900">
               You need about {estimate.litres} L of {product.label}
             </h2>
             <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
               <div>
                 <dt className="font-bold text-brand-900">Area to paint</dt>
-                <dd className="text-stone-700">About {estimate.areaSqft} sq ft</dd>
+                <dd className="text-ink">About {estimate.areaSqft} sq ft</dd>
               </div>
               <div>
                 <dt className="font-bold text-brand-900">Suggested packs</dt>
-                <dd className="text-stone-700">{formatPacks(estimate.packs)}</dd>
+                <dd className="text-ink">{formatPacks(estimate.packs)}</dd>
               </div>
             </dl>
-            <p className="mt-4 text-xs text-stone-600">
+            <p className="mt-4 text-xs text-muted">
               This is an estimate. Wall condition, colour change and brand affect coverage, so the shop will confirm the final quantity.
             </p>
             <Button variant="whatsapp" onClick={handleSend} className="mt-5">

@@ -27,6 +27,17 @@ export function validateEnquiry(input: EnquiryInput): EnquiryErrors {
   return errors;
 }
 
+export function productEnquiryMessage(productLabel: string, size?: string) {
+  return [
+    "Hi, I'm interested in:",
+    "",
+    `Product: ${productLabel}`,
+    ...(size ? [`Size: ${size}`] : []),
+    "",
+    "Can you please share the latest price and availability?",
+  ].join("\n");
+}
+
 export function buildEnquiryMessage(input: EnquiryInput, productLabel?: string) {
   const phone = normalisePhone(input.phone);
   return [

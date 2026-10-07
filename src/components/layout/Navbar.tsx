@@ -1,45 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Menu, MessageCircle, Search, X } from "@/components/ui/icons";
+import { Calculator, ClipboardList, Menu, MessageCircle, Phone, Search, X } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
+import { isActivePath, NAV_LINKS } from "@/components/layout/nav-links";
 import AppLink from "@/components/ui/AppLink";
+import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products" },
-  { href: "/brands", label: "Brands" },
-  { href: "/offers", label: "Offers" },
-  { href: "/about", label: "About" },
-  { href: "/enquiry", label: "Enquiry" },
-  { href: "/contact", label: "Contact" },
-];
+import { ROUTES } from "@/lib/routes";
 
-function isActive(href: string, pathname: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
+const SCROLL_COMPACT_PX = 12;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > SCROLL_COMPACT_PX);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 shadow-sm backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
+    <header
+      className={`sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${
+        scrolled ? "border-transparent shadow-header" : "border-line"
+      }`}
+    >
+      <nav
+        aria-label="Main"
+        className={`container-page flex items-center justify-between gap-3 transition-[padding] duration-300 ease-premium ${
+          scrolled ? "py-2" : "py-3 lg:py-4"
+        }`}
+      >
         <Logo />
 
-        <ul className="hidden items-center gap-0.5 lg:flex">
-          {links.map((link) => {
-            const active = isActive(link.href, pathname);
+        <ul className="hidden items-center gap-1 lg:flex">
+          {NAV_LINKS.map((link) => {
+            const active = isActivePath(link.href, pathname);
             return (
               <li key={link.label}>
                 <AppLink
                   href={link.href}
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                    active ? "text-accent-600" : "text-stone-700 hover:text-accent-600"
+                  className={`relative rounded-lg px-2.5 py-2 text-[15px] font-semibold transition-colors after:absolute after:inset-x-2.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:transition-colors xl:px-3 ${
+                    active
+                      ? "text-accent-600 after:bg-accent-600"
+                      : "text-brand-900 after:bg-transparent hover:text-accent-600"
                   }`}
                 >
                   {link.label}
@@ -51,32 +61,29 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <AppLink
-            href="/products"
+            href={ROUTES.products}
             aria-label="Search products"
-            className="grid h-10 w-10 place-items-center rounded-full text-stone-700 transition hover:bg-stone-100"
+            className="grid h-11 w-11 place-items-center rounded-full text-brand-900 transition hover:bg-surface-muted"
           >
             <Search className="h-5 w-5" />
           </AppLink>
-          <AppLink
-            href="/enquiry"
-            aria-label="Product enquiry"
-            className="hidden h-10 w-10 place-items-center rounded-full text-stone-700 transition hover:bg-stone-100 sm:grid"
-          >
-            <ClipboardList className="h-5 w-5" />
-          </AppLink>
-          <a
-            href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full bg-brand-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-800 sm:inline-flex"
-          >
-            <MessageCircle className="h-4 w-4 text-[#25D366]" />
-            WhatsApp Us
-          </a>
+          <div className="hidden sm:block lg:hidden xl:block">
+            <a
+              href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClasses("whatsapp")}
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp Us
+            </a>
+          </div>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-stone-800 hover:bg-stone-100 lg:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-brand-900 hover:bg-surface-muted lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -85,18 +92,18 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-stone-200 bg-white px-4 pb-4 lg:hidden">
-          <ul className="flex flex-col py-2">
-            {links.map((link) => {
-              const active = isActive(link.href, pathname);
+        <div id="mobile-menu" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white lg:hidden">
+          <ul className="container-page grid gap-1 py-3">
+            {NAV_LINKS.map((link) => {
+              const active = isActivePath(link.href, pathname);
               return (
                 <li key={link.label}>
                   <AppLink
                     href={link.href}
                     onClick={() => setOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={`block min-h-11 rounded-lg px-3 py-3 font-semibold hover:bg-stone-50 ${
-                      active ? "text-accent-600" : "text-stone-800"
+                    className={`flex min-h-12 items-center rounded-xl px-3 text-base font-semibold ${
+                      active ? "bg-accent-50 text-accent-700" : "text-brand-900 hover:bg-surface-muted"
                     }`}
                   >
                     {link.label}
@@ -104,16 +111,34 @@ export default function Navbar() {
                 </li>
               );
             })}
+            <li className="mt-1 grid grid-cols-2 gap-2 border-t border-line pt-3">
+              <AppLink
+                href={ROUTES.enquiry()}
+                onClick={() => setOpen(false)}
+                className={buttonClasses("secondary", "w-full")}
+              >
+                <ClipboardList className="h-4 w-4" /> Enquiry
+              </AppLink>
+              <AppLink
+                href={ROUTES.paintCalculator()}
+                onClick={() => setOpen(false)}
+                className={buttonClasses("secondary", "w-full")}
+              >
+                <Calculator className="h-4 w-4" /> Paint calculator
+              </AppLink>
+              <a href={shop.phoneLink} className={buttonClasses("primary", "w-full")}>
+                <Phone className="h-4 w-4" /> Call
+              </a>
+              <a
+                href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClasses("whatsapp", "w-full")}
+              >
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
+            </li>
           </ul>
-          <a
-            href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-semibold text-white"
-          >
-            <MessageCircle className="h-4 w-4" />
-            WhatsApp Us
-          </a>
         </div>
       )}
     </header>

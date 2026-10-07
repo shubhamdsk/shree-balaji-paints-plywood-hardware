@@ -1,8 +1,13 @@
+import { ROUTES } from "@/lib/routes";
 import { slugify } from "@/lib/slug";
 import type { CategoryGroup, CategoryId, Product } from "@/types";
 
 export function countProducts(products: Product[], categoryId: CategoryId, subtype?: string) {
   return products.filter((p) => p.category === categoryId && (!subtype || p.type === subtype)).length;
+}
+
+export function productLabel(product: Pick<Product, "brand" | "name">) {
+  return `${product.brand} ${product.name}`;
 }
 
 export function getBrandNames(products: Product[]) {
@@ -25,6 +30,12 @@ export function listStockedSubtypes(products: Product[], groups: CategoryGroup[]
       .filter((subtype) => countProducts(products, group.id, subtype) > 0)
       .map((subtype) => ({ group, subtype })),
   );
+}
+
+export function stockedHref(products: Product[], categoryId: CategoryId, subtype: string) {
+  return countProducts(products, categoryId, subtype) > 0
+    ? ROUTES.category(categoryId, subtype)
+    : ROUTES.category(categoryId);
 }
 
 export function findSubtypeBySlug(group: CategoryGroup, slug: string) {

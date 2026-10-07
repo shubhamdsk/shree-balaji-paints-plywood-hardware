@@ -6,6 +6,8 @@ import {
   findSubtypeBySlug,
   getBrandNames,
   listStockedSubtypes,
+  productLabel,
+  stockedHref,
 } from "@/lib/catalog";
 import type { Product } from "@/types";
 
@@ -73,6 +75,22 @@ describe("listStockedSubtypes", () => {
       "paints/Interior",
       "paints/Exterior",
     ]);
+  });
+});
+
+describe("productLabel", () => {
+  it("puts the brand before the product name", () => {
+    expect(productLabel({ brand: "Asian Paints", name: "Royale" })).toBe("Asian Paints Royale");
+  });
+});
+
+describe("stockedHref", () => {
+  it("links to the type page when that type has products", () => {
+    expect(stockedHref(products, "paints", "Exterior")).toBe("/products/paints/exterior");
+  });
+
+  it("falls back to the category page when the type has none", () => {
+    expect(stockedHref(products, "paints", "Primer")).toBe("/products/paints");
   });
 });
 

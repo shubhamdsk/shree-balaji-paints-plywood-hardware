@@ -7,7 +7,7 @@ describe("sitemapPaths", () => {
     const [products, groups] = await Promise.all([getProducts(), getCategoryGroups()]);
     const paths = sitemapPaths(products, groups);
 
-    expect(paths).toEqual(expect.arrayContaining(["/", "/products", "/brands", "/offers", "/paint-calculator"]));
+    expect(paths).toEqual(expect.arrayContaining(["/", "/products", "/categories", "/brands", "/offers", "/paint-calculator"]));
     expect(paths).toContain("/products/paints");
     expect(paths).toContain("/products/paints/interior");
     expect(paths).toContain("/brands/asian-paints");

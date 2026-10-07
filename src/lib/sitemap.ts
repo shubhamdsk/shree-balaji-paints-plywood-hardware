@@ -6,6 +6,7 @@ export function sitemapPaths(products: Product[], groups: CategoryGroup[]): stri
   return [
     ROUTES.home,
     ROUTES.products,
+    ROUTES.categories,
     ROUTES.brands,
     ROUTES.offers,
     ROUTES.about,

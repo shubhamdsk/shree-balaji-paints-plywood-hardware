@@ -32,7 +32,7 @@ export default function Logo({ light = false, compact = false }: LogoProps) {
       className="flex min-w-0 max-w-[calc(100%-7rem)] items-center gap-2 sm:max-w-none"
     >
       {mark}
-      <span className="min-w-0 font-display leading-none">
+      <span lang="mr" className="min-w-0 font-display leading-none">
         <span className="flex items-end gap-1">
           <span className={`text-sm font-semibold ${light ? "text-logo-gold" : "text-logo-navy"}`}>
             {shop.marathi.prefix}
@@ -44,7 +44,7 @@ export default function Logo({ light = false, compact = false }: LogoProps) {
         </span>
         <span
           className={`mt-0.5 block truncate text-[11px] font-semibold sm:text-[13px] ${
-            light ? "text-stone-300" : "text-logo-navy"
+            light ? "text-brand-100" : "text-logo-navy"
           }`}
         >
           {shop.marathi.tagline}

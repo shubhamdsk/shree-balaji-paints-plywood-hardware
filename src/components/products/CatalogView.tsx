@@ -27,7 +27,7 @@ export default async function CatalogView({ group, subtype }: CatalogViewProps) 
   return (
     <div className="bg-surface">
       <PageHeader title={title} parents={parents} description={description} />
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <section className="container-page py-8 sm:py-10">
         <ProductCatalog
           products={products}
           categoryGroups={categoryGroups}
