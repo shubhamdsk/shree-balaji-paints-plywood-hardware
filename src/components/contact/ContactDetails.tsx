@@ -31,11 +31,11 @@ export default function ContactDetails({
         <ul className="mt-6 space-y-4">
           {details.map(({ icon: Icon, label, value, href }) => (
             <li key={label} className="flex gap-3.5">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent-50 text-accent-600">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-muted text-accent-600 ring-1 ring-line">
                 <Icon aria-hidden className="h-5 w-5" />
               </span>
               <span className="min-w-0">
-                <span className="block text-[13px] font-semibold tracking-wide text-subtle uppercase">{label}</span>
+                <span className="block text-[13px] font-semibold tracking-[0.14em] text-subtle uppercase">{label}</span>
                 {href ? (
                   <a href={href} className="text-[15px] font-semibold text-ink hover:text-accent-600">
                     {value}

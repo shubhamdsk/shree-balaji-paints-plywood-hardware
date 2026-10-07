@@ -37,6 +37,7 @@ export {
   KeyRound,
   Layers,
   LayoutGrid,
+  LoaderCircle,
   MapPin,
   Menu,
   MessageCircle,

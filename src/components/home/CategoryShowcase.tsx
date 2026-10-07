@@ -18,11 +18,11 @@ export default function CategoryShowcase({ categories, counts }: Props) {
   if (!lead) return null;
 
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:grid-rows-2">
-      <li className="col-span-2 md:col-span-3 lg:col-span-2 lg:row-span-2">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-12">
+      <li className="col-span-2 md:col-span-3 lg:col-span-5 lg:row-span-2">
         <AppLink
           href={ROUTES.category(lead.id)}
-          className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-card bg-brand-900 p-5 shadow-card sm:min-h-72 sm:p-7 lg:min-h-[26rem]"
+          className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-card bg-brand-900 p-5 shadow-card-hover sm:min-h-72 sm:p-7 lg:min-h-[26rem]"
         >
           <Image
             src={lead.image}
@@ -31,14 +31,14 @@ export default function CategoryShowcase({ categories, counts }: Props) {
             sizes="(max-width: 1024px) 100vw, 40vw"
             className="img-zoom object-cover"
           />
-          <span aria-hidden className="absolute inset-0 bg-linear-to-t from-brand-950/90 via-brand-950/40 to-transparent" />
-          <span className="relative">
-            <span className="inline-block rounded-md bg-paint-500 px-2 py-0.5 text-xs font-bold tracking-wide text-brand-950 uppercase">
+          <span aria-hidden className="absolute inset-0 bg-linear-to-t from-brand-950/90 via-brand-950/50 to-transparent" />
+          <span className="relative z-10">
+            <span className="inline-flex rounded-full border border-brand-100/40 bg-brand-900/30 px-2.5 py-1 text-[11px] font-bold tracking-[0.15em] text-gold-100 uppercase backdrop-blur-sm">
               Most popular
             </span>
             <span className="mt-3 block text-3xl font-bold text-white sm:text-4xl">{lead.name}</span>
-            <span className="mt-1 block max-w-md text-[15px] text-brand-100">{lead.tagline}</span>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">
+            <span className="mt-1 block max-w-md text-[15px] text-brand-50">{lead.tagline}</span>
+            <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gold-200">
               Explore {lead.name} · {countLabel(counts[lead.id] ?? 0)}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </span>
@@ -47,7 +47,7 @@ export default function CategoryShowcase({ categories, counts }: Props) {
       </li>
 
       {rest.map((c) => (
-        <li key={c.id}>
+        <li key={c.id} className="lg:col-span-3">
           <AppLink
             href={ROUTES.category(c.id)}
             className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-card"
@@ -60,10 +60,9 @@ export default function CategoryShowcase({ categories, counts }: Props) {
                 <span className="block text-[15px] leading-tight font-semibold text-heading sm:text-base">{c.name}</span>
                 <span className="mt-0.5 block text-[13px] text-muted">{countLabel(counts[c.id] ?? 0)}</span>
               </span>
-              <ArrowRight
-                aria-hidden
-                className="h-4 w-4 shrink-0 text-accent-600 transition-transform duration-200 group-hover:translate-x-1"
-              />
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface-muted text-accent-600">
+                <ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </span>
             </span>
           </AppLink>
         </li>

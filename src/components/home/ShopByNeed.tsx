@@ -8,28 +8,28 @@ const needs = [
     title: "New Home",
     body: "Plywood, door hardware, plumbing and electrical for a new build.",
     href: ROUTES.category("plywood"),
-    tone: "bg-brand-50 text-heading",
+    tone: "bg-surface-muted text-heading",
   },
   {
     icon: Paintbrush,
     title: "Painting",
     body: "Interior and exterior paints, primers, putty and painting tools.",
     href: ROUTES.category("paints"),
-    tone: "bg-paint-50 text-paint-600",
+    tone: "bg-surface-muted text-paint-600",
   },
   {
     icon: Hammer,
     title: "Renovation",
     body: "Locks, hinges, handles and fittings to refresh doors and furniture.",
     href: ROUTES.category("hardware"),
-    tone: "bg-accent-50 text-accent-600",
+    tone: "bg-surface-muted text-accent-600",
   },
   {
     icon: Wrench,
     title: "Repairs",
     body: "Tools, adhesives and sealants for quick fixes around the house.",
     href: ROUTES.category("tools"),
-    tone: "bg-gold-100 text-gold-600",
+    tone: "bg-surface-muted text-gold-600",
   },
 ];
 
@@ -40,9 +40,9 @@ export default function ShopByNeed() {
         <li key={need.title}>
           <AppLink
             href={need.href}
-            className="group card-lift flex h-full flex-col rounded-card border border-line bg-card p-5 hover:border-brand-200 sm:p-6"
+            className="group flex h-full flex-col rounded-card border border-line bg-card p-5 shadow-card transition-all duration-200 ease-premium hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover sm:p-6"
           >
-            <span className={`grid h-12 w-12 place-items-center rounded-xl ${need.tone}`}>
+            <span className={`grid h-12 w-12 place-items-center rounded-2xl ${need.tone}`}>
               <Icon aria-hidden className="h-6 w-6" />
             </span>
             <span className="mt-4 text-lg font-semibold text-heading">{need.title}</span>

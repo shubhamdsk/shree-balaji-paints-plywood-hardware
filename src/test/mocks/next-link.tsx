@@ -2,6 +2,9 @@ import type { ComponentProps } from "react";
 import { vi } from "vitest";
 
 export const linkNavigated = vi.fn();
+export function useLinkStatus() {
+  return { pending: false };
+}
 
 type MockLinkProps = ComponentProps<"a"> & {
   href: string;

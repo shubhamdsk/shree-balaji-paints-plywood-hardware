@@ -34,7 +34,18 @@ describe("AppLink with the unsaved-changes guard", () => {
     const { user } = renderWithProviders(<EditableForm />);
     await user.click(screen.getByRole("link", { name: "Products" }));
     expect(linkNavigated).toHaveBeenCalledWith("/products");
+    expect(screen.getByRole("status").textContent).toContain("Loading page...");
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("ignores repeat clicks while navigation is in progress", () => {
+    renderWithProviders(<EditableForm />);
+    const link = screen.getByRole("link", { name: "Products" });
+
+    fireEvent.click(link);
+    fireEvent.click(link);
+
+    expect(linkNavigated).toHaveBeenCalledTimes(1);
   });
 
   it("asks before leaving and stays when the user keeps editing", async () => {

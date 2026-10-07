@@ -9,7 +9,7 @@ export default function StoreStory() {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
       <div className="grid grid-cols-5 gap-3">
-        <div className="relative col-span-3 aspect-[3/4] overflow-hidden rounded-card shadow-card">
+        <div className="relative col-span-3 aspect-[3/4] overflow-hidden rounded-card border border-line shadow-card">
           <Image
             src="/images/shop/storefront.jpg"
             alt="Paint and hardware store storefront"
@@ -19,7 +19,7 @@ export default function StoreStory() {
           />
         </div>
         <div className="col-span-2 grid grid-rows-[1fr_auto] gap-3">
-          <div className="relative overflow-hidden rounded-card shadow-card">
+          <div className="relative overflow-hidden rounded-card border border-line shadow-card">
             <Image
               src="/images/shop/interior.jpg"
               alt="Store shelves stocked with paint and building supplies"
@@ -28,7 +28,7 @@ export default function StoreStory() {
               className="object-cover"
             />
           </div>
-          <div className="flex flex-col justify-center rounded-card bg-brand-900 p-4 text-white">
+          <div className="flex flex-col justify-center rounded-card bg-brand-900 p-4 text-white shadow-card-hover">
             <span className="text-3xl font-bold text-gold-300 sm:text-4xl">7</span>
             <span className="text-[13px] leading-snug text-brand-100 sm:text-sm">days a week, {shop.hoursShort}</span>
           </div>
@@ -36,7 +36,7 @@ export default function StoreStory() {
       </div>
 
       <div>
-        <p className="text-[13px] font-bold tracking-wider text-accent-600 uppercase">About us</p>
+        <p className="text-[13px] font-bold tracking-[0.14em] text-accent-600 uppercase">About us</p>
         <h2 lang="mr" className="mt-2 text-[1.65rem] leading-tight font-bold text-heading sm:text-3xl lg:text-[2.25rem]">
           आपल्या घरासाठी, आपल्या माणसांकडून.
         </h2>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import ToggleSwitch from "@/components/admin/ToggleSwitch";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
@@ -31,6 +31,8 @@ export default function AdminProductList({ products }: { products: AdminProduct[
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [error, setError] = useState("");
+  const pendingProductIds = useRef(new Set<string>());
+  const [pendingProducts, setPendingProducts] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const [list, applyChange] = useOptimistic(
     products,
@@ -44,11 +46,21 @@ export default function AdminProductList({ products }: { products: AdminProduct[
   }, [list, filter, query]);
 
   const change = (product: AdminProduct, flag: Flag, value: boolean) => {
+    if (pendingProductIds.current.has(product.id)) return;
+    pendingProductIds.current.add(product.id);
+    setPendingProducts(new Set(pendingProductIds.current));
     setError("");
     startTransition(async () => {
       applyChange({ id: product.id, flag, value });
-      const result = await setProductFlagAction(product.id, flag, value);
-      if (!result.ok) setError(`Couldn't update ${product.name}. Please try again.`);
+      try {
+        const result = await setProductFlagAction(product.id, flag, value);
+        if (!result.ok) setError(`Couldn't update ${product.name}. Please try again.`);
+      } catch {
+        setError(`Couldn't update ${product.name}. Please try again.`);
+      } finally {
+        pendingProductIds.current.delete(product.id);
+        setPendingProducts(new Set(pendingProductIds.current));
+      }
     });
   };
 
@@ -108,13 +120,15 @@ export default function AdminProductList({ products }: { products: AdminProduct[
         </div>
       ) : (
         <ul className="grid gap-3">
-          {visible.map((product) => (
-            <li
-              key={product.id}
-              className={`grid gap-3 rounded-card border border-line bg-card p-4 shadow-card sm:grid-cols-[4rem_1fr_auto] sm:items-center ${
-                product.isVisible ? "" : "opacity-75"
-              }`}
-            >
+          {visible.map((product) => {
+            const pending = pendingProducts.has(product.id);
+            return (
+              <li
+                key={product.id}
+                className={`grid gap-3 rounded-card border border-line bg-card p-4 shadow-card sm:grid-cols-[4rem_1fr_auto] sm:items-center ${
+                  product.isVisible ? "" : "opacity-75"
+                }`}
+              >
               <div className="relative hidden h-16 w-16 overflow-hidden rounded-xl bg-surface-muted sm:block">
                 {product.image && <Image src={product.image} alt="" fill sizes="64px" className="object-cover" />}
               </div>
@@ -139,12 +153,14 @@ export default function AdminProductList({ products }: { products: AdminProduct[
                   ariaLabel={`${product.name} in stock`}
                   checked={product.inStock}
                   onChange={(value) => change(product, "inStock", value)}
+                  disabled={pending}
                 />
                 <ToggleSwitch
                   label="Home page"
                   ariaLabel={`${product.name} on the home page`}
                   checked={product.featured === true}
                   onChange={(value) => change(product, "featured", value)}
+                  disabled={pending}
                 />
                 <AppLink
                   href={ROUTES.adminProduct(product.id)}
@@ -158,12 +174,14 @@ export default function AdminProductList({ products }: { products: AdminProduct[
                   onClick={() => toggleVisibility(product)}
                   className={buttonClasses("secondary")}
                   aria-label={`${product.isVisible ? "Hide" : "Show"} ${product.name}`}
+                  disabled={pending}
                 >
                   {product.isVisible ? "Hide" : "Show"}
                 </button>
               </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
