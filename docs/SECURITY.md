@@ -112,7 +112,7 @@ GitHub secret scanning and push protection stay on.
 
 | Sprint | Security work |
 |--------|---------------|
-| 1 | Login, scrypt, sessions, lockout, `requireOwner()` guard, environment secrets, upload checks, audit log, Vercel redirect |
+| 1 | Login, scrypt, sessions, lockout, `requireOwner()` guard, environment secrets, upload checks, audit log |
 | 2 | Enquiry validation, honeypot and rate limit, owner-only inbox, confirmation before deletes, backup contents check |
 | 3 | Security headers, `noindex` on admin, sitemap excludes admin, `npm audit` clean, owner sets his own password |
 

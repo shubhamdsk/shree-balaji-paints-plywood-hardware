@@ -32,7 +32,6 @@ flowchart LR
   Site --> DB[(Netlify Database: Postgres)]
   Site --> Blobs[(Netlify Blobs: photos, backups)]
   Site -->|sitemap| Google[Google Search and Business Profile]
-  OldLink[Old Vercel address] -->|308 redirect| Site
 ```
 
 ---
@@ -41,7 +40,7 @@ flowchart LR
 
 ### 3.1 Public website (Part 1, live)
 
-- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on Vercel today, moving to **Netlify** in Sprint 1 because Vercel's free plan is for non-commercial use only.
+- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on **Netlify**'s free plan (configured in [`netlify.toml`](../netlify.toml)); it moved from Vercel because Vercel's free plan is for non-commercial use only.
 - Clean paths with no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts):
   - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`). Category ids and product ids must never overlap.
   - `/products/[slug]/[type]` is a category type (`/products/paints/interior`).
@@ -176,7 +175,7 @@ A scheduled function exports all tables (except sessions) to `backups/YYYY-MM-DD
 | `DATABASE_URL` | Netlify environment (set by Netlify Database) | Never in Git |
 | `SESSION_SECRET` | Netlify environment | 32+ random bytes |
 | `ADMIN_USERNAME`, `ADMIN_INITIAL_PASSWORD` | Netlify environment | Used once to create the owner; the owner changes the password at handover |
-| `SITE_URL` | Netlify environment | Used by the sitemap, metadata and the Vercel redirect |
+| `SITE_URL` | Netlify environment | Used by the sitemap, `robots.txt` and metadata. Set in `netlify.toml` |
 | Shop name, phone, address, hours | `src/config/shop.ts` | Unchanged |
 
 ---

@@ -4,26 +4,26 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ## Live app
 
-**[shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)**
+**[shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)**
 
 | Page | Link |
 |------|------|
-| Home | [/](https://shree-balaji-paints-plywood-hardwar.vercel.app/) |
-| Products catalogue | [/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/products) |
-| Paints | [/products/paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints) |
-| Interior paints | [/products/paints/interior](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/paints/interior) |
-| Plywood | [/products/plywood](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/plywood) |
-| Hardware | [/products/hardware](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/hardware) |
-| Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardwar.vercel.app/products/ap-royale-luxury) |
-| Brands | [/brands](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands) |
-| Sample brand | [Asian Paints](https://shree-balaji-paints-plywood-hardwar.vercel.app/brands/asian-paints) |
-| Offers | [/offers](https://shree-balaji-paints-plywood-hardwar.vercel.app/offers) |
-| About | [/about](https://shree-balaji-paints-plywood-hardwar.vercel.app/about) |
-| Contact | [/contact](https://shree-balaji-paints-plywood-hardwar.vercel.app/contact) |
-| Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry) |
-| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry/ap-royale-luxury) |
-| Paint calculator | [/paint-calculator](https://shree-balaji-paints-plywood-hardwar.vercel.app/paint-calculator) |
-| Products API | [/api/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/api/products) |
+| Home | [/](https://shree-balaji-paints-plywood-hardware.netlify.app/) |
+| Products catalogue | [/products](https://shree-balaji-paints-plywood-hardware.netlify.app/products) |
+| Paints | [/products/paints](https://shree-balaji-paints-plywood-hardware.netlify.app/products/paints) |
+| Interior paints | [/products/paints/interior](https://shree-balaji-paints-plywood-hardware.netlify.app/products/paints/interior) |
+| Plywood | [/products/plywood](https://shree-balaji-paints-plywood-hardware.netlify.app/products/plywood) |
+| Hardware | [/products/hardware](https://shree-balaji-paints-plywood-hardware.netlify.app/products/hardware) |
+| Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardware.netlify.app/products/ap-royale-luxury) |
+| Brands | [/brands](https://shree-balaji-paints-plywood-hardware.netlify.app/brands) |
+| Sample brand | [Asian Paints](https://shree-balaji-paints-plywood-hardware.netlify.app/brands/asian-paints) |
+| Offers | [/offers](https://shree-balaji-paints-plywood-hardware.netlify.app/offers) |
+| About | [/about](https://shree-balaji-paints-plywood-hardware.netlify.app/about) |
+| Contact | [/contact](https://shree-balaji-paints-plywood-hardware.netlify.app/contact) |
+| Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardware.netlify.app/enquiry) |
+| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardware.netlify.app/enquiry/ap-royale-luxury) |
+| Paint calculator | [/paint-calculator](https://shree-balaji-paints-plywood-hardware.netlify.app/paint-calculator) |
+| Products API | [/api/products](https://shree-balaji-paints-plywood-hardware.netlify.app/api/products) |
 
 ## Features
 
@@ -114,24 +114,14 @@ Image credits and Pexels IDs: [`public/images/CREDITS.md`](public/images/CREDITS
 
 ## Deployment
 
-The site is hosted on **[Vercel](https://vercel.com)** and connected to the GitHub repo [`shubhamdsk/shree-balaji-paints-plywood-hardware`](https://github.com/shubhamdsk/shree-balaji-paints-plywood-hardware).
+The site is hosted on **[Netlify](https://www.netlify.com)**'s free plan, which allows commercial sites. It is connected to the GitHub repo [`shubhamdsk/shree-balaji-paints-plywood-hardware`](https://github.com/shubhamdsk/shree-balaji-paints-plywood-hardware).
 
-- **Production:** [shree-balaji-paints-plywood-hardwar.vercel.app](https://shree-balaji-paints-plywood-hardwar.vercel.app/)
-- **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Pushes to other branches (e.g. `develop`) get their own preview URL.
-- **Settings:** Framework preset **Next.js**, default build command. `SITE_URL` is optional and defaults to the Vercel address (see `.env.example`).
+- **Production:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)
+- **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Every pull request into `main` gets a Deploy Preview (visible to members of the Netlify team) and a status check on GitHub.
+- **Settings:** [`netlify.toml`](netlify.toml) sets the build command (`npm run build`), the publish directory (`.next`), Node 22, `SITE_URL` and the Next.js runtime (`@netlify/plugin-nextjs`). Leave the dashboard build settings empty and the base directory at the project root. Keep the plugin entry: without it Netlify publishes the raw `.next` folder and every page returns 404.
+- **Credits:** the free plan has 300 credits a month. A production deploy uses about 15, so batch changes before merging into `main`.
 
-To publish changes, merge `develop` into `main` and push.
-
-Manual deploy with the [Vercel CLI](https://vercel.com/docs/cli): `npx vercel --prod` from the project root (after `vercel login`).
-
-Vercel's free plan is for non-commercial use, so Sprint 1 of Part 2 moves the site to Netlify's free plan and redirects the Vercel address to the new one.
-
-### Netlify
-
-The new home is [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/), connected to the same GitHub repo with `main` as the production branch.
-
-- **Settings:** `netlify.toml` sets the build command (`npm run build`), the publish directory (`.next`), Node 22, `SITE_URL` and the Next.js runtime (`@netlify/plugin-nextjs`). Netlify did not attach the runtime on its own for this site, so keep the plugin entry; leave the base directory empty.
-- **Deploys:** every push to `main` deploys to production. A production deploy uses about 15 of the 300 free monthly credits, so batch changes before merging into `main`.
+To publish changes, open a pull request from `develop` into `main`, check its Deploy Preview, then merge.
 
 ## Roadmap
 
@@ -140,8 +130,8 @@ Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sp
 - Owner panel at `/admin`: products, photos, prices, in/out of stock, offers and gallery, edited from a phone
 - Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
 - Our work gallery, dated offer banners
-- Google Business Profile, Search Console and sitemap
-- Move hosting to Netlify's free plan, which allows commercial sites ([Architecture](docs/ARCHITECTURE.md))
+- Google Business Profile and Search Console
+- Database and photo storage on Netlify ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 
