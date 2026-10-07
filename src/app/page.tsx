@@ -73,7 +73,7 @@ export default async function Home() {
         </ul>
       </section>
 
-      <section className="border-y border-line bg-white">
+      <section className="border-y border-line bg-card">
         <div className={section}>
           <SectionHeader
             eyebrow="Brands"
@@ -112,7 +112,7 @@ export default async function Home() {
         <WhyChooseUs />
       </section>
 
-      <section className="border-t border-line bg-white">
+      <section className="border-t border-line bg-card">
         <div className={section}>
           <StoreStory />
         </div>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Calculator, ClipboardList, Menu, Phone, Search, WhatsAppIcon, X } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import { isActivePath, NAV_LINKS } from "@/components/layout/nav-links";
+import ThemeSwitcher from "@/components/layout/ThemeSwitcher";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
@@ -26,7 +27,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${
+      className={`sticky top-0 z-40 border-b bg-card/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${
         scrolled ? "border-transparent shadow-header" : "border-line"
       }`}
     >
@@ -49,7 +50,7 @@ export default function Navbar() {
                   className={`relative rounded-lg px-2.5 py-2 text-[15px] font-semibold transition-colors after:absolute after:inset-x-2.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:transition-colors xl:px-3 ${
                     active
                       ? "text-accent-600 after:bg-accent-600"
-                      : "text-brand-900 after:bg-transparent hover:text-accent-600"
+                      : "text-heading after:bg-transparent hover:text-accent-600"
                   }`}
                 >
                   {link.label}
@@ -60,10 +61,13 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-1 sm:gap-2">
+          <div className="hidden lg:block">
+            <ThemeSwitcher />
+          </div>
           <AppLink
             href={ROUTES.products}
             aria-label="Search products"
-            className="grid h-11 w-11 place-items-center rounded-full text-brand-900 transition hover:bg-surface-muted"
+            className="grid h-11 w-11 place-items-center rounded-full text-heading transition hover:bg-surface-muted"
           >
             <Search className="h-5 w-5" />
           </AppLink>
@@ -83,7 +87,7 @@ export default function Navbar() {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-brand-900 hover:bg-surface-muted lg:hidden"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-heading hover:bg-surface-muted lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -92,8 +96,8 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="no-scrollbar max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-white lg:hidden">
-          <ul className="container-page grid gap-1 py-3">
+        <div id="mobile-menu" className="no-scrollbar max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-card lg:hidden">
+          <ul className="container-page grid gap-1 pt-3 pb-40">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(link.href, pathname);
               return (
@@ -103,7 +107,7 @@ export default function Navbar() {
                     onClick={() => setOpen(false)}
                     aria-current={active ? "page" : undefined}
                     className={`flex min-h-12 items-center rounded-xl px-3 text-base font-semibold ${
-                      active ? "bg-accent-50 text-accent-700" : "text-brand-900 hover:bg-surface-muted"
+                      active ? "bg-accent-50 text-accent-700" : "text-heading hover:bg-surface-muted"
                     }`}
                   >
                     {link.label}
@@ -137,6 +141,9 @@ export default function Navbar() {
               >
                 <WhatsAppIcon className="h-4 w-4" /> WhatsApp
               </a>
+            </li>
+            <li className="pt-2">
+              <ThemeSwitcher showLabel />
             </li>
           </ul>
         </div>

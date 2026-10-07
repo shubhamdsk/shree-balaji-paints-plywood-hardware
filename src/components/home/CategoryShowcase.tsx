@@ -50,14 +50,14 @@ export default function CategoryShowcase({ categories, counts }: Props) {
         <li key={c.id}>
           <AppLink
             href={ROUTES.category(c.id)}
-            className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-white"
+            className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-card"
           >
             <span className="relative block aspect-[4/3] overflow-hidden bg-surface-muted">
               <Image src={c.image} alt="" fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw" className="img-zoom object-cover" />
             </span>
             <span className="flex flex-1 items-center justify-between gap-2 p-3 sm:p-4">
               <span className="min-w-0">
-                <span className="block text-[15px] leading-tight font-semibold text-brand-900 sm:text-base">{c.name}</span>
+                <span className="block text-[15px] leading-tight font-semibold text-heading sm:text-base">{c.name}</span>
                 <span className="mt-0.5 block text-[13px] text-muted">{countLabel(counts[c.id] ?? 0)}</span>
               </span>
               <ArrowRight

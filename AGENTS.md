@@ -55,7 +55,7 @@ src/
     api/                REST Route Handlers, one route.ts per resource
   components/
     brand/              logo and brand wordmarks
-    layout/             navbar, mobile bottom bar, footer, floating buttons, nav-links.ts (shared links and active-path check)
+    layout/             navbar, mobile bottom bar, footer, floating buttons (WhatsApp, call, back to top), theme button, nav-links.ts (shared links and active-path check)
     home/               home page sections
     products/           catalogue, cards, product detail
     brands/             brand grid (home and /brands)
@@ -64,16 +64,17 @@ src/
     contact/            contact details and map
     enquiry/            enquiry form
     calculator/         paint calculator
-    ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
+    ui/                 shared building blocks: icons, AppLink, Button, FormField, SelectMenu, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
   data/                 local catalogue source, read only by src/services
-  hooks/                shared React hooks (use-confirm, use-unsaved-changes)
+  hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-theme)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
     paint-calculator.ts paint area, litres and pack-size logic
     sitemap.ts          every public page path for sitemap.xml
-  providers/            app-wide React context providers, composed in AppProviders
+    theme.ts            light / dark / system preference, storage and the pre-paint script
+  providers/            app-wide providers (confirm, unsaved changes, theme), composed in AppProviders
   services/             data access used by pages and API routes
   test/                 test setup and render helpers
   types/                shared TypeScript types
@@ -92,7 +93,7 @@ scripts/                developer helper scripts
 
 - Check `src/components/ui`, `src/hooks` and `src/lib` before writing new UI or logic. Extend an existing piece with a prop instead of copying it.
 - Icons: import from `@/components/ui/icons`, never from `lucide-react` directly. To use a new icon, add it to the export list in `icons.ts`. A custom SVG icon goes in the same file as a component that takes `IconProps`. Logo artwork stays in `components/brand`.
-- Buttons: `Button` (or `buttonClasses()` for links styled as buttons). Inputs: `FormField` with `fieldClasses`.
+- Buttons: `Button` (or `buttonClasses()` for links styled as buttons). Inputs: `FormField` with `fieldClasses`. Dropdowns: `SelectMenu` (themed list, search box on lists over 8 options, full keyboard support), never a native `<select>`.
 - Internal links: always `AppLink`, never `next/link` directly. ESLint blocks `next/link` elsewhere.
 - Confirmation for any destructive or irreversible action: `const confirm = useConfirm();` then `if (await confirm({ title, message, confirmLabel, tone: "danger" }))`. Never use `window.confirm`, and never build a one-off modal.
 - Forms with user input: call `useUnsavedChanges(isDirty)`. Navigating through `AppLink`, reloading, or closing the tab then asks before discarding. For in-page actions that would lose input, use the `confirmDiscard` it returns.
@@ -113,7 +114,7 @@ scripts/                developer helper scripts
 - Imports: always the `@/` alias (it points to `src/`). No relative imports.
 - Server Components by default. Add `"use client"` only to components that need state, effects or browser APIs.
 - No `any`. Type shared shapes in `src/types`.
-- Styling: Tailwind classes with the theme tokens in `src/app/globals.css` (`brand-*` navy, `accent-*` red, `paint-*` orange, `gold-*`, `ink`, `muted`, `subtle`, `line`, `canvas`, `surface-muted`, `success`, plus `rounded-card`, `shadow-card` and `container-page`). Main buttons are red (`cta`); orange is for accents only, because white text on it fails contrast. No inline styles or hard-coded colours, except in SVG artwork and `ImageResponse` metadata images, which can't use Tailwind.
+- Styling: Tailwind classes with the theme tokens in `src/app/globals.css` (`brand-*` navy, `accent-*` red, `paint-*` orange, `gold-*`, `card`, `heading`, `ink`, `muted`, `subtle`, `line`, `canvas`, `surface-muted`, `success`, plus `rounded-card`, `shadow-card` and `container-page`). Themes: `src/lib/theme.ts` sets `data-theme="light|dark"` on `<html>` (an inline head script applies it before paint, `ThemeProvider` keeps it in sync, `useTheme()` reads and changes the Light / Dark / System choice, `ThemeSwitcher` is the single button that cycles Light, Dark and System). The `[data-theme="dark"]` block in `globals.css` overrides the tokens and the `dark:` variant follows the same attribute, so use `bg-card` for panels and `text-heading` for headings instead of `bg-white` or `text-brand-900`. Keep `bg-white` only where something must stay white in both themes (brand-logo tiles, light buttons on navy). Main buttons are red (`cta`); orange is for accents only, because white text on it fails contrast. No inline styles or hard-coded colours, except in SVG artwork and `ImageResponse` metadata images, which can't use Tailwind.
 - Images: `next/image` with real `alt` text. Credit stock photos in `public/images/CREDITS.md`.
 - Shop details (phone, address, hours) live only in `src/config/shop.ts`. Never hard-code them elsewhere.
 - Accessibility: every input has a label, errors are linked with `aria-describedby`, and dialogs use the shared `ConfirmDialog` (native `<dialog>`, focus and Esc handled).

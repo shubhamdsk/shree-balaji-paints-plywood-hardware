@@ -8,7 +8,7 @@ const needs = [
     title: "New Home",
     body: "Plywood, door hardware, plumbing and electrical for a new build.",
     href: ROUTES.category("plywood"),
-    tone: "bg-brand-50 text-brand-900",
+    tone: "bg-brand-50 text-heading",
   },
   {
     icon: Paintbrush,
@@ -40,12 +40,12 @@ export default function ShopByNeed() {
         <li key={need.title}>
           <AppLink
             href={need.href}
-            className="group card-lift flex h-full flex-col rounded-card border border-line bg-white p-5 hover:border-brand-200 sm:p-6"
+            className="group card-lift flex h-full flex-col rounded-card border border-line bg-card p-5 hover:border-brand-200 sm:p-6"
           >
             <span className={`grid h-12 w-12 place-items-center rounded-xl ${need.tone}`}>
               <Icon aria-hidden className="h-6 w-6" />
             </span>
-            <span className="mt-4 text-lg font-semibold text-brand-900">{need.title}</span>
+            <span className="mt-4 text-lg font-semibold text-heading">{need.title}</span>
             <span className="mt-1 text-[15px] leading-relaxed text-muted">{need.body}</span>
             <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-accent-600">
               Shop now

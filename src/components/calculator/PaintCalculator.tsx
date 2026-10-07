@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { PaintRoller, WhatsAppIcon } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
+import SelectMenu from "@/components/ui/SelectMenu";
 import { whatsappLink } from "@/config/shop";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
@@ -37,6 +38,13 @@ const sizeFields: { key: TextField; label: string }[] = [
   { key: "height", label: "Height" },
 ];
 
+const UNIT_OPTIONS = [
+  { value: "ft", label: "Feet" },
+  { value: "m", label: "Metres" },
+];
+
+const COAT_OPTIONS = ["1", "2", "3"].map((coats) => ({ value: coats, label: coats }));
+
 export default function PaintCalculator({ products, initialProductId = "" }: PaintCalculatorProps) {
   const initialValues = useMemo<RoomValues>(
     () => ({
@@ -51,6 +59,13 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
       includeCeiling: false,
     }),
     [initialProductId],
+  );
+  const paintOptions = useMemo(
+    () => [
+      { value: "", label: "Choose a paint" },
+      ...products.map((p) => ({ value: p.id, label: `${p.label} (${p.type})` })),
+    ],
+    [products],
   );
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<RoomErrors>({});
@@ -120,35 +135,27 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-white p-5 card-shadow sm:p-8">
+      <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8">
         <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
           <FormField label="Paint" htmlFor="productId" error={errors.productId} required>
-            <select
+            <SelectMenu
               id="productId"
+              label="Paint"
               value={values.productId}
-              onChange={(e) => update("productId", e.target.value)}
-              aria-invalid={Boolean(errors.productId)}
-              aria-describedby={describedBy("productId")}
-              className={fieldClasses}
-            >
-              <option value="">Choose a paint</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label} ({p.type})
-                </option>
-              ))}
-            </select>
+              onChange={(value) => update("productId", value)}
+              options={paintOptions}
+              invalid={Boolean(errors.productId)}
+              describedBy={describedBy("productId")}
+            />
           </FormField>
           <FormField label="Measure in" htmlFor="unit">
-            <select
+            <SelectMenu
               id="unit"
+              label="Measure in"
               value={values.unit}
-              onChange={(e) => update("unit", e.target.value === "m" ? "m" : "ft")}
-              className={fieldClasses}
-            >
-              <option value="ft">Feet</option>
-              <option value="m">Metres</option>
-            </select>
+              onChange={(value) => update("unit", value === "m" ? "m" : "ft")}
+              options={UNIT_OPTIONS}
+            />
           </FormField>
         </div>
 
@@ -160,15 +167,17 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
           {numberInput("doors", "Doors", "About 7 × 3 ft each")}
           {numberInput("windows", "Windows", "About 4 × 3 ft each")}
           <FormField label="Coats" htmlFor="coats" hint="2 coats for a new colour">
-            <select id="coats" value={values.coats} onChange={(e) => update("coats", e.target.value)} className={fieldClasses}>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
+            <SelectMenu
+              id="coats"
+              label="Coats"
+              value={values.coats}
+              onChange={(value) => update("coats", value)}
+              options={COAT_OPTIONS}
+            />
           </FormField>
         </div>
 
-        <label className="flex items-center gap-3 text-sm font-bold text-brand-900">
+        <label className="flex items-center gap-3 text-sm font-bold text-heading">
           <input
             type="checkbox"
             checked={values.includeCeiling}
@@ -192,16 +201,16 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
       <div aria-live="polite">
         {estimate && product && (
           <section aria-labelledby="estimate-heading" className="rounded-card border border-paint-100 bg-accent-50 p-5 sm:p-8">
-            <h2 id="estimate-heading" className="text-lg font-extrabold text-brand-900">
+            <h2 id="estimate-heading" className="text-lg font-extrabold text-heading">
               You need about {estimate.litres} L of {product.label}
             </h2>
             <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
               <div>
-                <dt className="font-bold text-brand-900">Area to paint</dt>
+                <dt className="font-bold text-heading">Area to paint</dt>
                 <dd className="text-ink">About {estimate.areaSqft} sq ft</dd>
               </div>
               <div>
-                <dt className="font-bold text-brand-900">Suggested packs</dt>
+                <dt className="font-bold text-heading">Suggested packs</dt>
                 <dd className="text-ink">{formatPacks(estimate.packs)}</dd>
               </div>
             </dl>

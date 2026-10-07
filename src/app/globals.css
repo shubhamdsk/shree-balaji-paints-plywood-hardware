@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --font-sans: var(--font-noto-devanagari), "Noto Sans", system-ui, sans-serif;
   --font-display: var(--font-baloo), var(--font-noto-devanagari), system-ui, sans-serif;
+}
+
+@theme {
+  --color-card: #ffffff;
+  --color-heading: #0b2545;
 
   --color-brand-50: #eef2f8;
   --color-brand-100: #d9e2ee;
@@ -37,7 +44,7 @@
   --color-surface-muted: #f4f1eb;
   --color-ink: #17202a;
   --color-muted: #5f6872;
-  --color-subtle: #8a929a;
+  --color-subtle: #646d78;
   --color-line: #e6e1d8;
   --color-success: #16845b;
 
@@ -57,6 +64,41 @@
   --radius-card: 1.125rem;
 
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-canvas: #0a121e;
+  --color-surface: #0a121e;
+  --color-surface-muted: #0f1a2a;
+  --color-card: #132135;
+  --color-heading: #f1f4f9;
+  --color-ink: #e6ebf2;
+  --color-muted: #a7b1be;
+  --color-subtle: #8792a0;
+  --color-line: #23334a;
+
+  --color-brand-50: #16263d;
+  --color-accent-50: #3a1517;
+  --color-accent-600: #f0716b;
+  --color-accent-700: #f5a3a0;
+  --color-paint-50: #33210f;
+  --color-paint-100: #452b12;
+  --color-paint-600: #f7953f;
+  --color-gold-100: #352a10;
+  --color-gold-600: #e3ad45;
+  --color-success: #3fbf86;
+  --color-logo-navy: #e6ebf2;
+  --color-logo-red: #f26b63;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 18px 36px -16px rgba(0, 0, 0, 0.7);
+  --shadow-header: 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 18px -12px rgba(0, 0, 0, 0.6);
 }
 
 html {
@@ -163,7 +205,7 @@ body {
 }
 
 .btn-cta {
-  background-image: linear-gradient(180deg, #d32f2f 0%, var(--color-accent-600) 55%, var(--color-accent-700) 100%);
+  background-image: linear-gradient(180deg, #d32f2f 0%, #c62828 55%, #a51f1f 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
     inset 0 -1px 0 rgba(0, 0, 0, 0.12),

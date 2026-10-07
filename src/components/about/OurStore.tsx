@@ -16,7 +16,7 @@ export default function OurStore() {
     <section className="container-page py-10 sm:py-14 lg:py-16">
       <div className="max-w-3xl">
         <p className="text-[13px] font-bold tracking-wider text-accent-600 uppercase">Our store</p>
-        <h2 lang="mr" className="mt-2 text-[1.65rem] leading-tight font-bold text-brand-900 sm:text-3xl lg:text-[2.25rem]">
+        <h2 lang="mr" className="mt-2 text-[1.65rem] leading-tight font-bold text-heading sm:text-3xl lg:text-[2.25rem]">
           आपल्या घरासाठी, आपल्या माणसांकडून.
         </h2>
         <span aria-hidden className="mt-3 block h-1 w-12 rounded-full bg-gold-500" />
@@ -46,18 +46,18 @@ export default function OurStore() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-4 rounded-card border border-line bg-white p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:p-6">
+      <div className="mt-6 grid gap-4 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:p-6">
         <div className="flex gap-3">
           <MapPin aria-hidden className="h-6 w-6 shrink-0 text-accent-600" />
           <div>
-            <p className="font-semibold text-brand-900">Address</p>
+            <p className="font-semibold text-heading">Address</p>
             <p className="text-sm text-muted">{addressLine}</p>
           </div>
         </div>
         <div className="flex gap-3">
           <Clock aria-hidden className="h-6 w-6 shrink-0 text-accent-600" />
           <div>
-            <p className="font-semibold text-brand-900">Timings</p>
+            <p className="font-semibold text-heading">Timings</p>
             <p className="text-sm text-muted">
               {shop.hoursShort} · {shop.openDays}
             </p>

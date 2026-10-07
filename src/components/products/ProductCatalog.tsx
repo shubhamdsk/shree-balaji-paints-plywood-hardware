@@ -6,11 +6,18 @@ import { ChevronLeft, ChevronRight, PackageSearch, SlidersHorizontal } from "@/c
 import ProductCard from "@/components/products/ProductCard";
 import ProductSidebar from "@/components/products/ProductSidebar";
 import { fieldClasses } from "@/components/ui/FormField";
+import SelectMenu from "@/components/ui/SelectMenu";
 import { getBrandNames } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
 import type { CategoryFilter, CategoryGroup, Product, SortOption } from "@/types";
 
 const PAGE_SIZE = 12;
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "name", label: "Sort: Name" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+];
 
 interface ProductCatalogProps {
   products: Product[];
@@ -46,7 +53,10 @@ export default function ProductCatalog({
     () => (category === "all" ? products : products.filter((p) => p.category === category)),
     [products, category],
   );
-  const brands = useMemo(() => getBrandNames(products), [products]);
+  const brandOptions = useMemo(
+    () => [{ value: "", label: "All Brands" }, ...getBrandNames(products).map((b) => ({ value: b, label: b }))],
+    [products],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -88,7 +98,7 @@ export default function ProductCatalog({
           type="button"
           onClick={() => setMobileFilters((v) => !v)}
           aria-expanded={mobileFilters}
-          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line bg-white text-sm font-semibold text-brand-900 lg:hidden"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line bg-card text-sm font-semibold text-heading lg:hidden"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters & Categories
@@ -106,7 +116,7 @@ export default function ProductCatalog({
           </div>
         )}
 
-        <div className="grid gap-3 rounded-card border border-line bg-white p-3 shadow-card sm:grid-cols-[1fr_170px_170px] sm:p-4">
+        <div className="grid gap-3 rounded-card border border-line bg-card p-3 shadow-card sm:grid-cols-[1fr_170px_170px] sm:p-4">
           <input
             type="search"
             value={query}
@@ -118,39 +128,28 @@ export default function ProductCatalog({
             aria-label="Search products"
             className={`${fieldClasses} sm:col-span-1`}
           />
-          <select
+          <SelectMenu
+            label="Filter by brand"
             value={brand}
-            onChange={(e) => {
-              setBrand(e.target.value);
+            onChange={(value) => {
+              setBrand(value);
               setPage(1);
             }}
-            aria-label="Filter by brand"
-            className={fieldClasses}
-          >
-            <option value="">All Brands</option>
-            {brands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-          <select
+            options={brandOptions}
+          />
+          <SelectMenu
+            label="Sort products"
             value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as SortOption);
+            onChange={(value) => {
+              setSort(value as SortOption);
               setPage(1);
             }}
-            aria-label="Sort products"
-            className={fieldClasses}
-          >
-            <option value="name">Sort: Name</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
+            options={SORT_OPTIONS}
+          />
         </div>
 
         <p className="text-sm text-muted">
-          Showing <span className="font-semibold text-brand-900">{filtered.length}</span> of{" "}
+          Showing <span className="font-semibold text-heading">{filtered.length}</span> of{" "}
           {inCategory.length} products
         </p>
 
@@ -175,7 +174,7 @@ export default function ProductCatalog({
                   type="button"
                   disabled={pageSafe <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-white transition enabled:hover:border-brand-200 disabled:opacity-40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-card transition enabled:hover:border-brand-200 disabled:opacity-40"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -187,7 +186,7 @@ export default function ProductCatalog({
                   type="button"
                   disabled={pageSafe >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-white transition enabled:hover:border-brand-200 disabled:opacity-40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-card transition enabled:hover:border-brand-200 disabled:opacity-40"
                   aria-label="Next page"
                 >
                   <ChevronRight className="h-5 w-5" />

@@ -13,7 +13,7 @@ type LogoProps = {
 export default function Logo({ light = false, compact = false }: LogoProps) {
   const mark = (
     <LogoMark
-      className={`h-11 w-11 shrink-0 sm:h-13 sm:w-13 ${light ? "rounded-xl bg-white p-1" : ""}`}
+      className={`h-11 w-11 shrink-0 sm:h-13 sm:w-13 ${light ? "rounded-xl bg-white p-1" : "dark:rounded-xl dark:bg-white dark:p-1"}`}
     />
   );
 

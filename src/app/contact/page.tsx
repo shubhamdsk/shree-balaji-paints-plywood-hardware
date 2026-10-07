@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white">
+    <div className="bg-card">
       <PageHeader title="Contact" description="Address, phone, WhatsApp, shop hours and directions." />
       <section className="container-page py-8 sm:py-12">
         <ContactDetails />

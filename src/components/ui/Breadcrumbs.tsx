@@ -17,7 +17,7 @@ export default function Breadcrumbs({
                 {item.label}
               </AppLink>
             ) : (
-              <span aria-current="page" className="font-semibold text-brand-900">
+              <span aria-current="page" className="font-semibold text-heading">
                 {item.label}
               </span>
             )}

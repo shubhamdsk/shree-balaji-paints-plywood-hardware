@@ -22,9 +22,9 @@ export default function ContactDetails({
   ];
 
   return (
-    <div className="grid overflow-hidden rounded-card border border-line bg-white shadow-card lg:grid-cols-[1fr_1.15fr]">
+    <div className="grid overflow-hidden rounded-card border border-line bg-card shadow-card lg:grid-cols-[1fr_1.15fr]">
       <div className="p-5 sm:p-8 lg:p-10">
-        <h2 className="text-[1.65rem] leading-tight font-bold text-brand-900 sm:text-3xl">{title}</h2>
+        <h2 className="text-[1.65rem] leading-tight font-bold text-heading sm:text-3xl">{title}</h2>
         <span aria-hidden className="mt-3 block h-1 w-12 rounded-full bg-gold-500" />
         <p className="mt-4 text-[15px] leading-relaxed text-muted">{description}</p>
 

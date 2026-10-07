@@ -86,6 +86,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
   - Visible focus.
   - The owner panel works on a small phone screen and with the keyboard.
 - Use Tailwind utility classes and the theme tokens in `src/app/globals.css`. No inline styles or hard-coded colours, except in SVG artwork and `ImageResponse` images.
+- Light, dark and system themes switch the `data-theme` attribute on `<html>`, and the dark block overrides the colour tokens. Change the theme only through `useTheme()`. Use `bg-card` and `text-heading` rather than `bg-white` and `text-brand-900`, so panels and headings switch with the theme.
 
 ## 8. Comments and documentation
 

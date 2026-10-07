@@ -51,7 +51,7 @@ export default function ConfirmDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-card bg-white p-0 text-ink shadow-2xl backdrop:bg-brand-950/60 backdrop:backdrop-blur-sm"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-card bg-card p-0 text-ink shadow-2xl backdrop:bg-brand-950/60 backdrop:backdrop-blur-sm"
     >
       <div className="p-6 sm:p-7">
         <div className="flex items-start gap-4">
@@ -63,7 +63,7 @@ export default function ConfirmDialog({
             <Icon className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <h2 id="confirm-dialog-title" className="text-lg font-extrabold text-brand-900">
+            <h2 id="confirm-dialog-title" className="text-lg font-extrabold text-heading">
               {title}
             </h2>
             {message && (

@@ -22,7 +22,7 @@ async function fillRoom(user: ReturnType<typeof renderCalculator>["user"]) {
 describe("PaintCalculator", () => {
   it("pre-selects the paint passed in", () => {
     renderCalculator();
-    expect(screen.getByRole("combobox", { name: /Paint/ })).toHaveProperty("value", "ap-royale-luxury");
+    expect(screen.getByRole("button", { name: "Paint: Asian Paints Royale Luxury Emulsion (Interior)" })).toBeDefined();
   });
 
   it("shows linked errors and no estimate when sizes are missing", async () => {
@@ -52,7 +52,8 @@ describe("PaintCalculator", () => {
 
   it("converts metres when the unit changes", async () => {
     const { user } = renderCalculator();
-    await user.selectOptions(screen.getByLabelText("Measure in"), "m");
+    await user.click(screen.getByRole("button", { name: "Measure in: Feet" }));
+    await user.click(screen.getByRole("option", { name: "Metres" }));
     expect(screen.getByLabelText("Length (m)")).toBeDefined();
   });
 

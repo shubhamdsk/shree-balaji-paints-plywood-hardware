@@ -21,7 +21,7 @@ export default function ProductSidebar({ products, categoryGroups, category, sub
   const toggle = (id: string) => setOpenGroups((o) => ({ ...o, [id]: !o[id] }));
 
   return (
-    <aside className="rounded-card border border-line bg-white p-4 shadow-card">
+    <aside className="rounded-card border border-line bg-card p-4 shadow-card">
       <h2 className="text-[13px] font-bold tracking-wider text-subtle uppercase">Categories</h2>
       <button
         type="button"
@@ -44,7 +44,7 @@ export default function ProductSidebar({ products, categoryGroups, category, sub
                 type="button"
                 onClick={() => toggle(group.id)}
                 aria-expanded={expanded}
-                className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-[15px] font-semibold text-brand-900 hover:bg-surface-muted"
+                className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-[15px] font-semibold text-heading hover:bg-surface-muted"
               >
                 <span>{group.name}</span>
                 <span className="flex items-center gap-1 text-xs font-medium text-subtle">

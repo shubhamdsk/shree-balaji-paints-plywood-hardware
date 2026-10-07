@@ -21,7 +21,7 @@ export default async function Footer() {
   const categories = (await getCategories()).slice(0, 6);
 
   return (
-    <footer className="bg-brand-900 text-brand-100">
+    <footer className="bg-brand-900 pb-20 text-brand-100 lg:pb-0">
       <div className="h-1 bg-[linear-gradient(90deg,var(--color-accent-600),var(--color-paint-500),var(--color-gold-500))]" />
       <div className="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:gap-12">
         <div className="space-y-4">
