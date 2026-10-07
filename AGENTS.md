@@ -34,6 +34,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - A product detail page.
    - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
+   - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
    - The WhatsApp and phone links.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
    - Duplicated UI or logic.
@@ -62,6 +63,7 @@ src/
     about/              store photos and details
     contact/            contact details and map
     enquiry/            enquiry form
+    calculator/         paint calculator
     ui/                 shared building blocks: icons, AppLink, Button, FormField, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours)
   data/                 local catalogue source, read only by src/services
@@ -69,6 +71,7 @@ src/
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
+    paint-calculator.ts paint area, litres and pack-size logic
   providers/            app-wide React context providers, composed in AppProviders
   services/             data access used by pages and API routes
   test/                 test setup and render helpers

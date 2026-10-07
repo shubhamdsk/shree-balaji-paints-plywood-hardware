@@ -161,7 +161,7 @@ Product and brand pages render on demand for new ids (`dynamicParams` on), and a
 - `litres = ceil(area × coats ÷ coverage)`, where the coverage per litre comes from the chosen paint type.
 - Pack sizes: the combination of the product's sizes that covers the litres with the least waste.
 
-The result links to `ROUTES.enquiry(productId)` with the details carried in the form state, never in the URL.
+Coverage per litre for each paint type is in `COVERAGE_SQFT_PER_LITRE`. The page is `/paint-calculator`, or `/paint-calculator/[productId]` with that paint chosen (linked from wall-paint product pages). "Send estimate on WhatsApp" asks for confirmation and opens WhatsApp with the room, litres and packs; from Sprint 2 it's also saved as a `calculator` enquiry.
 
 ### 6.4 Daily backup
 

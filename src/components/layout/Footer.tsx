@@ -1,4 +1,4 @@
-import { Clock, MapPin, MessageCircle, Phone } from "@/components/ui/icons";
+import { Calculator, Clock, MapPin, MessageCircle, Phone } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import AppLink from "@/components/ui/AppLink";
 import { shop, whatsappLink } from "@/config/shop";
@@ -67,6 +67,12 @@ export default async function Footer() {
                 <MessageCircle className="h-4 w-4 text-accent-400" />
                 WhatsApp
               </a>
+            </li>
+            <li>
+              <AppLink href={ROUTES.paintCalculator()} className="flex items-center gap-3 hover:text-white">
+                <Calculator className="h-4 w-4 text-accent-400" />
+                Paint calculator
+              </AppLink>
             </li>
           </ul>
         </div>

@@ -22,6 +22,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Contact | [/contact](https://shree-balaji-paints-plywood-hardwar.vercel.app/contact) |
 | Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry) |
 | Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardwar.vercel.app/enquiry/ap-royale-luxury) |
+| Paint calculator | [/paint-calculator](https://shree-balaji-paints-plywood-hardwar.vercel.app/paint-calculator) |
 | Products API | [/api/products](https://shree-balaji-paints-plywood-hardwar.vercel.app/api/products) |
 
 ## Features
@@ -32,6 +33,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
+- **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
 - **Responsive layout** — Mobile-first navigation and catalogue
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
@@ -128,7 +130,7 @@ Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sp
 
 - Owner panel at `/admin`: products, photos, prices, in/out of stock, offers and gallery, edited from a phone
 - Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
-- Paint calculator, our work gallery, dated offer banners
+- Our work gallery, dated offer banners
 - Google Business Profile, Search Console and sitemap
 - Move hosting to Netlify's free plan, which allows commercial sites ([Architecture](docs/ARCHITECTURE.md))
 

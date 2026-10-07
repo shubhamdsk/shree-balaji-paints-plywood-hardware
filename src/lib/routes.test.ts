@@ -18,5 +18,7 @@ describe("ROUTES", () => {
     expect(ROUTES.brand("Century Ply")).toBe("/brands/century-ply");
     expect(ROUTES.enquiry()).toBe("/enquiry");
     expect(ROUTES.enquiry("ap-royale-luxury")).toBe("/enquiry/ap-royale-luxury");
+    expect(ROUTES.paintCalculator()).toBe("/paint-calculator");
+    expect(ROUTES.paintCalculator("ap-royale-luxury")).toBe("/paint-calculator/ap-royale-luxury");
   });
 });

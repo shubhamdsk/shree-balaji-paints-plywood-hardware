@@ -13,4 +13,5 @@ export const ROUTES = {
   about: "/about",
   contact: "/contact",
   enquiry: (productId?: string) => (productId ? `/enquiry/${productId}` : "/enquiry"),
+  paintCalculator: (productId?: string) => (productId ? `/paint-calculator/${productId}` : "/paint-calculator"),
 } as const;

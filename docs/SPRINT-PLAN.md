@@ -219,7 +219,7 @@ Billing software is **not** part of this plan.
 |----|---------|--------------|------------|
 | US-3.1 | Customer | Enter my room size (feet or metres), doors, windows and coats | I know how much paint to buy |
 | US-3.2 | Customer | See the litres needed and the best pack sizes | I don't buy too much or too little |
-| US-3.3 | Customer | Send the result as an enquiry with one tap | The shop can quote me |
+| US-3.3 | Customer | Send the result to the shop on WhatsApp with one tap | The shop can quote me |
 | US-3.4 | Owner | Have the shop on Google Maps and Google search, with photos, hours and the website link | Nearby customers find me |
 | US-3.5 | Owner | Have the website's pages listed on Google | People searching for products find my pages |
 | US-3.6 | Owner | Get training and a one-page guide in Marathi | I can use the owner panel confidently |
@@ -231,7 +231,7 @@ Billing software is **not** part of this plan.
   - Litres = area × coats ÷ coverage per litre. The coverage comes from the chosen paint type, and the result is rounded up.
   - Pack suggestion uses the product's real sizes and wastes the least (for example 14 L becomes 1 × 10 L + 1 × 4 L).
   - The result says it's an estimate, and the shop confirms the final quantity.
-- **US-3.3:** the enquiry form opens with the paint, litres and room size filled in, at a clean path (no query strings).
+- **US-3.3:** after a confirmation, WhatsApp opens with the paint, room size, coats, litres and packs. The calculator lives at clean paths (`/paint-calculator`, `/paint-calculator/<product>`), with no query strings.
 - **US-3.4:** the Google Business Profile is verified in the owner's name, with category, hours, phone, photos and the website link.
 - **US-3.5:** `sitemap.xml` and `robots.txt` are served, and the site is verified in Google Search Console with the sitemap submitted.
 
