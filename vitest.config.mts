@@ -15,5 +15,6 @@ export default defineConfig({
     restoreMocks: true,
     unstubEnvs: true,
     unstubGlobals: true,
+    fileParallelism: false,
   },
 });

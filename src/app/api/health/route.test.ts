@@ -4,7 +4,7 @@ import { createLocalDatabase, setDatabase } from "@/server/db/client";
 
 beforeEach(async () => {
   setDatabase(await createLocalDatabase());
-});
+}, 30000);
 
 describe("GET /api/health", () => {
   it("returns ok when the database is reachable", async () => {
