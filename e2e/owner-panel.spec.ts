@@ -23,6 +23,7 @@ async function logIn(page: Page, password: string) {
 }
 
 async function clickAndSave(page: Page, click: () => Promise<void>) {
+  await page.waitForLoadState("networkidle");
   const saved = page.waitForResponse((response) => response.request().method() === "POST" && response.ok());
   await click();
   await saved;
@@ -79,8 +80,8 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.goto("/admin/products/new");
     await page.getByLabel(/Product name/).fill(name);
     await page.getByLabel(/Brand/).fill("Century");
-    await choose(page, "Category", "Plywood");
-    await choose(page, "Type", "Marine");
+    await choose(page, "Category", "Plywood & Boards");
+    await choose(page, "Type", "BWP / Marine Plywood");
     await page.getByLabel(/Sizes/).fill("8 x 4 ft");
     await page.getByLabel(/Starting price/).fill("1250");
     await page.getByLabel(/Price unit/).fill("per sheet");
@@ -89,7 +90,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.getByRole("button", { name: "Save product" }).click();
     await expect(page).toHaveURL(/\/admin\/products$/);
     await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
-    await expect(productRow(page, name)).toContainText("Century · Marine · From ₹1,250 per sheet");
+    await expect(productRow(page, name)).toContainText("Century · BWP / Marine Plywood · From ₹1,250 per sheet");
 
     const href = await page.getByRole("link", { name, exact: true }).getAttribute("href");
     productPath = href!.replace("/admin", "");
@@ -113,10 +114,10 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await expectPublicPage(page, productPath, async (publicPage) => {
       await expect(publicPage.getByText("Out of stock — ask for availability")).toBeVisible();
     });
-    await expectPublicPage(page, "/products/plywood/marine", async (publicPage) => {
+    await expectPublicPage(page, "/products/plywood-boards/bwp-marine-plywood", async (publicPage) => {
       await expect(publicPage.getByRole("link", { name, exact: true })).toBeVisible();
     });
-    expect((await page.request.get("/products/paints/interior")).status()).toBe(200);
+    expect((await page.request.get("/products/paints/interior-emulsion")).status()).toBe(200);
   });
 
   await test.step("puts it on the home page", async () => {
@@ -154,7 +155,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.getByRole("button", { name: "Save product" }).click();
     await expect(page).toHaveURL(/\/admin\/products$/);
     await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
-    await expect(productRow(page, name)).toContainText("Greenply · Marine · From ₹1,300 per sheet");
+    await expect(productRow(page, name)).toContainText("Greenply · BWP / Marine Plywood · From ₹1,300 per sheet");
     await expectPublicPage(page, productPath, async (publicPage) => {
       await expect(publicPage.getByRole("main").getByText("Greenply", { exact: true })).toBeVisible();
     });

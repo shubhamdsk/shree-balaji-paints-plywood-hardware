@@ -4,7 +4,7 @@ const NAV_PAGES = [
   { path: "/", link: "Home" },
   { path: "/products", link: "Products" },
   { path: "/products/paints", link: "Products" },
-  { path: "/products/paints/interior", link: "Products" },
+  { path: "/products/paints/interior-emulsion", link: "Products" },
   { path: "/categories", link: "Categories" },
   { path: "/brands", link: "Brands" },
   { path: "/brands/asian-paints", link: "Brands" },
