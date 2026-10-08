@@ -23,7 +23,7 @@ async function logIn(page: Page, password: string) {
 }
 
 async function clickAndSave(page: Page, click: () => Promise<void>) {
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
   const saved = page.waitForResponse((response) => response.request().method() === "POST" && response.ok());
   await click();
   await saved;
