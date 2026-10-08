@@ -59,7 +59,11 @@ describe("catalog-service with the database", () => {
     const { getCalculablePaints } = await loadService();
     const paints = await getCalculablePaints();
     expect(paints.map((p) => p.id)).toContain("ap-royale-luxury");
-    expect(paints.every((p) => p.category === "paints" && !["Enamel", "Putty"].includes(p.type))).toBe(true);
+    expect(
+      paints.every(
+        (p) => (p.category === "paints" || p.category === "paint-preparation") && !["Enamel Paint", "Wall Putty"].includes(p.type),
+      ),
+    ).toBe(true);
   });
 
   it("returns the popular brands", async () => {

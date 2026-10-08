@@ -13,8 +13,6 @@ export const COVERAGE_SQFT_PER_LITRE: Record<string, number> = {
   "Wall Primer": 100,
   Waterproofing: 35,
   "Waterproofing Paint": 35,
-  Enamel: 90,
-  "Enamel Paint": 90,
 };
 
 const DOOR_SQFT = 21;
