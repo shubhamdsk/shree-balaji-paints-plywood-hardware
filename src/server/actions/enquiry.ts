@@ -24,7 +24,8 @@ export async function submitEnquiryAction(input: EnquiryInput) {
     const record = await createCustomerEnquiry(input);
     updateTag(CACHE_TAGS.enquiries);
     return { ok: true, id: record.id };
-  } catch {
+  } catch (err) {
+    console.error("submitEnquiryAction error:", err);
     return { ok: false, message: "Could not save your enquiry right now. Please try again." };
   }
 }

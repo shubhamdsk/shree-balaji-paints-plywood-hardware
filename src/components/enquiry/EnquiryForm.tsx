@@ -33,6 +33,8 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [lastWaMsg, setLastWaMsg] = useState("");
   const confirm = useConfirm();
 
   const isDirty = (Object.keys(values) as (keyof EnquiryInput)[]).some((key) => values[key] !== initialValues[key]);
@@ -55,19 +57,20 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
 
-    const confirmed = await confirm({
-      title: "Send this enquiry on WhatsApp?",
-      message: "WhatsApp will open with your enquiry ready. Press Send there to reach the shop.",
-      confirmLabel: "Open WhatsApp",
-    });
-    if (!confirmed) return;
-
-    await submitEnquiryAction(values);
-
+    setSubmitting(true);
     const productLabel = products.find((p) => p.id === values.productId)?.label;
-    window.open(whatsappLink(buildEnquiryMessage(values, productLabel)), "_blank", "noopener,noreferrer");
-    reset();
-    setSent(true);
+    const waMsg = buildEnquiryMessage(values, productLabel);
+    
+    const res = await submitEnquiryAction(values);
+    setSubmitting(false);
+
+    if (res.ok) {
+      setLastWaMsg(waMsg);
+      reset();
+      setSent(true);
+    } else if (res.message) {
+      setErrors((curr) => ({ ...curr, message: res.message }));
+    }
   };
 
   const handleClear = async () => {
@@ -85,10 +88,27 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8">
       {sent && (
-        <p role="status" className="flex items-center gap-2 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
-          <CheckCircle2 className="h-5 w-5 shrink-0" />
-          Enquiry ready in WhatsApp. We usually reply within shop hours.
-        </p>
+        <div role="status" className="rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100">
+          <div className="flex items-center gap-2.5 font-bold text-emerald-800 dark:text-emerald-300 text-base">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            Enquiry Submitted Successfully!
+          </div>
+          <p className="mt-1.5 text-sm text-emerald-800/90 dark:text-emerald-200">
+            Thank you! Your enquiry has been received directly in our shop inbox. We will contact you shortly.
+          </p>
+          {lastWaMsg && (
+            <div className="mt-4">
+              <a
+                href={whatsappLink(lastWaMsg)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+              >
+                <WhatsAppIcon className="h-4 w-4" /> Want an instant response? Chat on WhatsApp
+              </a>
+            </div>
+          )}
+        </div>
       )}
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -152,12 +172,11 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
       </FormField>
 
       <div className="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
-        <Button variant="secondary" onClick={handleClear} disabled={!isDirty}>
+        <Button variant="secondary" onClick={handleClear} disabled={!isDirty || submitting}>
           Clear
         </Button>
-        <Button type="submit" variant="whatsapp">
-          <WhatsAppIcon className="h-4 w-4" />
-          Send on WhatsApp
+        <Button type="submit" variant="cta" disabled={submitting}>
+          {submitting ? "Submitting..." : "Submit Enquiry"}
         </Button>
       </div>
     </form>

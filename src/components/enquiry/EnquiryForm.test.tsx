@@ -21,49 +21,31 @@ describe("EnquiryForm", () => {
     expect(screen.getByRole("button", { name: "Product: Asian Paints Royale Luxury Emulsion" })).toBeDefined();
   });
 
-  it("shows linked validation errors and does not open WhatsApp", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
+  it("shows linked validation errors when submitted empty", async () => {
     const { user } = renderForm();
-    await user.click(screen.getByRole("button", { name: "Send on WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Submit Enquiry" }));
 
     const name = screen.getByLabelText(/Your name/);
     expect(name.getAttribute("aria-invalid")).toBe("true");
     expect(document.getElementById(name.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
       "Please enter your name.",
     );
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(open).not.toHaveBeenCalled();
   });
 
-  it("confirms, opens WhatsApp with the message, and resets the form", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
+  it("submits directly to the database, resets the form, and displays success banner with optional WhatsApp link", async () => {
     const { user } = renderForm("ap-royale-luxury");
     await user.type(screen.getByLabelText(/Your name/), "Ramesh Patil");
     await user.type(screen.getByLabelText("Quantity"), "2 x 20 L");
-    await user.click(screen.getByRole("button", { name: "Send on WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Submit Enquiry" }));
 
-    expect(screen.getByRole("dialog", { name: "Send this enquiry on WhatsApp?" })).toBeDefined();
-    await user.click(screen.getByRole("button", { name: "Open WhatsApp" }));
+    await waitFor(() => {
+      expect(screen.getByRole("status").textContent).toContain("Enquiry Submitted Successfully!");
+    });
 
-    await waitFor(() => expect(open).toHaveBeenCalled());
-
-    const url = new URL(String(open.mock.calls[0][0]));
-    expect(url.hostname).toBe("wa.me");
-    expect(url.searchParams.get("text")).toContain("Product: Asian Paints Royale Luxury Emulsion");
-    expect(url.searchParams.get("text")).toContain("Quantity: 2 x 20 L");
     expect(screen.getByLabelText(/Your name/)).toHaveProperty("value", "");
-    expect(screen.getByRole("status").textContent).toContain("Enquiry ready in WhatsApp");
-  });
-
-  it("does not send when the user cancels the confirmation", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
-    const { user } = renderForm("ap-royale-luxury");
-    await user.type(screen.getByLabelText(/Your name/), "Ramesh Patil");
-    await user.click(screen.getByRole("button", { name: "Send on WhatsApp" }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-
-    expect(open).not.toHaveBeenCalled();
-    expect(screen.getByLabelText(/Your name/)).toHaveProperty("value", "Ramesh Patil");
+    const waLink = screen.getByRole("link", { name: /Chat on WhatsApp/ });
+    expect(waLink.getAttribute("href")).toContain("Product%3A%20Asian%20Paints%20Royale%20Luxury%20Emulsion");
+    expect(waLink.getAttribute("href")).toContain("Quantity%3A%202%20x%2020%20L");
   });
 
   it("asks before clearing typed input", async () => {
