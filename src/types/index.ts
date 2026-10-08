@@ -1,25 +1,33 @@
-export type CategoryId =
-  | "paints"
-  | "plywood"
-  | "hardware"
-  | "plumbing"
-  | "electrical"
-  | "tools"
-  | "adhesives";
+export type CategoryId = string;
 
 export interface Category {
   id: CategoryId;
   name: string;
-  tagline: string;
-  description: string;
+  slug?: string;
+  tagline?: string;
+  description?: string;
   image: string;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 export type CategoryFilter = CategoryId | "all";
 
+export interface Subcategory {
+  id: string;
+  categoryId: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  image?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
 export interface CategoryGroup {
   id: CategoryId;
   name: string;
+  slug?: string;
   subtypes: string[];
 }
 

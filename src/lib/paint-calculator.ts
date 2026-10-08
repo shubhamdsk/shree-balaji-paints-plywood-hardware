@@ -6,9 +6,15 @@ export type LengthUnit = "ft" | "m";
 // Conservative per-coat figures on a smooth, primed wall; brand datasheets vary with surface and dilution.
 export const COVERAGE_SQFT_PER_LITRE: Record<string, number> = {
   Interior: 110,
+  "Interior Emulsion": 110,
   Exterior: 55,
+  "Exterior Emulsion": 55,
   Primer: 100,
+  "Wall Primer": 100,
   Waterproofing: 35,
+  "Waterproofing Paint": 35,
+  Enamel: 90,
+  "Enamel Paint": 90,
 };
 
 const DOOR_SQFT = 21;
@@ -44,7 +50,7 @@ export interface PaintEstimate {
 
 export function isCalculablePaint(product: Pick<Product, "category" | "type" | "sizes">) {
   return (
-    product.category === "paints" &&
+    (product.category === "paints" || product.category === "paint-preparation") &&
     product.type in COVERAGE_SQFT_PER_LITRE &&
     product.sizes.some((size) => parseMillilitres(size) !== null)
   );
