@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { updateTag } from "next/cache";
@@ -32,6 +32,7 @@ beforeEach(async () => {
   cookieJar.clear();
   vi.mocked(updateTag).mockClear();
   await rm(photoDir, { recursive: true, force: true });
+  await mkdir(photoDir, { recursive: true });
 });
 
 async function logInAsOwner() {
@@ -48,7 +49,7 @@ function productForm(fields: Record<string, string> = {}, photo?: Blob) {
     name: "Weatherbond Advance",
     brand: "Nippon Paint",
     category: "paints",
-    type: "Exterior",
+    type: "Exterior Emulsion",
     sizes: "1 L, 4 L",
     priceFrom: "295",
     unit: "per litre",

@@ -12,12 +12,15 @@ export type AuditAction =
   | "product_update"
   | "product_stock"
   | "product_featured"
-  | "product_visibility";
+  | "product_visibility"
+  | "category_create"
+  | "subcategory_create"
+  | "category_status";
 
 interface AuditEntry {
   userId: number | null;
   action: AuditAction;
-  entity: "admin_user" | "product";
+  entity: "admin_user" | "product" | "category" | "subcategory";
   entityId?: string | null;
   before?: unknown;
   after?: unknown;

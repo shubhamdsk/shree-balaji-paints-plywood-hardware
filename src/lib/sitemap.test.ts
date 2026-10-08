@@ -12,7 +12,7 @@ describe("sitemapPaths", () => {
 
     expect(paths).toEqual(expect.arrayContaining(["/", "/products", "/categories", "/brands", "/offers", "/paint-calculator"]));
     expect(paths).toContain("/products/paints");
-    expect(paths).toContain("/products/paints/interior");
+    expect(paths).toContain("/products/paints/interior-emulsion");
     expect(paths).toContain("/brands/asian-paints");
     for (const p of products) expect(paths).toContain(`/products/${p.id}`);
     expect(new Set(paths).size).toBe(paths.length);
