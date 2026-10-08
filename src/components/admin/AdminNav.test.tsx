@@ -34,4 +34,11 @@ describe("AdminNav", () => {
     renderWithProviders(<AdminNav />);
     expect(screen.getByRole("link", { name: "Password" }).getAttribute("aria-current")).toBe("page");
   });
+
+  it("links to the enquiries page", () => {
+    pathname.mockReturnValue(ROUTES.adminEnquiries);
+    renderWithProviders(<AdminNav />);
+    expect(screen.getByRole("link", { name: "Enquiries" }).getAttribute("aria-current")).toBe("page");
+  });
 });
+

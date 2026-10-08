@@ -21,4 +21,6 @@ export const ROUTES = {
   adminProducts: "/admin/products",
   adminNewProduct: "/admin/products/new",
   adminProduct: (id: string) => `/admin/products/${id}`,
+  adminEnquiries: "/admin/enquiries",
 } as const;
+

@@ -79,8 +79,24 @@ export const auditLog = pgTable("audit_log", {
   at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const enquiries = pgTable("enquiries", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone"),
+  productId: text("product_id"),
+  productName: text("product_name"),
+  quantity: text("quantity"),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type CategoryRow = typeof categories.$inferSelect;
 export type SubcategoryRow = typeof subcategories.$inferSelect;
 export type ProductRow = typeof products.$inferSelect;
+export type EnquiryRow = typeof enquiries.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
+
 

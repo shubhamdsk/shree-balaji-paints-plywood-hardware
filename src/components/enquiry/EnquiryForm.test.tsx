@@ -1,7 +1,13 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import EnquiryForm from "@/components/enquiry/EnquiryForm";
+import { setupTestDatabase } from "@/test/db";
 import { renderWithProviders } from "@/test/render";
+
+vi.mock("next/headers", () => import("@/test/mocks/next-headers"));
+vi.mock("next/navigation", () => import("@/test/mocks/next-navigation"));
+
+setupTestDatabase();
 
 const products = [{ id: "ap-royale-luxury", label: "Asian Paints Royale Luxury Emulsion" }];
 
@@ -38,6 +44,8 @@ describe("EnquiryForm", () => {
 
     expect(screen.getByRole("dialog", { name: "Send this enquiry on WhatsApp?" })).toBeDefined();
     await user.click(screen.getByRole("button", { name: "Open WhatsApp" }));
+
+    await waitFor(() => expect(open).toHaveBeenCalled());
 
     const url = new URL(String(open.mock.calls[0][0]));
     expect(url.hostname).toBe("wa.me");

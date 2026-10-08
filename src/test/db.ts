@@ -11,7 +11,9 @@ export function setupTestDatabase() {
   }, 30_000);
 
   beforeEach(async () => {
-    await db.execute(sql`truncate table products, audit_log, sessions, admin_users restart identity cascade`);
+    await db.execute(
+      sql`truncate table products, enquiries, categories, subcategories, audit_log, sessions, admin_users restart identity cascade`,
+    );
     await seedCatalog(db);
     setDatabase(db);
   });

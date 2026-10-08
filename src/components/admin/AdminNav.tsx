@@ -8,8 +8,10 @@ import { ROUTES } from "@/lib/routes";
 export const ADMIN_LINKS = [
   { href: ROUTES.admin, label: "Dashboard" },
   { href: ROUTES.adminProducts, label: "Products" },
+  { href: ROUTES.adminEnquiries, label: "Enquiries" },
   { href: ROUTES.adminPassword, label: "Password" },
 ] as const;
+
 
 export function isAdminLinkActive(href: string, pathname: string) {
   return href === ROUTES.admin ? pathname === ROUTES.admin : isActivePath(href, pathname);

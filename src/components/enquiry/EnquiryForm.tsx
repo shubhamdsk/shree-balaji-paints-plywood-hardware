@@ -9,6 +9,7 @@ import { whatsappLink } from "@/config/shop";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { buildEnquiryMessage, validateEnquiry, type EnquiryErrors, type EnquiryInput } from "@/lib/enquiry";
+import { submitEnquiryAction } from "@/server/actions/enquiry";
 
 export interface EnquiryProductOption {
   id: string;
@@ -60,6 +61,8 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
       confirmLabel: "Open WhatsApp",
     });
     if (!confirmed) return;
+
+    await submitEnquiryAction(values);
 
     const productLabel = products.find((p) => p.id === values.productId)?.label;
     window.open(whatsappLink(buildEnquiryMessage(values, productLabel)), "_blank", "noopener,noreferrer");

@@ -74,3 +74,20 @@ export interface AdminUser {
 }
 
 export type SortOption = "price-asc" | "price-desc" | "name";
+
+export type EnquiryStatus = "new" | "contacted" | "closed";
+
+export interface EnquiryRecord {
+  id: string;
+  name: string;
+  phone?: string;
+  productId?: string;
+  productName?: string;
+  quantity?: string;
+  message: string;
+  status: EnquiryStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

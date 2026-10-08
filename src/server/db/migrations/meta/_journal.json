@@ -29,6 +29,13 @@
       "when": 1791472238579,
       "tag": "0003_add_categories_subcategories",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791480848340,
+      "tag": "0004_add_enquiries_table",
+      "breakpoints": true
     }
   ]
 }
