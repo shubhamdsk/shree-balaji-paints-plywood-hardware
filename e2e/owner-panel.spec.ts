@@ -44,6 +44,19 @@ async function expectPublicPage(page: Page, path: string, check: (page: Page) =>
   }).toPass({ timeout: 30_000 });
 }
 
+test("clears the navigation loader after browser back", async ({ page }) => {
+  await logIn(page, E2E_OWNER.password);
+  await expect(page).toHaveURL(/\/admin$/);
+
+  await page.getByRole("link", { name: "Manage products" }).click();
+  await expect(page).toHaveURL(/\/admin\/products$/);
+  await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
+});
+
 test("the owner manages a product from login to logout", async ({ page }) => {
   test.setTimeout(180_000);
   const name = `E2E Marine Ply ${Date.now()}`;
@@ -75,6 +88,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await expect(page.getByRole("img", { name: "New photo" })).toBeVisible();
     await page.getByRole("button", { name: "Save product" }).click();
     await expect(page).toHaveURL(/\/admin\/products$/);
+    await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
     await expect(productRow(page, name)).toContainText("Century · Marine · From ₹1,250 per sheet");
 
     const href = await page.getByRole("link", { name, exact: true }).getAttribute("href");
@@ -139,6 +153,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.getByLabel(/Starting price/).fill("1300");
     await page.getByRole("button", { name: "Save product" }).click();
     await expect(page).toHaveURL(/\/admin\/products$/);
+    await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
     await expect(productRow(page, name)).toContainText("Greenply · Marine · From ₹1,300 per sheet");
     await expectPublicPage(page, productPath, async (publicPage) => {
       await expect(publicPage.getByRole("main").getByText("Greenply", { exact: true })).toBeVisible();
