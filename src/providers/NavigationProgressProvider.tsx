@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { LoaderCircle } from "@/components/ui/icons";
 
@@ -31,6 +31,15 @@ export default function NavigationProgressProvider({ children }: { children: Rea
     setProgress({ id, fromPath });
     return id;
   }, []);
+
+  useEffect(() => {
+    if (!progress || progress.fromPath === pathname) return;
+    const completedId = progress.id;
+    const timeout = window.setTimeout(() => {
+      setProgress((current) => (current?.id === completedId ? null : current));
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [pathname, progress]);
 
   const isLoading = progress !== null && progress.fromPath === pathname;
 

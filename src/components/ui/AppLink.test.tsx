@@ -1,10 +1,10 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppLink from "@/components/ui/AppLink";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { linkNavigated } from "@/test/mocks/next-link";
-import { router } from "@/test/mocks/next-navigation";
+import { pathname, router } from "@/test/mocks/next-navigation";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("next/link", () => import("@/test/mocks/next-link"));
@@ -15,6 +15,7 @@ const { push } = router;
 beforeEach(() => {
   linkNavigated.mockClear();
   router.push.mockClear();
+  pathname.mockReturnValue("/");
 });
 
 function EditableForm() {
@@ -46,6 +47,20 @@ describe("AppLink with the unsaved-changes guard", () => {
     fireEvent.click(link);
 
     expect(linkNavigated).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears completed navigation progress before returning to the previous route", async () => {
+    const { user, rerender } = renderWithProviders(<EditableForm />);
+    await user.click(screen.getByRole("link", { name: "Products" }));
+    expect(screen.getByRole("status").textContent).toContain("Loading page...");
+
+    pathname.mockReturnValue("/products");
+    rerender(<EditableForm />);
+    await waitFor(() => expect(screen.queryByRole("status")).toBeNull());
+
+    pathname.mockReturnValue("/");
+    rerender(<EditableForm />);
+    expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("asks before leaving and stays when the user keeps editing", async () => {
