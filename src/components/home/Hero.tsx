@@ -66,7 +66,7 @@ export default function Hero() {
               src="/images/banners/exterior-house.jpg"
               alt="Freshly painted two-storey house at dusk"
               fill
-              preload
+              priority
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
