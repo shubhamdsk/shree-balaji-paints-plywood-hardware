@@ -42,6 +42,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
               src={thumbs[activeImage]}
               alt={product.name}
               fill
+              priority={activeImage === 0}
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />

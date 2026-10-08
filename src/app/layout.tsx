@@ -9,12 +9,14 @@ import AppProviders from "@/providers/AppProviders";
 const notoDevanagari = Noto_Sans_Devanagari({
   variable: "--font-noto-devanagari",
   subsets: ["devanagari", "latin"],
+  display: "swap",
 });
 
 const baloo = Baloo_2({
   variable: "--font-baloo",
   subsets: ["devanagari", "latin"],
   weight: ["600", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

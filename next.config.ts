@@ -28,12 +28,28 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   devIndicators: false,
   serverExternalPackages: ["@electric-sql/pglite"],
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+  },
   experimental: {
+    optimizePackageImports: ["lucide-react"],
     // Netlify functions reject requests over 6 MB; photos are shrunk in the browser to stay under 3 MB.
     serverActions: { bodySizeLimit: "4mb" },
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      {
+        source: "/images/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
   },
 };
 
