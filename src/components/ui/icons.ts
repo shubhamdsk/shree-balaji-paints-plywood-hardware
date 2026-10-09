@@ -30,6 +30,7 @@ export {
   Clock,
   DoorClosed,
   Droplets,
+  FolderPlus,
   Hammer,
   HandCoins,
   HelpCircle,

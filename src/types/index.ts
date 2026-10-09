@@ -24,6 +24,51 @@ export interface Subcategory {
   isActive?: boolean;
 }
 
+export interface AdminSubcategoryRecord {
+  id: string;
+  categoryId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  sortOrder: number;
+  isActive: boolean;
+  productCount: number;
+}
+
+export interface AdminCategoryRecord {
+  id: string;
+  name: string;
+  slug: string;
+  tagline?: string;
+  description?: string;
+  image: string;
+  sortOrder: number;
+  isActive: boolean;
+  productCount: number;
+  subcategories: AdminSubcategoryRecord[];
+}
+
+export interface CategoryInput {
+  name: string;
+  slug?: string;
+  tagline?: string;
+  description?: string;
+  image?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
+export interface SubcategoryInput {
+  categoryId: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  image?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
 export interface CategoryGroup {
   id: CategoryId;
   name: string;

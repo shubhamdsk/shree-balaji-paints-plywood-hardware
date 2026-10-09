@@ -14,8 +14,11 @@ export type AuditAction =
   | "product_featured"
   | "product_visibility"
   | "category_create"
-  | "subcategory_create"
+  | "category_update"
   | "category_status"
+  | "subcategory_create"
+  | "subcategory_update"
+  | "subcategory_status"
   | "enquiry_update_status";
 
 interface AuditEntry {
