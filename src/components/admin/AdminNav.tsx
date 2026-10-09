@@ -9,6 +9,7 @@ export const ADMIN_LINKS = [
   { href: ROUTES.admin, label: "Dashboard" },
   { href: ROUTES.adminProducts, label: "Products" },
   { href: ROUTES.adminCategories, label: "Categories" },
+  { href: ROUTES.adminGallery, label: "Gallery" },
   { href: ROUTES.adminEnquiries, label: "Enquiries" },
   { href: ROUTES.adminPassword, label: "Password" },
 ] as const;

@@ -61,6 +61,7 @@ export {
   Store,
   Sun,
   Tag,
+  Trash2,
   TrendingUp,
   Users,
   Wrench,

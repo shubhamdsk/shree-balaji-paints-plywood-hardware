@@ -136,3 +136,23 @@ export interface EnquiryRecord {
   updatedAt: string;
 }
 
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: string;
+  caption?: string;
+  image: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GalleryInput {
+  title: string;
+  category: string;
+  caption?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+

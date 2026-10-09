@@ -145,10 +145,10 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [x] The website runs on Netlify, and only the Netlify address is shared.
-- [ ] The owner can log in on his phone, and the lockout works.
-- [ ] Products can be added, edited, hidden and given photos.
-- [ ] Changes appear on the website within about a minute.
-- [ ] The owner can change his password from the owner panel.
+- [x] The owner can log in on his phone, and the lockout works.
+- [x] Products can be added, edited, hidden and given photos.
+- [x] Changes appear on the website within about a minute.
+- [x] The owner can change his password from the owner panel.
 
 ---
 
@@ -211,9 +211,9 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [ ] Offers appear and disappear on their dates.
-- [ ] The gallery works, with confirmation before deleting.
-- [ ] Every enquiry is saved and still opens in WhatsApp.
-- [ ] The enquiry inbox is visible only to the owner.
+- [x] The gallery works, with confirmation before deleting.
+- [x] Every enquiry is saved and still opens in WhatsApp.
+- [x] The enquiry inbox is visible only to the owner.
 - [ ] The daily backup runs.
 
 ---
