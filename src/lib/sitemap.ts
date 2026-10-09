@@ -9,6 +9,7 @@ export function sitemapPaths(products: Product[], groups: CategoryGroup[]): stri
     ROUTES.categories,
     ROUTES.brands,
     ROUTES.offers,
+    ROUTES.gallery,
     ROUTES.about,
     ROUTES.contact,
     ROUTES.enquiry(),
