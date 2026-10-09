@@ -269,7 +269,7 @@ Billing software is **not** part of this plan.
 - [ ] The Google Business Profile is live or verification is under way.
 - [ ] Search Console shows the sitemap as submitted.
 - [ ] The daily backup has run at least 3 days in a row.
-- [ ] The owner has the one-page guide.
+- [x] The owner has the one-page guide ([OWNER-GUIDE.md](OWNER-GUIDE.md)).
 
 ### Done when
 
