@@ -16,7 +16,7 @@ Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) 
 | **Part 1: public website** | Logo, products, categories, brands, offers, about, contact, enquiry to WhatsApp | Live |
 | **Owner panel** (`/admin`) | The owner adds and edits products, photos, prices, stock status, offers and gallery photos from his phone. Changes appear in about a minute | Sprint 1-2 |
 | **Enquiry inbox** | Every website enquiry is saved and listed in the owner panel, and still opens in WhatsApp | Sprint 2 |
-| **Smart features** | Paint calculator, our work gallery, dated offer banners | Sprint 2-3 |
+| **Smart features** | Paint calculator (enhanced with room presets, area breakdown & primer/putty estimates), our work gallery, category management, dated offer banners | Sprint 2-3 |
 | **Google presence** | Google Business Profile, Search Console, sitemap | Sprint 3 |
 | **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan (commercial use allowed). Vercel is retired | Done |
 
