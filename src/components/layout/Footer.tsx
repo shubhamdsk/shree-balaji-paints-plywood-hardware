@@ -7,9 +7,10 @@ import { getCategories } from "@/services/catalog-service";
 
 const quickLinks = [
   { href: ROUTES.products, label: "Products" },
-  { href: ROUTES.categories, label: "Categories" },
+  { href: ROUTES.categories, label: "All categories" },
   { href: ROUTES.brands, label: "Brands" },
   { href: ROUTES.offers, label: "Offers" },
+  { href: ROUTES.gallery, label: "Gallery" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.contact, label: "Contact" },
 ];

@@ -103,14 +103,8 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
     setEstimate(product && Object.keys(validationErrors).length === 0 ? estimatePaint(values, product) : null);
   };
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!estimate || !product) return;
-    const confirmed = await confirm({
-      title: "Send this estimate on WhatsApp?",
-      message: "WhatsApp will open with your room size and estimate ready. Press Send there to ask the shop for a price.",
-      confirmLabel: "Open WhatsApp",
-    });
-    if (!confirmed) return;
     window.open(whatsappLink(buildEstimateMessage(values, estimate, product.label)), "_blank", "noopener,noreferrer");
   };
 
@@ -149,7 +143,7 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8">
-        <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,1fr)_180px]">
           <FormField label="Paint" htmlFor="productId" error={errors.productId} required>
             <SelectMenu
               id="productId"
@@ -173,7 +167,7 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
         </div>
 
         <div>
-          <span className="mb-2 block text-xs font-bold text-muted">Quick Room Presets:</span>
+          <span className="mb-2 block text-xs font-bold text-muted">Common room sizes</span>
           <div className="flex flex-wrap gap-2">
             {ROOM_PRESETS.map((preset) => (
               <button

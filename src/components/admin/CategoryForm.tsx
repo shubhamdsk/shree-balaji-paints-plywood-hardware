@@ -29,6 +29,8 @@ type CategoryFormProps = { cancelHref: string; defaultSortOrder: number } & (
 type Values = ReturnType<typeof readCategoryForm>;
 type Field = keyof Values;
 
+const MORE_FIELDS = ["sortOrder", "seoTitle", "seoDescription"] as const;
+
 export default function CategoryForm(props: CategoryFormProps) {
   const { kind, record, cancelHref, defaultSortOrder } = props;
   const categoryId = props.kind === "type" ? props.categoryId : null;
@@ -59,6 +61,8 @@ export default function CategoryForm(props: CategoryFormProps) {
   );
   const [state, formAction, pending] = useActionState<CategoryFormState, FormData>(save, {});
   const errors: CategoryFieldErrors = { ...state.errors, ...validation.errors, ...(photoError && { photo: photoError }) };
+  const [moreOpen, setMoreOpen] = useState(false);
+  const showMore = moreOpen || MORE_FIELDS.some((field) => errors[field]);
 
   const isDirty = photo !== null || (Object.keys(values) as Field[]).some((key) => values[key] !== initial[key]);
   useUnsavedChanges(isDirty && !pending);
@@ -89,7 +93,7 @@ export default function CategoryForm(props: CategoryFormProps) {
     <form onSubmit={handleSubmit} onBlur={validation.checkField} noValidate className="space-y-6">
       <FormAlert>{validation.summary ?? state.message}</FormAlert>
 
-      <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-[1fr_10rem] sm:p-6">
+      <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:p-6">
         <FormField
           label={kind === "category" ? "Category name" : "Type name"}
           htmlFor="name"
@@ -99,21 +103,14 @@ export default function CategoryForm(props: CategoryFormProps) {
         >
           <input {...fieldProps("name")} autoComplete="off" maxLength={CATEGORY_LIMITS.name} />
         </FormField>
-        <FormField label="Position" htmlFor="sortOrder" error={errors.sortOrder} hint="Lower numbers show first" required>
-          <input {...fieldProps("sortOrder")} inputMode="numeric" autoComplete="off" maxLength={4} />
-        </FormField>
         {kind === "category" && (
-          <div className="sm:col-span-2">
-            <FormField label="Tagline" htmlFor="tagline" error={errors.tagline} hint="One short line shown on the home page">
-              <input {...fieldProps("tagline")} autoComplete="off" maxLength={CATEGORY_LIMITS.tagline} />
-            </FormField>
-          </div>
-        )}
-        <div className="sm:col-span-2">
-          <FormField label="Description" htmlFor="description" error={errors.description}>
-            <textarea {...fieldProps("description")} rows={3} maxLength={CATEGORY_LIMITS.description} />
+          <FormField label="Tagline" htmlFor="tagline" error={errors.tagline} hint="One short line shown on the home page">
+            <input {...fieldProps("tagline")} autoComplete="off" maxLength={CATEGORY_LIMITS.tagline} />
           </FormField>
-        </div>
+        )}
+        <FormField label="Description" htmlFor="description" error={errors.description}>
+          <textarea {...fieldProps("description")} rows={3} maxLength={CATEGORY_LIMITS.description} />
+        </FormField>
       </section>
 
       <PhotoField
@@ -124,25 +121,37 @@ export default function CategoryForm(props: CategoryFormProps) {
         onChoose={choosePhoto}
       />
 
-      <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:p-6">
-        <h2 className="text-lg font-bold text-heading">Google search</h2>
-        <FormField
-          label="Search title"
-          htmlFor="seoTitle"
-          error={errors.seoTitle}
-          hint={`Optional, up to ${SEO_TITLE_MAX} characters. The shop name is added after it. Leave empty to use the name.`}
-        >
-          <input {...fieldProps("seoTitle")} autoComplete="off" maxLength={SEO_TITLE_MAX} />
-        </FormField>
-        <FormField
-          label="Search description"
-          htmlFor="seoDescription"
-          error={errors.seoDescription}
-          hint={`Optional, up to ${SEO_DESCRIPTION_MAX} characters. Leave empty to use the description.`}
-        >
-          <textarea {...fieldProps("seoDescription")} rows={2} maxLength={SEO_DESCRIPTION_MAX} />
-        </FormField>
-      </section>
+      <details
+        open={showMore}
+        onToggle={(event) => setMoreOpen(event.currentTarget.open)}
+        className="group rounded-card border border-line bg-card shadow-card"
+      >
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 font-bold text-heading sm:px-6">
+          More options
+          <span className="text-sm font-semibold text-muted group-open:hidden">Position and Google search</span>
+        </summary>
+        <div className="grid gap-5 border-t border-line p-5 sm:p-6">
+          <FormField label="Position" htmlFor="sortOrder" error={errors.sortOrder} hint="Lower numbers show first" required>
+            <input {...fieldProps("sortOrder")} inputMode="numeric" autoComplete="off" maxLength={4} />
+          </FormField>
+          <FormField
+            label="Search title"
+            htmlFor="seoTitle"
+            error={errors.seoTitle}
+            hint={`Optional, up to ${SEO_TITLE_MAX} characters. The shop name is added after it. Leave empty to use the name.`}
+          >
+            <input {...fieldProps("seoTitle")} autoComplete="off" maxLength={SEO_TITLE_MAX} />
+          </FormField>
+          <FormField
+            label="Search description"
+            htmlFor="seoDescription"
+            error={errors.seoDescription}
+            hint={`Optional, up to ${SEO_DESCRIPTION_MAX} characters. Leave empty to use the description.`}
+          >
+            <textarea {...fieldProps("seoDescription")} rows={2} maxLength={SEO_DESCRIPTION_MAX} />
+          </FormField>
+        </div>
+      </details>
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" variant="primary" disabled={pending}>

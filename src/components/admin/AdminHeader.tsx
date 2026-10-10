@@ -1,6 +1,5 @@
 import AdminNav from "@/components/admin/AdminNav";
 import Logo from "@/components/brand/Logo";
-import ThemeSwitcher from "@/components/layout/ThemeSwitcher";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { Store } from "@/components/ui/icons";
@@ -25,7 +24,6 @@ export default function AdminHeader({ username }: { username: string }) {
           >
             <Store aria-hidden className="h-5 w-5" />
           </AppLink>
-          <ThemeSwitcher />
           <form action={logOutAction}>
             <button type="submit" className={buttonClasses("secondary")}>
               Log out

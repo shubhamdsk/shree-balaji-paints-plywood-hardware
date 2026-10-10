@@ -27,11 +27,12 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ## Features
 
-- **Home** — Marathi hero, trust bar, category showcase (Paints first), shop-by-project cards, featured products, trusted brands, paint and plywood/hardware sections, offers, why choose us, about and a visit-our-store panel with map
-- **Categories** — `/categories` lists every category with its stocked types
+- **Home** — Marathi hero, trust bar, category showcase (Paints first), featured products, trusted brands, offers and a short store story; the footer carries the phone, address and hours
+- **Categories** — `/categories` lists every category with its stocked types (linked from the products page and the footer)
 - **Products catalogue** — Browse by category with filters, sort, and pagination
-- **Product cards** — Brand, category, type and sizes, with a WhatsApp "Enquire" button that names the product (no prices shown)
-- **Product detail pages** — Specs, size picker, "Enquire for Price on WhatsApp" (includes the chosen size) and Call Us
+- **Product cards** — Brand, category, type, sizes and the starting price ("From ₹520 per litre", or "Ask for price" when none is set), with a WhatsApp "Enquire" button that names the product
+- **Product detail pages** — Starting price, size picker, "Ask on WhatsApp" (includes the chosen size), Call Us, then technical details, how to apply and downloads when the product has them
+- **Gallery** — Photos of finished work at `/gallery`, linked from the footer
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
@@ -39,13 +40,13 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Back to top** — A floating arrow above the WhatsApp button appears once you scroll down a long page
 - **Paint calculator** — Room size (feet or metres), doors, windows and coats give the litres and best pack sizes, sent to the shop on WhatsApp; wall-paint product pages link to it at `/paint-calculator/<product>`
 - **Google Maps** — Embedded map on `/contact` plus a link to open directions ([map](https://maps.app.goo.gl/hQ4KTEewDSLMKXCQ7))
-- **Responsive layout** — Sticky header that shrinks on scroll, a bottom bar (Home, Products, Categories, Contact) on phones and tablets, and 44 px tap targets; checked from 360 px to 1920 px
+- **Responsive layout** — Sticky header that shrinks on scroll, a bottom bar (Home, Products, Offers, Contact) on phones and tablets, and 44 px tap targets; checked from 360 px to 1920 px
 - **Design system** — Navy, red, paint-orange and gold theme tokens with warm neutrals, Noto Sans Devanagari for text and Baloo 2 for the wordmark (`src/app/globals.css`)
 - **Light, dark and system themes** — One theme button in the header (in the menu on mobile) cycles Light, Dark and System, and its icon shows the current choice. System (the default) follows the device setting; the choice is saved in the browser and applied before the first paint, so pages never flash the wrong theme. Every page keeps WCAG AA text contrast in both themes
 - **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
 - **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
-- **Owner panel** — `/admin` (password login, locked for 15 minutes after 5 wrong tries) where the owner adds and edits products from his phone: name, brand, category, type, a price unit picked from a list (litre, kg, sheet, piece and so on), the sizes he sells ticked from that unit's list, price in whole rupees, description and a photo taken with the phone (shrunk in the browser before upload). One-tap switches mark a product in or out of stock or put it on the home page, and Hide (after a confirmation) removes it from every public page. Changes show on the website straight away, with no redeploy. Under **Categories** he adds, renames and reorders the 10 categories and their types, sets a photo and a Google title and description, and hides one (with a confirmation when it has products); products stay linked through a rename
+- **Owner panel** — `/admin` (password login, locked for 15 minutes after 5 wrong tries) opens on what needs attention (new enquiries, out-of-stock products, offers running today) with Add product and Add offer buttons. There the owner adds and edits products from his phone: name, brand, category, type, a price unit picked from a list (litre, kg, sheet, piece and so on), the sizes he sells ticked from that unit's list, price in whole rupees, description and a photo taken with the phone (shrunk in the browser before upload). One-tap switches mark a product in or out of stock or put it on the home page, and Hide (after a confirmation) removes it from every public page. Changes show on the website straight away, with no redeploy. Under **Categories** he adds, renames and reorders the 10 categories and their types, sets a photo and a Google title and description, and hides one (with a confirmation when it has products); products stay linked through a rename
 
 ## Tech stack
 

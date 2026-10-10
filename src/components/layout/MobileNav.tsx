@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { House, LayoutGrid, MapPin, PackageSearch } from "@/components/ui/icons";
+import { House, MapPin, PackageSearch, Tag } from "@/components/ui/icons";
 import { isActivePath } from "@/components/layout/nav-links";
 import AppLink from "@/components/ui/AppLink";
 import { ROUTES } from "@/lib/routes";
@@ -9,7 +9,7 @@ import { ROUTES } from "@/lib/routes";
 const items = [
   { href: ROUTES.home, label: "Home", icon: House },
   { href: ROUTES.products, label: "Products", icon: PackageSearch },
-  { href: ROUTES.categories, label: "Categories", icon: LayoutGrid },
+  { href: ROUTES.offers, label: "Offers", icon: Tag },
   { href: ROUTES.contact, label: "Contact", icon: MapPin },
 ];
 

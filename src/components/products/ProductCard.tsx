@@ -5,6 +5,7 @@ import CoverImage from "@/components/ui/CoverImage";
 import { whatsappLink } from "@/config/shop";
 import { categoryLabel, productLabel } from "@/lib/catalog";
 import { productEnquiryMessage } from "@/lib/enquiry";
+import { formatPrice } from "@/lib/price";
 import { ROUTES } from "@/lib/routes";
 import type { CatalogProduct } from "@/types";
 
@@ -40,6 +41,7 @@ export default function ProductCard({ product }: { product: CatalogProduct }) {
         <p className="mt-1 text-sm text-muted">
           {categoryLabel(product)} · {product.type}
         </p>
+        <p className="mt-2 text-base font-bold text-heading">{formatPrice(product.priceFrom, product.unit)}</p>
 
         {product.sizes.length > 0 && (
           <div className="mt-3">

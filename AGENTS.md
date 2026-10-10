@@ -46,7 +46,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - A product detail page.
    - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
-   - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
+   - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then send the estimate on WhatsApp.
    - The WhatsApp and phone links.
    - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, add an offer for today and see it on `/offers`, delete it (confirm), change the password, and log out. `npm run test:e2e` covers this flow; still check it by hand on a phone-sized screen.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:

@@ -24,11 +24,12 @@ const sampleGallery: GalleryItem[] = [
 describe("AdminGalleryList", () => {
   it("renders gallery items and open upload modal", async () => {
     const { user } = renderWithProviders(<AdminGalleryList initialItems={sampleGallery} />);
-    expect(screen.getByText("Our Work Gallery Management")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Gallery" })).toBeDefined();
     expect(screen.getByText("Kotul Bungalow Painting")).toBeDefined();
+    expect(screen.getByRole("switch", { name: "Kotul Bungalow Painting on the website" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Delete Kotul Bungalow Painting" })).toBeDefined();
 
-    const uploadBtn = screen.getByRole("button", { name: /Upload Work Photo/ });
-    await user.click(uploadBtn);
-    expect(screen.getByRole("heading", { name: "Upload Work Photo" })).toBeDefined();
+    await user.click(screen.getByRole("button", { name: "Add photo" }));
+    expect(screen.getByRole("heading", { name: "Add photo" })).toBeDefined();
   });
 });

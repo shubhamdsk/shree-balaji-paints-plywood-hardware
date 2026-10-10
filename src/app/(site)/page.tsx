@@ -3,13 +3,8 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import Hero from "@/components/home/Hero";
 import TrustBar from "@/components/home/TrustBar";
 import CategoryShowcase from "@/components/home/CategoryShowcase";
-import ShopByNeed from "@/components/home/ShopByNeed";
-import PaintShowcase from "@/components/home/PaintShowcase";
-import BuildShowcase from "@/components/home/BuildShowcase";
-import WhyChooseUs from "@/components/home/WhyChooseUs";
 import StoreStory from "@/components/home/StoreStory";
 import BrandGrid from "@/components/brands/BrandGrid";
-import ContactDetails from "@/components/contact/ContactDetails";
 import OfferCards from "@/components/offers/OfferCards";
 import ProductCard from "@/components/products/ProductCard";
 import { countProducts, HOME_FEATURED_LIMIT } from "@/lib/catalog";
@@ -48,22 +43,11 @@ export default async function Home() {
         <CategoryShowcase categories={categories} counts={counts} />
       </section>
 
-      <section className="bg-surface-muted">
-        <div className={section}>
-          <SectionHeader
-            eyebrow="Shop by project"
-            title="What are you working on?"
-            description="Pick your project and we'll point you to the right products."
-          />
-          <ShopByNeed />
-        </div>
-      </section>
-
-      <section className={section}>
+      <section className={`${section} pt-0 sm:pt-0 lg:pt-0`}>
         <SectionHeader
           eyebrow="Featured"
           title="Featured Products"
-          description="Popular picks from our shelves. Message us on WhatsApp for the latest price and availability."
+          description="Popular picks from our shelves."
           href={ROUTES.products}
           linkLabel="View all products"
         />
@@ -91,14 +75,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className={section}>
-        <PaintShowcase products={products} />
-      </section>
-
-      <section className="container-page pb-14 sm:pb-16 lg:pb-20">
-        <BuildShowcase products={products} />
-      </section>
-
       <section className="bg-surface-muted">
         <div className={section}>
           <SectionHeader
@@ -113,18 +89,7 @@ export default async function Home() {
       </section>
 
       <section className={section}>
-        <SectionHeader eyebrow="Why us" title="Why Choose श्री बालाजी?" align="center" />
-        <WhyChooseUs />
-      </section>
-
-      <section className="border-t border-line bg-card">
-        <div className={section}>
-          <StoreStory />
-        </div>
-      </section>
-
-      <section className={section}>
-        <ContactDetails />
+        <StoreStory />
       </section>
     </>
   );

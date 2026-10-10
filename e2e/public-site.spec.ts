@@ -5,7 +5,7 @@ const NAV_PAGES = [
   { path: "/products", link: "Products" },
   { path: "/products/paints", link: "Products" },
   { path: "/products/paints/interior-emulsion", link: "Products" },
-  { path: "/categories", link: "Categories" },
+  { path: "/categories", link: "Products" },
   { path: "/brands", link: "Brands" },
   { path: "/brands/asian-paints", link: "Brands" },
   { path: "/offers", link: "Offers" },
@@ -61,7 +61,13 @@ test("the enquiry form asks before discarding what was typed", async ({ page }) 
   await expect(page.getByLabel(/Your name/)).toHaveValue("Ravi");
 });
 
-test("the paint calculator gives an estimate and confirms before opening WhatsApp", async ({ page }) => {
+test("the paint calculator gives an estimate and opens WhatsApp with it", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.open = (url) => {
+      document.body.dataset.opened = String(url);
+      return null;
+    };
+  });
   await page.goto("/paint-calculator/ap-royale-luxury");
   await page.getByLabel("Length (ft)").fill("12");
   await page.getByLabel("Width (ft)").fill("10");
@@ -70,8 +76,5 @@ test("the paint calculator gives an estimate and confirms before opening WhatsAp
 
   await expect(page.getByRole("heading", { name: /You need about .* L of/ })).toBeVisible();
   await page.getByRole("button", { name: "Send estimate on WhatsApp" }).click();
-  const dialog = page.getByRole("dialog", { name: "Send this estimate on WhatsApp?" });
-  await expect(dialog.getByRole("button", { name: "Open WhatsApp" })).toBeVisible();
-  await dialog.getByRole("button", { name: "Cancel" }).click();
-  await expect(dialog).toBeHidden();
+  await expect(page.locator("body")).toHaveAttribute("data-opened", /^https:\/\/wa\.me\/.*Estimate/);
 });

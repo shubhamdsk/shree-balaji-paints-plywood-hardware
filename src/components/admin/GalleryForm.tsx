@@ -74,7 +74,7 @@ export default function GalleryForm({ item, onClose }: GalleryFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
       <div className="max-h-full w-full max-w-lg space-y-4 overflow-y-auto rounded-card border border-line bg-card p-6 card-shadow">
         <div className="flex items-center justify-between border-b border-line pb-3">
-          <h2 className="text-lg font-bold text-heading">{item ? "Edit Work Photo" : "Upload Work Photo"}</h2>
+          <h2 className="text-lg font-bold text-heading">{item ? "Edit photo" : "Add photo"}</h2>
           <button
             type="button"
             onClick={close}
@@ -87,7 +87,7 @@ export default function GalleryForm({ item, onClose }: GalleryFormProps) {
 
         <form onSubmit={handleSubmit} onBlur={validation.checkField} noValidate className="space-y-4 text-sm">
           <FormAlert>{validation.summary ?? state.message}</FormAlert>
-          <FormField label="Project Title" htmlFor="title" error={errors.title} required>
+          <FormField label="Title" htmlFor="title" error={errors.title} required>
             <input
               id="title"
               name="title"
@@ -115,7 +115,7 @@ export default function GalleryForm({ item, onClose }: GalleryFormProps) {
           </FormField>
 
           <FormField
-            label="Caption / Description"
+            label="Caption"
             htmlFor="caption"
             error={errors.caption}
             hint={`Optional, up to ${GALLERY_LIMITS.caption} characters`}
@@ -150,7 +150,7 @@ export default function GalleryForm({ item, onClose }: GalleryFormProps) {
               Cancel
             </Button>
             <Button type="submit" variant="cta" disabled={pending}>
-              {pending ? "Uploading..." : "Save Work Photo"}
+              {pending ? "Saving…" : "Save photo"}
             </Button>
           </div>
         </form>

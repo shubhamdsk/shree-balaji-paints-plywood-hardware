@@ -9,5 +9,6 @@ describe("formatPrice", () => {
 
   it("asks for the price when none is set", () => {
     expect(formatPrice(undefined, "per litre")).toBe("Ask for price");
+    expect(formatPrice(0, "per litre")).toBe("Ask for price");
   });
 });

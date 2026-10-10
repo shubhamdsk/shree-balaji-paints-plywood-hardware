@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Calculator, ClipboardList, Menu, Phone, Search, WhatsAppIcon, X } from "@/components/ui/icons";
+import { Calculator, ClipboardList, Menu, Phone, WhatsAppIcon, X } from "@/components/ui/icons";
 import Logo from "@/components/brand/Logo";
 import { isActivePath, NAV_LINKS } from "@/components/layout/nav-links";
 import ThemeSwitcher from "@/components/layout/ThemeSwitcher";
@@ -64,13 +64,6 @@ export default function Navbar() {
           <div className="hidden lg:block">
             <ThemeSwitcher />
           </div>
-          <AppLink
-            href={ROUTES.products}
-            aria-label="Search products"
-            className="grid h-11 w-11 place-items-center rounded-full text-heading transition hover:bg-surface-muted"
-          >
-            <Search className="h-5 w-5" />
-          </AppLink>
           <div className="hidden sm:block lg:hidden xl:block">
             <a
               href={whatsappLink(`Hello ${shop.shortName}, I have an enquiry.`)}

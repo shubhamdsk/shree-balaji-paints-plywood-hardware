@@ -12,6 +12,10 @@ describe("isActivePath", () => {
     expect(isActivePath("/brands", "/brands/asian-paints")).toBe(true);
   });
 
+  it("treats the category directory as part of Products", () => {
+    expect(isActivePath("/products", "/categories")).toBe(true);
+  });
+
   it("does not match a different path that shares a prefix", () => {
     expect(isActivePath("/offers", "/offers-old")).toBe(false);
   });

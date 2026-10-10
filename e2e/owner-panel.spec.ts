@@ -49,7 +49,7 @@ test("clears the navigation loader after browser back", async ({ page }) => {
   await logIn(page, E2E_OWNER.password);
   await expect(page).toHaveURL(/\/admin$/);
 
-  await page.getByRole("link", { name: "Manage products" }).click();
+  await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Products" }).click();
   await expect(page).toHaveURL(/\/admin\/products$/);
   await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
 

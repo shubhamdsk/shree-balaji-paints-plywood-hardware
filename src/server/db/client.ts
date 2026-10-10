@@ -15,7 +15,7 @@ const MIGRATIONS_JOURNAL = path.join(MIGRATIONS_FOLDER, "meta/_journal.json");
 const globalForDb = globalThis as typeof globalThis & {
   shopDatabase?: Promise<Database>;
   shopMigrations?: { journal: string; applied: Promise<void> };
-  neonUrl?: string;
+  injectedDatabase?: boolean;
 };
 
 export async function getDb(): Promise<Database> {
@@ -48,14 +48,14 @@ async function migrateLocalDatabase(db: Database) {
 
 export function setDatabase(db: Database) {
   globalForDb.shopDatabase = Promise.resolve(db);
-  globalForDb.neonUrl = undefined;
+  globalForDb.injectedDatabase = true;
 }
 
 export type Transaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 export async function withTransaction<T>(work: (tx: Transaction) => Promise<T>): Promise<T> {
   const db = await getDb();
-  const url = globalForDb.neonUrl;
+  const url = globalForDb.injectedDatabase ? undefined : process.env.DATABASE_URL;
   if (!url) return db.transaction(work);
   const [{ Pool }, { drizzle }] = await Promise.all([
     import("@neondatabase/serverless"),
@@ -75,7 +75,6 @@ async function connect(): Promise<Database> {
   const url = process.env.DATABASE_URL;
   if (url) {
     const { drizzle } = await import("drizzle-orm/neon-http");
-    globalForDb.neonUrl = url;
     // Cloudflare Workers can't reuse a socket opened by another request, so queries go over HTTP, one request each.
     return drizzle({ connection: url, schema }) as unknown as Database;
   }
