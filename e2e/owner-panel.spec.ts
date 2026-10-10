@@ -96,7 +96,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
     await expect(productRow(page, name)).toContainText("Century · BWP / Marine Plywood · From ₹1,250 per sheet");
 
-    const href = await page.getByRole("link", { name, exact: true }).getAttribute("href");
+    const href = await page.getByRole("link", { name: `Edit ${name}`, exact: true }).getAttribute("href");
     productPath = href!.replace("/admin", "");
   });
 
