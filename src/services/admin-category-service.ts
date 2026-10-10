@@ -2,7 +2,7 @@ import { and, asc, count, eq, ne, sql } from "drizzle-orm";
 import { LEGACY_CATEGORY_IDS } from "@/lib/legacy-routes";
 import { slugify } from "@/lib/slug";
 import { writeAudit } from "@/server/audit";
-import { getDb } from "@/server/db/client";
+import { getDb, withTransaction } from "@/server/db/client";
 import { categories, products, subcategories, type CategoryRow, type SubcategoryRow } from "@/server/db/schema";
 import type { AdminCategoryRecord, AdminSubcategoryRecord, AdminUser, CategoryInput } from "@/types";
 
@@ -104,9 +104,8 @@ async function categoryNameTaken(id: string, name: string, exceptId?: string) {
 export async function createCategory(actor: AdminUser, input: CategoryInput, image?: string): Promise<SaveResult> {
   const id = slugify(input.name);
   if (!id || (await categoryNameTaken(id, input.name))) return { ok: false, reason: "taken" };
-  const db = await getDb();
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [row] = await tx
       .insert(categories)
       .values({
@@ -133,7 +132,7 @@ export async function updateCategory(actor: AdminUser, id: string, input: Catego
     return { ok: false, reason: "taken" };
   }
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [after] = await tx
       .update(categories)
       .set({
@@ -153,8 +152,7 @@ export async function updateCategory(actor: AdminUser, id: string, input: Catego
 }
 
 export async function setCategoryActive(actor: AdminUser, id: string, isActive: boolean) {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select({ isActive: categories.isActive }).from(categories).where(eq(categories.id, id));
     if (!before) return false;
     await tx.update(categories).set({ isActive, updatedAt: new Date() }).where(eq(categories.id, id));
@@ -198,7 +196,7 @@ export async function createSubcategory(
   const [idClash] = await db.select({ id: subcategories.id }).from(subcategories).where(eq(subcategories.slug, id));
   if (idClash || (await subcategoryNameTaken(categoryId, input.name))) return { ok: false, reason: "taken" };
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [row] = await tx
       .insert(subcategories)
       .values({
@@ -228,7 +226,7 @@ export async function updateSubcategory(
   if (!before) return { ok: false, reason: "missing" };
   if (await subcategoryNameTaken(before.categoryId, input.name, id)) return { ok: false, reason: "taken" };
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [after] = await tx
       .update(subcategories)
       .set({
@@ -247,8 +245,7 @@ export async function updateSubcategory(
 }
 
 export async function setSubcategoryActive(actor: AdminUser, id: string, isActive: boolean) {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select({ isActive: subcategories.isActive }).from(subcategories).where(eq(subcategories.id, id));
     if (!before) return false;
     await tx.update(subcategories).set({ isActive, updatedAt: new Date() }).where(eq(subcategories.id, id));

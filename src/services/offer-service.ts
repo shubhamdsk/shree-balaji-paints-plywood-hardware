@@ -4,7 +4,7 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import { todayInIndia } from "@/lib/dates";
 import { offerStatus, type OfferInput } from "@/lib/offer-input";
 import { writeAudit } from "@/server/audit";
-import { getDb } from "@/server/db/client";
+import { getDb, withTransaction } from "@/server/db/client";
 import { offers, type OfferRow } from "@/server/db/schema";
 import type { AdminUser, Offer } from "@/types";
 
@@ -55,8 +55,7 @@ export async function getAdminOffer(id: string): Promise<Offer | null> {
 }
 
 export async function createOffer(actor: AdminUser, input: OfferInput, image?: string): Promise<Offer> {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [row] = await tx
       .insert(offers)
       .values({ id: `offer-${crypto.randomUUID()}`, ...fields(input), image: image ?? null })
@@ -72,8 +71,7 @@ export async function updateOffer(
   input: OfferInput,
   image?: string,
 ): Promise<{ offer: Offer; replacedImage?: string } | null> {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(offers).where(eq(offers.id, id));
     if (!before) return null;
     const [after] = await tx
@@ -88,8 +86,7 @@ export async function updateOffer(
 }
 
 export async function deleteOffer(actor: AdminUser, id: string): Promise<Offer | null> {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(offers).where(eq(offers.id, id));
     if (!before) return null;
     await tx.delete(offers).where(eq(offers.id, id));
