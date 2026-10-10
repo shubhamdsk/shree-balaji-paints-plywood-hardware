@@ -31,7 +31,7 @@ export default function StockAlertList({ outOfStockProducts }: { outOfStockProdu
             <div className="min-w-0">
               <p className="text-sm font-bold text-heading">{product.name}</p>
               <p className="text-xs font-semibold text-muted">
-                {product.brand} · {product.category}
+                {product.brand} · {product.type}
               </p>
             </div>
             <div className="flex items-center gap-2">
