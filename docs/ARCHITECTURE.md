@@ -44,7 +44,7 @@ flowchart LR
 - **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on **Cloudflare Workers** (free plan) through the OpenNext adapter, configured in [`wrangler.jsonc`](../wrangler.jsonc) and [`open-next.config.ts`](../open-next.config.ts). It moved from Vercel (free plan is non-commercial only), then from Netlify (free credits ran out).
 - Clean paths with no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts):
   - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`). Category ids and product ids must never overlap.
-  - `/products/[slug]/[type]` is a category type (`/products/paints/interior`).
+  - `/products/[slug]/[type]` is a category type (`/products/paints/interior-emulsion`).
   - `/brands/[slug]` is a brand (`/brands/asian-paints`), and `/enquiry/[productId]` opens the enquiry form with that product chosen.
   - Brands, Offers, About and Contact are their own routes.
 - **Data access:** pages and the REST endpoints in `src/app/api/` read through [`src/services/catalog-service.ts`](../src/services/catalog-service.ts). Paths are defined once in [`src/lib/api/endpoints.ts`](../src/lib/api/endpoints.ts).

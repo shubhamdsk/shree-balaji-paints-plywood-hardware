@@ -11,7 +11,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Home | [/](https://shree-balaji.shreebalajipaints.workers.dev/) |
 | Products catalogue | [/products](https://shree-balaji.shreebalajipaints.workers.dev/products) |
 | Paints | [/products/paints](https://shree-balaji.shreebalajipaints.workers.dev/products/paints) |
-| Interior paints | [/products/paints/interior](https://shree-balaji.shreebalajipaints.workers.dev/products/paints/interior) |
+| Interior paints | [/products/paints/interior-emulsion](https://shree-balaji.shreebalajipaints.workers.dev/products/paints/interior-emulsion) |
 | Plywood | [/products/plywood](https://shree-balaji.shreebalajipaints.workers.dev/products/plywood) |
 | Hardware | [/products/hardware](https://shree-balaji.shreebalajipaints.workers.dev/products/hardware) |
 | Sample product | [Royale Luxury Emulsion](https://shree-balaji.shreebalajipaints.workers.dev/products/ap-royale-luxury) |

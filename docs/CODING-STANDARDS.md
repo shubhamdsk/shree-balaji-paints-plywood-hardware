@@ -22,7 +22,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
   - `src/components/` is grouped by feature (`brand`, `layout`, `home`, `products`, `brands`, `offers`, `about`, `contact`, `enquiry`, and `admin` in Part 2), and shared building blocks go in `ui/`.
   - `src/services/` is the only layer that reads `src/data/`, the database or a backend.
   - `src/lib/api/endpoints.ts` lists every API path, and `src/lib/api/http-client.ts` makes every HTTP call.
-  - `src/lib/routes.ts` builds every page path. Paths are clean (`/products/paints/interior`), with no query strings or hash pages.
+  - `src/lib/routes.ts` builds every page path. Paths are clean (`/products/paints/interior-emulsion`), with no query strings or hash pages.
   - `src/providers/` and `src/hooks/` hold the app-wide confirm popup and unsaved-changes guard.
 - **Reuse first:** before writing UI or logic, check `ui/`, `hooks/` and `lib/`. Extend an existing component with a prop rather than copying it.
 - **Confirmations:** every destructive or irreversible action uses `useConfirm()`, never `window.confirm` or a one-off modal.
