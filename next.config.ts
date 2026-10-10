@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { LEGACY_REDIRECTS } from "./src/lib/legacy-routes";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -36,6 +37,9 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react"],
     // Photos are shrunk in the browser to stay under 3 MB before upload.
     serverActions: { bodySizeLimit: "4mb" },
+  },
+  async redirects() {
+    return LEGACY_REDIRECTS;
   },
   async headers() {
     // Cloudflare serves files in public/ without running the app; their cache headers are in public/_headers.

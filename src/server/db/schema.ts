@@ -1,4 +1,14 @@
-import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import type { ProductDetails } from "@/types";
 
 export const adminUsers = pgTable("admin_users", {
@@ -7,7 +17,9 @@ export const adminUsers = pgTable("admin_users", {
   passwordHash: text("password_hash").notNull(),
   failedAttempts: integer("failed_attempts").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const sessions = pgTable("sessions", {
@@ -16,7 +28,9 @@ export const sessions = pgTable("sessions", {
     .notNull()
     .references(() => adminUsers.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const categories = pgTable("categories", {
@@ -26,10 +40,16 @@ export const categories = pgTable("categories", {
   tagline: text("tagline"),
   description: text("description"),
   image: text("image"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const subcategories = pgTable("subcategories", {
@@ -41,36 +61,56 @@ export const subcategories = pgTable("subcategories", {
   slug: text("slug").notNull().unique(),
   description: text("description"),
   image: text("image"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
-export const products = pgTable("products", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  brand: text("brand").notNull(),
-  category: text("category").notNull(),
-  type: text("type").notNull(),
-  description: text("description").notNull(),
-  sizes: jsonb("sizes").$type<string[]>().notNull(),
-  priceFrom: integer("price_from"),
-  unit: text("unit").notNull(),
-  image: text("image"),
-  details: jsonb("details").$type<ProductDetails>().notNull().default({}),
-  featured: boolean("featured").notNull().default(false),
-  featuredAt: timestamp("featured_at", { withTimezone: true }),
-  inStock: boolean("in_stock").notNull().default(true),
-  isVisible: boolean("is_visible").notNull().default(true),
-  sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const products = pgTable(
+  "products",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    brand: text("brand").notNull(),
+    subcategoryId: text("subcategory_id").references(() => subcategories.id, {
+      onDelete: "set null",
+    }),
+    // Names as last saved; the public site reads the live names through subcategoryId.
+    category: text("category").notNull(),
+    type: text("type").notNull(),
+    description: text("description").notNull(),
+    sizes: jsonb("sizes").$type<string[]>().notNull(),
+    priceFrom: integer("price_from"),
+    unit: text("unit").notNull(),
+    image: text("image"),
+    details: jsonb("details").$type<ProductDetails>().notNull().default({}),
+    featured: boolean("featured").notNull().default(false),
+    featuredAt: timestamp("featured_at", { withTimezone: true }),
+    inStock: boolean("in_stock").notNull().default(true),
+    isVisible: boolean("is_visible").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("products_subcategory_id_idx").on(table.subcategoryId)],
+);
 
 export const auditLog = pgTable("audit_log", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => adminUsers.id, { onDelete: "set null" }),
+  userId: integer("user_id").references(() => adminUsers.id, {
+    onDelete: "set null",
+  }),
   action: text("action").notNull(),
   entity: text("entity").notNull(),
   entityId: text("entity_id"),
@@ -89,8 +129,12 @@ export const enquiries = pgTable("enquiries", {
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
   notes: text("notes"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const gallery = pgTable("gallery", {
@@ -101,8 +145,12 @@ export const gallery = pgTable("gallery", {
   image: text("image").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const offers = pgTable(
@@ -114,8 +162,12 @@ export const offers = pgTable(
     image: text("image"),
     startsOn: date("starts_on", { mode: "string" }).notNull(),
     endsOn: date("ends_on", { mode: "string" }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [index("offers_ends_on_idx").on(table.endsOn)],
 );
@@ -127,5 +179,3 @@ export type EnquiryRow = typeof enquiries.$inferSelect;
 export type GalleryRow = typeof gallery.$inferSelect;
 export type OfferRow = typeof offers.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
-
-

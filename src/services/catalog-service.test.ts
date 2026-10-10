@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { products } from "@/server/db/schema";
+import { categories, products, subcategories } from "@/server/db/schema";
 import { setupTestDatabase } from "@/test/db";
 
 const db = setupTestDatabase();
@@ -18,6 +18,30 @@ describe("catalog-service with the database", () => {
     expect((await getProducts()).map((p) => p.id)).not.toContain("ap-royale-luxury");
     expect(await getProductById("ap-royale-luxury")).toBeUndefined();
     expect((await getCalculablePaints()).map((p) => p.id)).not.toContain("ap-royale-luxury");
+  });
+
+  it("shows a product under its subcategory's current name after a rename", async () => {
+    await db().update(subcategories).set({ name: "Luxury Interior Emulsion" }).where(eq(subcategories.id, "paints-interior-emulsion"));
+    const { getProductById, getCategoryGroups } = await loadService();
+    expect((await getProductById("ap-royale-luxury"))?.type).toBe("Luxury Interior Emulsion");
+    const paints = (await getCategoryGroups()).find((g) => g.id === "paints");
+    expect(paints?.subtypes).toContain("Luxury Interior Emulsion");
+  });
+
+  it("hides the products of a hidden subcategory or category", async () => {
+    await db().update(subcategories).set({ isActive: false }).where(eq(subcategories.id, "paints-interior-emulsion"));
+    await db().update(categories).set({ isActive: false }).where(eq(categories.id, "laminates"));
+    const { getProducts, getCategories } = await loadService();
+    const shown = await getProducts();
+    expect(shown.some((p) => p.type === "Interior Emulsion")).toBe(false);
+    expect(shown.some((p) => p.category === "laminates")).toBe(false);
+    expect((await getCategories()).map((c) => c.id)).not.toContain("laminates");
+  });
+
+  it("returns no image for a category without a photo so the page shows a placeholder", async () => {
+    await db().update(categories).set({ image: null }).where(eq(categories.id, "screws-fasteners"));
+    const { getCategories } = await loadService();
+    expect((await getCategories()).find((c) => c.id === "screws-fasteners")?.image).toBeUndefined();
   });
 
   it("returns products in the catalogue order with their details", async () => {

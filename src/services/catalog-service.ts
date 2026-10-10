@@ -20,33 +20,35 @@ function fromSource<T>(endpoint: string, localData: T): Promise<T> {
   return httpClient.get<T>(endpoint, { baseUrl: catalogApiUrl });
 }
 
-const readVisibleProducts = unstable_cache(
-  async (): Promise<Product[]> => {
-    const db = await getDb();
-    const rows = await db
-      .select()
-      .from(products)
-      .where(eq(products.isVisible, true))
-      .orderBy(asc(products.sortOrder), asc(products.name));
-    return rows.map(fromProductRow);
-  },
-  ["visible-products"],
-  { tags: [CACHE_TAGS.catalog] },
-);
+const placed = and(eq(products.isVisible, true), eq(dbSubcategories.isActive, true), eq(dbCategories.isActive, true));
 
-const readFeaturedProducts = unstable_cache(
-  async (): Promise<Product[]> => {
-    const db = await getDb();
-    const rows = await db
-      .select()
-      .from(products)
-      .where(and(eq(products.isVisible, true), eq(products.featured, true)))
-      .orderBy(sql`${products.featuredAt} desc nulls last`, asc(products.sortOrder), asc(products.name));
-    return rows.map(fromProductRow);
-  },
-  ["featured-products"],
-  { tags: [CACHE_TAGS.catalog] },
-);
+async function readPlacedProducts(onlyFeatured: boolean): Promise<Product[]> {
+  const db = await getDb();
+  const rows = await db
+    .select({ product: products, category: dbSubcategories.categoryId, categoryName: dbCategories.name, type: dbSubcategories.name })
+    .from(products)
+    .innerJoin(dbSubcategories, eq(products.subcategoryId, dbSubcategories.id))
+    .innerJoin(dbCategories, eq(dbSubcategories.categoryId, dbCategories.id))
+    .where(onlyFeatured ? and(placed, eq(products.featured, true)) : placed)
+    .orderBy(
+      ...(onlyFeatured ? [sql`${products.featuredAt} desc nulls last`] : []),
+      asc(products.sortOrder),
+      asc(products.name),
+    );
+  return rows.map(({ product, ...placement }) => fromProductRow(product, placement));
+}
+
+const readVisibleProducts = unstable_cache(() => readPlacedProducts(false), ["visible-products"], {
+  tags: [CACHE_TAGS.catalog],
+});
+
+const readFeaturedProducts = unstable_cache(() => readPlacedProducts(true), ["featured-products"], {
+  tags: [CACHE_TAGS.catalog],
+});
+
+function seo(row: { seoTitle: string | null; seoDescription: string | null }) {
+  return { ...(row.seoTitle && { seoTitle: row.seoTitle }), ...(row.seoDescription && { seoDescription: row.seoDescription }) };
+}
 
 const readCategories = unstable_cache(
   async (): Promise<Category[]> => {
@@ -66,7 +68,8 @@ const readCategories = unstable_cache(
         slug: c.slug,
         tagline: c.tagline ?? "",
         description: c.description ?? "",
-        image: c.image ?? "/images/categories/plywood.jpg",
+        ...(c.image && { image: c.image }),
+        ...seo(c),
         sortOrder: c.sortOrder,
         isActive: c.isActive,
       }));
@@ -84,18 +87,30 @@ const readCategoryGroups = unstable_cache(
       const db = await getDb();
       const [cats, subs] = await Promise.all([
         db.select().from(dbCategories).where(eq(dbCategories.isActive, true)).orderBy(asc(dbCategories.sortOrder)),
-        db.select().from(dbSubcategories).where(eq(dbSubcategories.isActive, true)).orderBy(asc(dbSubcategories.sortOrder)),
+        db
+          .select()
+          .from(dbSubcategories)
+          .where(eq(dbSubcategories.isActive, true))
+          .orderBy(asc(dbSubcategories.sortOrder), asc(dbSubcategories.name)),
       ]);
 
       if (cats.length === 0) return staticCategoryGroups;
 
       return cats.map((cat) => {
-        const catSubs = subs.filter((s) => s.categoryId === cat.id).map((s) => s.name);
+        const catSubs = subs.filter((s) => s.categoryId === cat.id);
         return {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
-          subtypes: catSubs,
+          ...(cat.description && { description: cat.description }),
+          ...seo(cat),
+          subtypes: catSubs.map((s) => s.name),
+          subtypeDetails: catSubs.map((s) => ({
+            name: s.name,
+            ...(s.description && { description: s.description }),
+            ...(s.image && { image: s.image }),
+            ...seo(s),
+          })),
         };
       });
     } catch {

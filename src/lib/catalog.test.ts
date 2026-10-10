@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  categoryLabel,
+  categoryPageMeta,
   compareByPrice,
   countByBrand,
   countProducts,
@@ -107,5 +109,40 @@ describe("findBrandBySlug", () => {
   it("finds the brand name for a slug, or undefined", () => {
     expect(findBrandBySlug(products, "asian-paints")).toBe("Asian Paints");
     expect(findBrandBySlug(products, "unknown")).toBeUndefined();
+  });
+});
+
+describe("categoryLabel", () => {
+  it("uses the category name from the database, or a readable form of the id", () => {
+    expect(categoryLabel(product({ category: "paint-preparation", categoryName: "Paint Preparation Material" }))).toBe(
+      "Paint Preparation Material",
+    );
+    expect(categoryLabel(product({ category: "paint-preparation" }))).toBe("Paint preparation");
+  });
+});
+
+describe("categoryPageMeta", () => {
+  const group = {
+    id: "paints",
+    name: "Paints",
+    subtypes: ["Interior Emulsion", "Wood Paint"],
+    seoTitle: "Paints in Kotul",
+    subtypeDetails: [
+      { name: "Interior Emulsion", seoDescription: "Washable emulsions for every room." },
+      { name: "Wood Paint", description: "Paints for doors and furniture." },
+    ],
+  };
+
+  it("uses the owner's search title and description when they are set", () => {
+    expect(categoryPageMeta(group).title).toBe("Paints in Kotul");
+    expect(categoryPageMeta(group, "Interior Emulsion")).toEqual({
+      title: "Interior Emulsion Paints",
+      description: "Washable emulsions for every room.",
+    });
+  });
+
+  it("falls back to the description, then to a standard sentence", () => {
+    expect(categoryPageMeta(group, "Wood Paint").description).toBe("Paints for doors and furniture.");
+    expect(categoryPageMeta(group).description).toMatch(/^Browse paints at /);
   });
 });

@@ -255,23 +255,4 @@ export const categoryGroups: CategoryGroup[] = [
       "Ladder",
     ],
   },
-  {
-    id: "plumbing",
-    name: "Plumbing",
-    slug: "plumbing",
-    subtypes: [
-      "CPVC Pipes & Fittings",
-      "PVC Pipes & Fittings",
-      "UPVC Pipes & Fittings",
-      "Water Tanks",
-      "Taps & Faucets",
-      "Bathroom Fittings",
-    ],
-  },
-  {
-    id: "electrical",
-    name: "Electrical",
-    slug: "electrical",
-    subtypes: ["Switches & Sockets", "Wires & Cables", "MCB & Distribution Boards", "LED Lights", "Fans", "Power Tools"],
-  },
 ];

@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { ArrowRight } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
+import CoverImage from "@/components/ui/CoverImage";
 import { ROUTES } from "@/lib/routes";
 import type { Category } from "@/types";
 
@@ -24,10 +24,9 @@ export default function CategoryShowcase({ categories, counts }: Props) {
           href={ROUTES.category(lead.id)}
           className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-card bg-brand-900 p-5 shadow-card-hover sm:min-h-72 sm:p-7 lg:min-h-[26rem]"
         >
-          <Image
+          <CoverImage
             src={lead.image}
             alt=""
-            fill
             sizes="(max-width: 1024px) 100vw, 40vw"
             className="img-zoom object-cover"
           />
@@ -53,7 +52,7 @@ export default function CategoryShowcase({ categories, counts }: Props) {
             className="group card-lift flex h-full flex-col overflow-hidden rounded-card border border-line bg-card"
           >
             <span className="relative block aspect-[4/3] overflow-hidden bg-surface-muted">
-              <Image src={c.image} alt="" fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw" className="img-zoom object-cover" />
+              <CoverImage src={c.image} alt="" sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw" className="img-zoom object-cover" />
             </span>
             <span className="flex flex-1 items-center justify-between gap-2 p-3 sm:p-4">
               <span className="min-w-0">

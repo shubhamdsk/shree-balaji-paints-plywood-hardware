@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, DoorClosed, Droplets, Hammer, KeyRound, Layers, Wrench } from "@/components/ui/icons";
+import { ArrowRight, Droplets, Hammer, KeyRound, Layers, Sparkles, Wrench } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -9,12 +9,12 @@ import type { Product } from "@/types";
 
 export default function BuildShowcase({ products }: { products: Product[] }) {
   const items = [
-    { icon: Layers, label: "Plywood", note: "Marine, commercial, block board", href: ROUTES.category("plywood") },
-    { icon: DoorClosed, label: "Door Hardware", note: "Complete door fittings", href: ROUTES.category("hardware") },
-    { icon: KeyRound, label: "Locks", note: "Door locks and padlocks", href: stockedHref(products, "hardware", "Locks") },
-    { icon: Wrench, label: "Handles", note: "Door and cabinet handles", href: stockedHref(products, "hardware", "Hinges & Handles") },
-    { icon: Hammer, label: "Hinges", note: "Door and cabinet hinges", href: stockedHref(products, "hardware", "Hinges & Handles") },
-    { icon: Droplets, label: "Adhesives", note: "Wood glue and sealants", href: ROUTES.category("adhesives") },
+    { icon: Layers, label: "Plywood", note: "Marine, commercial, block board", href: ROUTES.category("plywood-boards") },
+    { icon: Sparkles, label: "Laminates", note: "Decorative sheets for furniture", href: ROUTES.category("laminates") },
+    { icon: KeyRound, label: "Locks", note: "Door locks and padlocks", href: stockedHref(products, "furniture-hardware", "Door Locks") },
+    { icon: Wrench, label: "Handles", note: "Door and cabinet handles", href: stockedHref(products, "furniture-hardware", "Door Handles") },
+    { icon: Hammer, label: "Hinges", note: "Door and cabinet hinges", href: stockedHref(products, "furniture-hardware", "Butt Hinges") },
+    { icon: Droplets, label: "Adhesives", note: "Wood glue and sealants", href: ROUTES.category("adhesives-chemicals") },
   ];
 
   return (
@@ -46,7 +46,7 @@ export default function BuildShowcase({ products }: { products: Product[] }) {
               </li>
             ))}
           </ul>
-          <AppLink href={ROUTES.category("hardware")} className={buttonClasses("light", "mt-7 w-full sm:w-auto")}>
+          <AppLink href={ROUTES.category("furniture-hardware")} className={buttonClasses("light", "mt-7 w-full sm:w-auto")}>
             Explore Plywood & Hardware <ArrowRight className="h-4 w-4" />
           </AppLink>
         </div>

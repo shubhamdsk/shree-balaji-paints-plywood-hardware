@@ -189,6 +189,24 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     });
   });
 
+  await test.step("hides a type with products after confirming, then shows it again", async () => {
+    const typePath = "/products/paints/waterproofing-paint";
+    await page.goto("/admin");
+    await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Categories" }).click();
+    await page.getByRole("link", { name: "Edit Paints" }).click();
+    await expect(page.getByRole("heading", { name: "Types in Paints" })).toBeVisible();
+
+    const toggle = page.getByRole("switch", { name: "Waterproofing Paint on the website" });
+    await toggle.click();
+    const dialog = page.getByRole("dialog", { name: /^Hide Waterproofing Paint and its/ });
+    await clickAndSave(page, () => dialog.getByRole("button", { name: "Hide from website" }).click());
+    await expect(async () => expect((await page.request.get(typePath)).status()).toBe(404)).toPass({ timeout: 30_000 });
+
+    await page.reload();
+    await clickAndSave(page, () => page.getByRole("switch", { name: "Waterproofing Paint on the website" }).click());
+    await expect(async () => expect((await page.request.get(typePath)).status()).toBe(200)).toPass({ timeout: 30_000 });
+  });
+
   await test.step("changes the password", async () => {
     await page.goto("/admin");
     await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Password" }).click();

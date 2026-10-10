@@ -57,6 +57,20 @@
       "when": 1791620229938,
       "tag": "0007_add_offers_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791623371960,
+      "tag": "0008_link_products_to_subcategories",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791623374962,
+      "tag": "0009_restructure_categories",
+      "breakpoints": true
     }
   ]
 }

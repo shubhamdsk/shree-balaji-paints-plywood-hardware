@@ -20,7 +20,7 @@ const product: AdminProduct = {
   name: "Weatherbond Advance",
   brand: "Nippon Paint",
   category: "paints",
-  type: "Exterior",
+  type: "Exterior Emulsion",
   description: "",
   sizes: ["1 L", "4 L"],
   priceFrom: 295,
@@ -28,6 +28,7 @@ const product: AdminProduct = {
   colors: [],
   inStock: true,
   featured: false,
+  needsCategory: false,
   isVisible: true,
   updatedAt: "2026-10-07T10:00:00.000Z",
 };

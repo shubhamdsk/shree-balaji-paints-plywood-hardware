@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CatalogView from "@/components/products/CatalogView";
-import { shop } from "@/config/shop";
-import { findSubtypeBySlug, listStockedSubtypes } from "@/lib/catalog";
+import { categoryPageMeta, findSubtypeBySlug, listStockedSubtypes } from "@/lib/catalog";
 import { slugify } from "@/lib/slug";
 import { getCategoryGroups, getProducts } from "@/services/catalog-service";
 
@@ -21,8 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/products/[slug]/[
   const { slug, type } = await params;
   const match = await resolve(slug, type);
   if (!match) return { title: "Not found" };
-  const name = `${match.subtype} ${match.group.name}`;
-  return { title: name, description: `Browse ${name.toLowerCase()} at ${shop.shortName}, ${shop.address.city}.` };
+  return categoryPageMeta(match.group, match.subtype);
 }
 
 export default async function CategoryTypePage({ params }: PageProps<"/products/[slug]/[type]">) {

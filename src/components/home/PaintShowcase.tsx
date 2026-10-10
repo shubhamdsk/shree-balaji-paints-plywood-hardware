@@ -8,12 +8,12 @@ import { ROUTES } from "@/lib/routes";
 import type { Product } from "@/types";
 
 const paintTypes = [
-  { icon: Palette, label: "Interior Paints", subtype: "Interior" },
-  { icon: House, label: "Exterior Paints", subtype: "Exterior" },
-  { icon: Layers, label: "Primers", subtype: "Primer" },
-  { icon: BrickWall, label: "Putty", subtype: "Putty" },
-  { icon: DoorClosed, label: "Wood Coatings", subtype: "Wood Coatings" },
-  { icon: ShieldCheck, label: "Metal Paints", subtype: "Metal Paints" },
+  { icon: Palette, label: "Interior Paints", category: "paints", subtype: "Interior Emulsion" },
+  { icon: House, label: "Exterior Paints", category: "paints", subtype: "Exterior Emulsion" },
+  { icon: Layers, label: "Primers", category: "paint-preparation", subtype: "Wall Primer" },
+  { icon: BrickWall, label: "Putty", category: "paint-preparation", subtype: "Wall Putty" },
+  { icon: DoorClosed, label: "Wood Paints", category: "paints", subtype: "Wood Paint" },
+  { icon: ShieldCheck, label: "Metal Paints", category: "paints", subtype: "Metal Paint" },
 ];
 
 export default function PaintShowcase({ products }: { products: Product[] }) {
@@ -41,10 +41,10 @@ export default function PaintShowcase({ products }: { products: Product[] }) {
           description="From wall putty and primer to the final coat — the right product for every surface, inside and out."
         />
         <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-          {paintTypes.map(({ icon: Icon, label, subtype }) => (
+          {paintTypes.map(({ icon: Icon, label, category, subtype }) => (
             <li key={label}>
               <AppLink
-                href={stockedHref(products, "paints", subtype)}
+                href={stockedHref(products, category, subtype)}
                 className="group flex min-h-14 items-center gap-2.5 rounded-2xl border border-line bg-card px-3 py-2.5 text-[15px] font-semibold text-heading shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-paint-500 hover:bg-paint-50"
               >
                 <Icon aria-hidden className="h-5 w-5 shrink-0 text-paint-600" />

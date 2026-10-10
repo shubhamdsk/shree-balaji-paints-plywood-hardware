@@ -15,7 +15,7 @@ import { matchesQuery } from "@/lib/search";
 import { setProductFlagAction } from "@/server/actions/products";
 import type { AdminProduct } from "@/types";
 
-type Filter = "all" | "visible" | "hidden" | "out-of-stock" | "featured";
+type Filter = "all" | "visible" | "hidden" | "out-of-stock" | "featured" | "needs-category";
 type Flag = "inStock" | "featured" | "isVisible";
 
 const FILTERS: { value: Filter; label: string; test: (p: AdminProduct) => boolean }[] = [
@@ -24,6 +24,7 @@ const FILTERS: { value: Filter; label: string; test: (p: AdminProduct) => boolea
   { value: "hidden", label: "Hidden", test: (p) => !p.isVisible },
   { value: "out-of-stock", label: "Out of stock", test: (p) => !p.inStock },
   { value: "featured", label: "On the home page", test: (p) => p.featured === true },
+  { value: "needs-category", label: "Needs a category", test: (p) => p.needsCategory },
 ];
 
 export default function AdminProductList({ products }: { products: AdminProduct[] }) {
@@ -144,6 +145,11 @@ export default function AdminProductList({ products }: { products: AdminProduct[
                 {!product.isVisible && (
                   <span className="mt-1 inline-block rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-bold text-muted">
                     Hidden from the website
+                  </span>
+                )}
+                {product.needsCategory && (
+                  <span className="mt-1 ml-1 inline-block rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-bold text-accent-700">
+                    Needs a category — not on the website
                   </span>
                 )}
               </div>
