@@ -7,7 +7,7 @@ import {
   type EnquiryInput,
 } from "@/lib/enquiry";
 
-const valid: EnquiryInput = { name: "Ramesh Patil", phone: "", productId: "", quantity: "", message: "Need 20 L white" };
+const valid: EnquiryInput = { name: "Ramesh Patil", phone: "9876543210", productId: "", quantity: "", message: "Need 20 L white" };
 
 describe("normalisePhone", () => {
   it("strips spaces, symbols and the +91 prefix", () => {
@@ -59,8 +59,9 @@ describe("validateEnquiry", () => {
     });
   });
 
-  it("accepts an empty phone but rejects an invalid one", () => {
-    expect(validateEnquiry({ ...valid, phone: "" }).phone).toBeUndefined();
+  it("requires a valid mobile number", () => {
+    expect(validateEnquiry({ ...valid, phone: "" }).phone).toBe("Please enter your mobile number.");
+    expect(validateEnquiry({ ...valid, phone: " - " }).phone).toBe("Please enter your mobile number.");
     expect(validateEnquiry({ ...valid, phone: "12345" }).phone).toBeDefined();
     expect(validateEnquiry({ ...valid, phone: "5876543210" }).phone).toBeDefined();
     expect(validateEnquiry({ ...valid, phone: "+91 98765 43210" }).phone).toBeUndefined();
@@ -102,6 +103,6 @@ describe("buildEnquiryMessage", () => {
   });
 
   it("leaves out empty optional lines", () => {
-    expect(buildEnquiryMessage(valid)).not.toMatch(/Phone:|Product:|Quantity:/);
+    expect(buildEnquiryMessage(valid)).not.toMatch(/Product:|Quantity:/);
   });
 });

@@ -142,7 +142,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
             className={fieldClasses}
           />
         </FormField>
-        <FormField label="Mobile number" htmlFor="phone" error={errors.phone} hint="Optional, so we can call you back">
+        <FormField label="Mobile number" htmlFor="phone" error={errors.phone} hint="So we can call you back" required>
           <input
             id="phone"
             type="tel"

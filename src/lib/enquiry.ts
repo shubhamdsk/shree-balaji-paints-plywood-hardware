@@ -26,8 +26,9 @@ export function validateEnquiry(input: EnquiryInput): EnquiryErrors {
   else if (name.length > ENQUIRY_LIMITS.name) errors.name = `Keep your name under ${ENQUIRY_LIMITS.name} characters.`;
   else if (nameProblem) errors.name = `${nameProblem}.`;
   const phone = normalisePhone(input.phone);
-  if (!isPhoneText(input.phone)) errors.phone = "Use digits only.";
-  else if (phone && !INDIAN_MOBILE.test(phone)) errors.phone = "Enter a valid 10-digit mobile number.";
+  if (!phone) errors.phone = "Please enter your mobile number.";
+  else if (!isPhoneText(input.phone)) errors.phone = "Use digits only.";
+  else if (!INDIAN_MOBILE.test(phone)) errors.phone = "Enter a valid 10-digit mobile number.";
   const quantity = input.quantity.trim();
   const quantityProblem = plainTextProblem(quantity);
   if (quantity.length > ENQUIRY_LIMITS.quantity) {
