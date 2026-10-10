@@ -60,13 +60,15 @@ describe("AdminEnquiryList", () => {
   test("filters by status and moves the counts when a lead is contacted", async () => {
     await addDemoEnquiries();
     const { user } = await renderList();
-    const newLeads = screen.getByRole("button", { name: /^New Leads\s*2$/ });
+    const newFilter = within(screen.getByRole("group", { name: "Show" })).getByRole("button", { name: /^New\s*2$/ });
 
-    const rajesh = screen.getByRole("heading", { name: "Rajesh Shinde" }).closest("li")!;
-    await user.click(within(rajesh).getByRole("button", { name: "Contacted" }));
-    await waitFor(() => expect(newLeads.textContent).toMatch(/1$/));
+    await user.click(
+      within(screen.getByRole("group", { name: "Status of Rajesh Shinde" })).getByRole("button", { name: "Contacted" }),
+    );
+    await waitFor(() => expect(newFilter.textContent).toMatch(/1$/));
 
-    await user.click(screen.getByRole("button", { name: "New Leads" }));
+    await user.click(newFilter);
+    expect(newFilter.getAttribute("aria-pressed")).toBe("true");
     await waitFor(() => expect(screen.queryByText("Rajesh Shinde")).toBeNull());
     expect(screen.getByText("Amit Kumar")).toBeTruthy();
   });

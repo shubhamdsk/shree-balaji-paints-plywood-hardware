@@ -18,12 +18,18 @@ type StatusFilter = EnquiryStatusFilter;
 
 const SEARCH_DELAY_MS = 300;
 
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "All Enquiries" },
-  { value: "new", label: "New Leads" },
-  { value: "contacted", label: "In Follow-up" },
-  { value: "closed", label: "Closed / Converted" },
+const STATUSES: { value: EnquiryStatus; label: string; badge: string; active: string }[] = [
+  { value: "new", label: "New", badge: "bg-accent-50 text-accent-700 ring-accent-200", active: "bg-accent-600 text-white" },
+  {
+    value: "contacted",
+    label: "Contacted",
+    badge: "bg-amber-50 text-amber-800 ring-amber-200",
+    active: "bg-amber-600 text-white",
+  },
+  { value: "closed", label: "Closed", badge: "bg-green-50 text-green-800 ring-green-200", active: "bg-green-600 text-white" },
 ];
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [{ value: "all", label: "All" }, ...STATUSES];
 
 export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEnquiryListProps) {
   const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(initialPage.items);
@@ -110,51 +116,6 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid gap-3 sm:grid-cols-4">
-        <button
-          type="button"
-          onClick={() => chooseStatus("all")}
-          className={`rounded-card border p-4 text-left shadow-card transition ${
-            statusFilter === "all" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
-          }`}
-        >
-          <span className="text-xs font-bold uppercase tracking-wider text-muted">Total Enquiries</span>
-          <span className="mt-1 block text-2xl font-black text-heading">{counts.all}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => chooseStatus("new")}
-          className={`rounded-card border p-4 text-left shadow-card transition ${
-            statusFilter === "new" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
-          }`}
-        >
-          <span className="text-xs font-bold uppercase tracking-wider text-accent-700">New Leads</span>
-          <span className="mt-1 block text-2xl font-black text-accent-600">{counts.new}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => chooseStatus("contacted")}
-          className={`rounded-card border p-4 text-left shadow-card transition ${
-            statusFilter === "contacted" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
-          }`}
-        >
-          <span className="text-xs font-bold uppercase tracking-wider text-gold-700">In Follow-up</span>
-          <span className="mt-1 block text-2xl font-black text-gold-600">{counts.contacted}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => chooseStatus("closed")}
-          className={`rounded-card border p-4 text-left shadow-card transition ${
-            statusFilter === "closed" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
-          }`}
-        >
-          <span className="text-xs font-bold uppercase tracking-wider text-green-700">Closed / Converted</span>
-          <span className="mt-1 block text-2xl font-black text-green-600">{counts.closed}</span>
-        </button>
-      </div>
-
-      {/* Filters & Search */}
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <FormField label="Search enquiries" htmlFor="enquiry-search">
           <div className="relative">
@@ -169,17 +130,18 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
             />
           </div>
         </FormField>
-        <div className="flex flex-wrap items-end gap-1.5">
+        <div role="group" aria-label="Show" className="flex flex-wrap items-end gap-1.5">
           {STATUS_FILTERS.map((f) => (
             <button
               key={f.value}
               type="button"
+              aria-pressed={statusFilter === f.value}
               onClick={() => chooseStatus(f.value)}
-              className={`min-h-11 rounded-xl px-3 text-xs font-bold transition ${
+              className={`min-h-11 rounded-xl px-3 text-sm font-bold transition ${
                 statusFilter === f.value ? "bg-heading text-card" : "border border-line bg-card text-heading hover:bg-surface-muted"
               }`}
             >
-              {f.label}
+              {f.label} <span className="font-extrabold">{counts[f.value]}</span>
             </button>
           ))}
         </div>
@@ -195,7 +157,7 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
       {enquiries.length === 0 && !loading ? (
         <div className="rounded-card border border-dashed border-line bg-card p-10 text-center text-muted">
           <MessageCircle aria-hidden className="mx-auto mb-3 h-8 w-8 text-subtle" />
-          No customer enquiries match your search filter.
+          No enquiries here.
         </div>
       ) : (
         <ul className="grid gap-4">
@@ -216,23 +178,13 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-lg font-bold text-heading">{item.name}</h2>
-                      {item.status === "new" && (
-                        <span className="inline-flex items-center rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-bold text-accent-700 ring-1 ring-accent-200">
-                          New Lead
+                      {STATUSES.filter((s) => s.value === item.status).map((s) => (
+                        <span key={s.value} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ${s.badge}`}>
+                          {s.label}
                         </span>
-                      )}
-                      {item.status === "contacted" && (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800 ring-1 ring-amber-200">
-                          In Follow-up
-                        </span>
-                      )}
-                      {item.status === "closed" && (
-                        <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-800 ring-1 ring-green-200">
-                          Closed Deal
-                        </span>
-                      )}
+                      ))}
                     </div>
-                    <p className="mt-1 text-xs text-muted">Received: {formattedDate}</p>
+                    <p className="mt-1 text-xs text-muted">{formattedDate}</p>
                   </div>
 
                   {/* Actions for contacting customer */}
@@ -251,7 +203,7 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                           rel="noopener noreferrer"
                           className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-whatsapp-strong px-3 text-xs font-bold text-white shadow-xs hover:opacity-90"
                         >
-                          <WhatsAppIcon className="h-3.5 w-3.5" /> WhatsApp Reply
+                          <WhatsAppIcon className="h-3.5 w-3.5" /> WhatsApp
                         </a>
                       </>
                     )}
@@ -272,7 +224,7 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                     {/* Owner Notes */}
                     {item.notes && !isEditingNotes && (
                       <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 text-xs text-amber-900">
-                        <span className="font-bold">Owner Note:</span> {item.notes}
+                        <span className="font-bold">Note:</span> {item.notes}
                       </div>
                     )}
 
@@ -284,7 +236,7 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                           maxLength={ENQUIRY_LIMITS.notes}
                           value={noteInput}
                           onChange={(e) => setNoteInput(e.target.value)}
-                          placeholder="Add internal follow-up notes or quote details..."
+                          placeholder="Only you can see this note"
                           className={`${fieldClasses} text-xs`}
                         />
                         <div className="flex gap-2">
@@ -294,7 +246,7 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                             disabled={isPending}
                             className="rounded-lg bg-heading px-3 py-1 text-xs font-bold text-card"
                           >
-                            Save Note
+                            Save note
                           </button>
                           <button
                             type="button"
@@ -310,44 +262,21 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
 
                   {/* Status Toggle Controls */}
                   <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end">
-                    <span className="text-xs font-bold text-muted">Update Lead Status</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        disabled={isPending || item.status === "new"}
-                        onClick={() => handleStatusChange(item, "new")}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                          item.status === "new"
-                            ? "bg-accent-600 text-white"
-                            : "border border-line bg-card text-muted hover:bg-surface-muted"
-                        }`}
-                      >
-                        New
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isPending || item.status === "contacted"}
-                        onClick={() => handleStatusChange(item, "contacted")}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                          item.status === "contacted"
-                            ? "bg-amber-600 text-white"
-                            : "border border-line bg-card text-muted hover:bg-surface-muted"
-                        }`}
-                      >
-                        Contacted
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isPending || item.status === "closed"}
-                        onClick={() => handleStatusChange(item, "closed")}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                          item.status === "closed"
-                            ? "bg-green-600 text-white"
-                            : "border border-line bg-card text-muted hover:bg-surface-muted"
-                        }`}
-                      >
-                        Closed
-                      </button>
+                    <span className="text-xs font-bold text-muted">Mark as</span>
+                    <div role="group" aria-label={`Status of ${item.name}`} className="flex flex-wrap gap-1.5">
+                      {STATUSES.map((s) => (
+                        <button
+                          key={s.value}
+                          type="button"
+                          disabled={isPending || item.status === s.value}
+                          onClick={() => handleStatusChange(item, s.value)}
+                          className={`min-h-9 rounded-lg px-2.5 text-xs font-bold transition ${
+                            item.status === s.value ? s.active : "border border-line bg-card text-muted hover:bg-surface-muted"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
                     </div>
 
                     {!isEditingNotes && (
