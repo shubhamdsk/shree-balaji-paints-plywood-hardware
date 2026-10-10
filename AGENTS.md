@@ -33,7 +33,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
 3. **Unit tests.** Add or update tests next to the code (`thing.ts` gets `thing.test.ts`) for every new or changed function, hook, service, route handler and interactive component. A bug fix starts with a test that fails before the fix.
 4. **Regression check.** Run `npm run check`. Then run the app and check the main flows still work:
    - The home page.
-   - `/products`, `/categories`, a category (`/products/paints`) and a type (`/products/paints/interior`), plus the brand and search filters.
+   - `/products`, `/categories`, a category (`/products/paints`) and a type (`/products/paints/interior-emulsion`), plus the brand and search filters.
    - A product detail page.
    - `/brands`, a brand page, `/offers`, `/about` and `/contact`, with the matching navbar link highlighted.
    - `/enquiry`, including the confirm and unsaved-changes popups.
