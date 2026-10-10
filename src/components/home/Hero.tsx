@@ -1,17 +1,9 @@
 import Image from "next/image";
-import { ArrowRight, BadgeCheck, ShieldCheck, Users, WhatsAppIcon } from "@/components/ui/icons";
+import { ArrowRight, WhatsAppIcon } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
 import { ROUTES } from "@/lib/routes";
-
-const highlights = [
-  { icon: ShieldCheck, label: "Genuine Products" },
-  { icon: BadgeCheck, label: "Trusted Brands" },
-  { icon: Users, label: "Expert Guidance" },
-];
-
-const swatches = ["bg-accent-600", "bg-paint-500", "bg-gold-500", "bg-success", "bg-brand-700"];
 
 export default function Hero() {
   return (
@@ -70,34 +62,6 @@ export default function Hero() {
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-950/55 via-transparent to-transparent" />
-            <ul className="absolute inset-x-3 bottom-3 flex flex-wrap gap-2 sm:inset-x-5 sm:bottom-5">
-              {highlights.map(({ icon: Icon, label }) => (
-                <li
-                  key={label}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-card/95 px-2.5 py-1.5 text-[13px] font-semibold text-heading shadow-card backdrop-blur"
-                >
-                  <Icon aria-hidden className="h-4 w-4 text-success" />
-                  {label}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div
-            aria-hidden
-            className="absolute -top-4 -right-2 hidden items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5 shadow-card-hover sm:flex lg:-right-4"
-          >
-            <span className="flex gap-1">
-              {swatches.map((c) => (
-                <span key={c} className={`h-7 w-3.5 rounded-sm ${c}`} />
-              ))}
-            </span>
-            <span className="text-[13px] leading-tight font-semibold text-heading">
-              Shades for
-              <br />
-              every room
-            </span>
           </div>
         </div>
       </div>

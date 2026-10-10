@@ -27,7 +27,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ## Features
 
-- **Home** — Marathi hero, trust bar, category showcase (Paints first), shop-by-project cards, featured products, trusted brands, paint and plywood/hardware sections, offers, why choose us, about and a visit-our-store panel with map
+- **Home** — Marathi hero, trust bar, category showcase (Paints first), featured products, trusted brands, offers and a short store story; the footer carries the phone, address and hours
 - **Categories** — `/categories` lists every category with its stocked types
 - **Products catalogue** — Browse by category with filters, sort, and pagination
 - **Product cards** — Brand, category, type and sizes, with a WhatsApp "Enquire" button that names the product (no prices shown)
