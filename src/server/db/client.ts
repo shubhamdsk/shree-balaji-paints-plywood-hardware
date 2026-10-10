@@ -4,7 +4,6 @@ import path from "node:path";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 import * as schema from "@/server/db/schema";
-import { seedCatalog } from "@/server/db/seed";
 
 export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 
@@ -84,7 +83,11 @@ async function connect(): Promise<Database> {
 }
 
 export async function createLocalDatabase(dataDir?: string): Promise<Database> {
-  const [{ PGlite }, { drizzle }] = await Promise.all([import("@electric-sql/pglite"), import("drizzle-orm/pglite")]);
+  const [{ PGlite }, { drizzle }, { seedCatalog }] = await Promise.all([
+    import("@electric-sql/pglite"),
+    import("drizzle-orm/pglite"),
+    import("@/server/db/seed"),
+  ]);
   if (dataDir) await mkdir(dataDir, { recursive: true });
   const db = drizzle({ client: new PGlite(dataDir), schema }) as unknown as Database;
   await migrateLocalDatabase(db);

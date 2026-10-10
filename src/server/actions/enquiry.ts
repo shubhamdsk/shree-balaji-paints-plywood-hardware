@@ -1,12 +1,17 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { headers } from "next/headers";
 import { z } from "zod";
-import { CACHE_TAGS } from "@/lib/cache-tags";
 import { validateEnquiry, type EnquiryInput } from "@/lib/enquiry";
 import { requireOwner } from "@/server/auth/guard";
-import { createCustomerEnquiry, updateEnquiryStatus } from "@/services/enquiry-service";
-import type { EnquiryStatus } from "@/types";
+import { keyedHash } from "@/server/auth/session-token";
+import {
+  createCustomerEnquiry,
+  isEnquiryLimitReached,
+  listAdminEnquiries,
+  updateEnquiryStatus,
+} from "@/services/enquiry-service";
+import type { EnquiryPage, EnquiryQuery, EnquiryStatus } from "@/types";
 
 const statusSchema = z.strictObject({
   id: z.string().min(1),
@@ -14,20 +19,41 @@ const statusSchema = z.strictObject({
   notes: z.string().optional(),
 });
 
-export async function submitEnquiryAction(input: EnquiryInput) {
+const querySchema = z.strictObject({
+  status: z.enum(["all", "new", "contacted", "closed"]).optional(),
+  search: z.string().max(100).optional(),
+  after: z.strictObject({ createdAt: z.iso.datetime(), id: z.string().min(1).max(100) }).optional(),
+});
+
+async function clientHash() {
+  const address = (await headers()).get("cf-connecting-ip");
+  return address ? keyedHash(`enquiry-client:${address}`) : null;
+}
+
+export async function submitEnquiryAction(input: EnquiryInput, website = "") {
   const errors = validateEnquiry(input);
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
+  if (website) return { ok: true };
 
   try {
-    const record = await createCustomerEnquiry(input);
-    updateTag(CACHE_TAGS.enquiries);
+    const client = await clientHash();
+    if (await isEnquiryLimitReached(client)) {
+      return { ok: false, message: "We have received several enquiries from you. Please call or WhatsApp the shop instead." };
+    }
+    const record = await createCustomerEnquiry(input, client);
     return { ok: true, id: record.id };
   } catch (err) {
     console.error("submitEnquiryAction error:", err);
     return { ok: false, message: "Could not save your enquiry right now. Please try again." };
   }
+}
+
+export async function loadEnquiriesAction(query: EnquiryQuery): Promise<EnquiryPage | null> {
+  await requireOwner();
+  const parsed = querySchema.safeParse(query);
+  return parsed.success ? listAdminEnquiries(parsed.data) : null;
 }
 
 export async function updateEnquiryStatusAction(id: string, status: EnquiryStatus, notes?: string) {
@@ -38,6 +64,5 @@ export async function updateEnquiryStatusAction(id: string, status: EnquiryStatu
   const updated = await updateEnquiryStatus(owner, parsed.data.id, parsed.data.status, parsed.data.notes);
   if (!updated) return { ok: false, message: "Enquiry not found." };
 
-  updateTag(CACHE_TAGS.enquiries);
   return { ok: true };
 }

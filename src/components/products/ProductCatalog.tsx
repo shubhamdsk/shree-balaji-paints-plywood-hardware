@@ -9,7 +9,7 @@ import { fieldClasses } from "@/components/ui/FormField";
 import SelectMenu from "@/components/ui/SelectMenu";
 import { compareByPrice, getBrandNames } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import type { CategoryFilter, CategoryGroup, Product, SortOption } from "@/types";
+import type { CatalogProduct, CategoryFilter, CategoryGroup, ProductSummary, SortOption } from "@/types";
 
 const PAGE_SIZE = 12;
 
@@ -20,7 +20,8 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 interface ProductCatalogProps {
-  products: Product[];
+  products: CatalogProduct[];
+  index: ProductSummary[];
   categoryGroups: CategoryGroup[];
   category?: CategoryFilter;
   subtype?: string;
@@ -28,6 +29,7 @@ interface ProductCatalogProps {
 
 export default function ProductCatalog({
   products,
+  index,
   categoryGroups,
   category = "all",
   subtype = "",
@@ -85,7 +87,7 @@ export default function ProductCatalog({
     setPage(1);
   };
 
-  const sidebarProps = { products, categoryGroups, category, subtype };
+  const sidebarProps = { index, categoryGroups, category, subtype };
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">

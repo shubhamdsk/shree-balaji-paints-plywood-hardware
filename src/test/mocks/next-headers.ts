@@ -20,6 +20,8 @@ export async function cookies() {
   };
 }
 
+export const requestHeaders = new Headers();
+
 export async function headers() {
-  return new Headers();
+  return new Headers(requestHeaders);
 }

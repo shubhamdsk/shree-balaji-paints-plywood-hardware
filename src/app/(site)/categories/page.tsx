@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import CategoryDirectory from "@/components/products/CategoryDirectory";
 import PageHeader from "@/components/ui/PageHeader";
 import { shop } from "@/config/shop";
-import { getCategories, getCategoryGroups, getProducts } from "@/services/catalog-service";
+import { getCategories, getCategoryGroups, getProductIndex } from "@/services/catalog-service";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CategoriesPage() {
-  const [categories, groups, products] = await Promise.all([getCategories(), getCategoryGroups(), getProducts()]);
+  const [categories, groups, products] = await Promise.all([getCategories(), getCategoryGroups(), getProductIndex()]);
 
   return (
     <>

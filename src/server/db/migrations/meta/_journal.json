@@ -71,6 +71,13 @@
       "when": 1791623374962,
       "tag": "0009_restructure_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791639271738,
+      "tag": "0010_enquiry_paging_and_rate_limit",
+      "breakpoints": true
     }
   ]
 }

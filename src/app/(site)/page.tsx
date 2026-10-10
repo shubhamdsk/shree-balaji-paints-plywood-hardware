@@ -14,12 +14,12 @@ import OfferCards from "@/components/offers/OfferCards";
 import ProductCard from "@/components/products/ProductCard";
 import { countProducts, HOME_FEATURED_LIMIT } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import { getCategories, getFeaturedProducts, getPopularBrands, getProducts } from "@/services/catalog-service";
+import { getCategories, getFeaturedProducts, getPopularBrands, getProductIndex } from "@/services/catalog-service";
 import { getLiveOffers } from "@/services/offer-service";
 
 const section = "container-page py-14 sm:py-16 lg:py-20";
 
-// Dated offers start and end at midnight with no owner save to refresh the page.
+// Dated offers start and end at midnight India time with no owner save to refresh the page.
 export const revalidate = 3600;
 
 export default async function Home() {
@@ -27,7 +27,7 @@ export default async function Home() {
     getCategories(),
     getFeaturedProducts(),
     getPopularBrands(),
-    getProducts(),
+    getProductIndex(),
     getLiveOffers(),
   ]);
   const counts = Object.fromEntries(categories.map((c) => [c.id, countProducts(products, c.id)]));

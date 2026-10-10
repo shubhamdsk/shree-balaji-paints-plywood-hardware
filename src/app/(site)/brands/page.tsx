@@ -3,7 +3,7 @@ import BrandGrid from "@/components/brands/BrandGrid";
 import PageHeader from "@/components/ui/PageHeader";
 import { shop } from "@/config/shop";
 import { countByBrand, getBrandNames } from "@/lib/catalog";
-import { getProducts } from "@/services/catalog-service";
+import { getProductIndex } from "@/services/catalog-service";
 
 export const metadata: Metadata = {
   title: "Brands",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BrandsPage() {
-  const products = await getProducts();
+  const products = await getProductIndex();
 
   return (
     <div className="bg-surface">

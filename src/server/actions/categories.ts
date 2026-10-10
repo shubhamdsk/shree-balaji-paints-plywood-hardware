@@ -52,7 +52,7 @@ async function saveFromForm(formData: FormData, save: Save): Promise<CategoryFor
   if (key) await deletePhoto(key);
   if (!result.ok) return { message: FAILURE_MESSAGES[result.reason] };
 
-  updateTag(CACHE_TAGS.catalog);
+  updateTag(CACHE_TAGS.structure);
   return { savedId: result.id };
 }
 
@@ -87,7 +87,7 @@ export async function setCategoryActiveAction(id: string, isActive: boolean) {
   const owner = await requireOwner();
   const parsed = idSchema.safeParse(id);
   if (!parsed.success || !(await setCategoryActive(owner, parsed.data, isActive))) return { ok: false };
-  updateTag(CACHE_TAGS.catalog);
+  updateTag(CACHE_TAGS.structure);
   return { ok: true };
 }
 
@@ -95,6 +95,6 @@ export async function setSubcategoryActiveAction(id: string, isActive: boolean) 
   const owner = await requireOwner();
   const parsed = idSchema.safeParse(id);
   if (!parsed.success || !(await setSubcategoryActive(owner, parsed.data, isActive))) return { ok: false };
-  updateTag(CACHE_TAGS.catalog);
+  updateTag(CACHE_TAGS.structure);
   return { ok: true };
 }

@@ -3,12 +3,12 @@ import AppLink from "@/components/ui/AppLink";
 import CoverImage from "@/components/ui/CoverImage";
 import { countProducts } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import type { Category, CategoryGroup, Product } from "@/types";
+import type { Category, CategoryGroup, ProductSummary } from "@/types";
 
 interface Props {
   categories: Category[];
   groups: CategoryGroup[];
-  products: Product[];
+  products: ProductSummary[];
 }
 
 export default function CategoryDirectory({ categories, groups, products }: Props) {

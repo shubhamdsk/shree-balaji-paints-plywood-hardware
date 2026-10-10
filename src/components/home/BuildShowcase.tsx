@@ -5,9 +5,9 @@ import { buttonClasses } from "@/components/ui/Button";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { stockedHref } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import type { Product } from "@/types";
+import type { ProductSummary } from "@/types";
 
-export default function BuildShowcase({ products }: { products: Product[] }) {
+export default function BuildShowcase({ products }: { products: ProductSummary[] }) {
   const items = [
     { icon: Layers, label: "Plywood", note: "Marine, commercial, block board", href: ROUTES.category("plywood-boards") },
     { icon: Sparkles, label: "Laminates", note: "Decorative sheets for furniture", href: ROUTES.category("laminates") },

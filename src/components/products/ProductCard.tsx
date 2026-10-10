@@ -6,11 +6,11 @@ import { whatsappLink } from "@/config/shop";
 import { categoryLabel, productLabel } from "@/lib/catalog";
 import { productEnquiryMessage } from "@/lib/enquiry";
 import { ROUTES } from "@/lib/routes";
-import type { Product } from "@/types";
+import type { CatalogProduct } from "@/types";
 
 const MAX_SIZES = 4;
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product }: { product: CatalogProduct }) {
   const href = ROUTES.product(product.id);
   const extraSizes = product.sizes.length - MAX_SIZES;
 
@@ -18,7 +18,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-card shadow-card transition-all duration-200 ease-premium hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover">
       <AppLink href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-surface-muted">
         <CoverImage
-          src={product.gallery?.[0] ?? product.image}
+          src={product.image}
           alt=""
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1440px) 33vw, 25vw"
           className="img-zoom object-cover"

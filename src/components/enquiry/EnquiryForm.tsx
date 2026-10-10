@@ -66,12 +66,13 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validation.checkForm(event.currentTarget)) return;
+    const website = String(new FormData(event.currentTarget).get("website") ?? "");
 
     setSubmitting(true);
     const productLabel = products.find((p) => p.id === values.productId)?.label;
     const waMsg = buildEnquiryMessage(values, productLabel);
-    
-    const res = await submitEnquiryAction(values);
+
+    const res = await submitEnquiryAction(values, website);
     setSubmitting(false);
 
     if (res.ok) {
@@ -191,6 +192,11 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
           placeholder="Shade, size, site details or delivery location"
         />
       </FormField>
+
+      <div aria-hidden className="absolute -left-[9999px] size-px overflow-hidden">
+        <label htmlFor="website">Website</label>
+        <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
 
       <div className="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
         <Button variant="secondary" onClick={handleClear} disabled={!isDirty || submitting}>

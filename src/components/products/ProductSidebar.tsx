@@ -3,17 +3,17 @@
 import { ChevronDown } from "@/components/ui/icons";
 import { useState } from "react";
 import { countProducts } from "@/lib/catalog";
-import type { CategoryFilter, CategoryGroup, Product } from "@/types";
+import type { CategoryFilter, CategoryGroup, ProductSummary } from "@/types";
 
 interface ProductSidebarProps {
-  products: Product[];
+  index: ProductSummary[];
   categoryGroups: CategoryGroup[];
   category: CategoryFilter;
   subtype: string;
   onSelect: (category: CategoryFilter, subtype: string) => void;
 }
 
-export default function ProductSidebar({ products, categoryGroups, category, subtype, onSelect }: ProductSidebarProps) {
+export default function ProductSidebar({ index, categoryGroups, category, subtype, onSelect }: ProductSidebarProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(categoryGroups.map((g) => [g.id, g.id === category || category === "all"])),
   );
@@ -31,12 +31,12 @@ export default function ProductSidebar({ products, categoryGroups, category, sub
         }`}
       >
         All Products
-        <span className="text-xs text-subtle">{products.length}</span>
+        <span className="text-xs text-subtle">{index.length}</span>
       </button>
 
       <ul className="mt-2 space-y-1">
         {categoryGroups.map((group) => {
-          const total = countProducts(products, group.id);
+          const total = countProducts(index, group.id);
           const expanded = openGroups[group.id];
           return (
             <li key={group.id}>
@@ -67,7 +67,7 @@ export default function ProductSidebar({ products, categoryGroups, category, sub
                     </button>
                   </li>
                   {group.subtypes.map((st) => {
-                    const n = countProducts(products, group.id, st);
+                    const n = countProducts(index, group.id, st);
                     if (n === 0) return null;
                     return (
                       <li key={st}>

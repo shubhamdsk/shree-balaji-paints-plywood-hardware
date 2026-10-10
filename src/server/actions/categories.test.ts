@@ -70,7 +70,7 @@ describe("saveCategoryAction", () => {
     );
     expect((await getAdminCategory("glass-mirrors"))?.image).toMatch(/^\/api\/photos\//);
     expect(await readdir(photoDir)).toHaveLength(1);
-    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.catalog);
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.structure);
     expect((await getCategories()).map((c) => c.id)).toContain("glass-mirrors");
   });
 
@@ -115,6 +115,6 @@ describe("visibility actions", () => {
     expect(await setCategoryActiveAction("paints", false)).toEqual({ ok: true });
     expect(await setSubcategoryActiveAction("paints-wood-paint", false)).toEqual({ ok: true });
     expect(await setSubcategoryActiveAction("missing", false)).toEqual({ ok: false });
-    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.catalog);
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.structure);
   });
 });

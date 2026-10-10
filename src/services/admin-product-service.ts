@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, max } from "drizzle-orm";
+import { cache } from "react";
 import { LEGACY_CATEGORY_IDS } from "@/lib/legacy-routes";
 import { createProductId, type ProductInput } from "@/lib/product-input";
 import { writeAudit } from "@/server/audit";
@@ -59,26 +60,16 @@ function featuredSince(wasFeatured: boolean, featured: boolean, now: Date): Pick
   return wasFeatured ? undefined : { featuredAt: now };
 }
 
-export async function listAdminProducts(): Promise<AdminProduct[]> {
+export const listAdminProducts = cache(async (): Promise<AdminProduct[]> => {
   const db = await getDb();
   const rows = await selectWithPlacement(db).orderBy(desc(products.updatedAt), asc(products.name));
   return rows.map(toAdmin);
-}
+});
 
 export async function getAdminProduct(id: string): Promise<AdminProduct | undefined> {
   const db = await getDb();
   const [row] = await selectWithPlacement(db).where(eq(products.id, id));
   return row && toAdmin(row);
-}
-
-export async function getProductCounts() {
-  const rows = await listAdminProducts();
-  return {
-    total: rows.length,
-    hidden: rows.filter((p) => !p.isVisible).length,
-    outOfStock: rows.filter((p) => p.isVisible && !p.inStock).length,
-    featured: rows.filter((p) => p.isVisible && p.featured).length,
-  };
 }
 
 export async function createProduct(actor: AdminUser, input: ProductInput, image?: string): Promise<string> {
@@ -127,10 +118,15 @@ export async function updateProduct(
   });
 }
 
-export async function setProductFlag(actor: AdminUser, id: string, flag: ProductFlag, value: boolean) {
+export async function setProductFlag(
+  actor: AdminUser,
+  id: string,
+  flag: ProductFlag,
+  value: boolean,
+): Promise<ProductRow | null> {
   return withTransaction(async (tx) => {
     const [before] = await tx.select().from(products).where(eq(products.id, id));
-    if (!before) return false;
+    if (!before) return null;
     const now = new Date();
     const changes: Partial<ProductRow> = {
       [flag]: value,
@@ -146,6 +142,6 @@ export async function setProductFlag(actor: AdminUser, id: string, flag: Product
       before: { [flag]: before[flag] },
       after: { [flag]: value },
     });
-    return true;
+    return before;
   });
 }

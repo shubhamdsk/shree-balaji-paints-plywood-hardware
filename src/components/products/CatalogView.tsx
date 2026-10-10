@@ -1,7 +1,8 @@
 import ProductCatalog from "@/components/products/ProductCatalog";
 import PageHeader from "@/components/ui/PageHeader";
+import { compactGroups } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import { getCategoryGroups, getProducts } from "@/services/catalog-service";
+import { getCatalogProducts, getCategoryGroups, getCategoryProducts, getProductIndex } from "@/services/catalog-service";
 import type { CategoryGroup } from "@/types";
 
 const ALL_PRODUCTS_DESCRIPTION =
@@ -13,7 +14,12 @@ interface CatalogViewProps {
 }
 
 export default async function CatalogView({ group, subtype }: CatalogViewProps) {
-  const [products, categoryGroups] = await Promise.all([getProducts(), getCategoryGroups()]);
+  const [products, index, groups] = await Promise.all([
+    group ? getCategoryProducts(group.id) : getCatalogProducts(),
+    getProductIndex(),
+    getCategoryGroups(),
+  ]);
+  const categoryGroups = compactGroups(groups);
 
   const parents = [
     ...(group ? [{ label: "Products", href: ROUTES.products }] : []),
@@ -30,6 +36,7 @@ export default async function CatalogView({ group, subtype }: CatalogViewProps) 
       <section className="container-page py-8 sm:py-10">
         <ProductCatalog
           products={products}
+          index={index}
           categoryGroups={categoryGroups}
           category={group?.id ?? "all"}
           subtype={subtype}
