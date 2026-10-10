@@ -13,6 +13,7 @@ import {
   estimatePaint,
   formatPacks,
   validateRoom,
+  ROOM_PRESETS,
   type PaintEstimate,
   type RoomErrors,
   type RoomValues,
@@ -80,6 +81,18 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
   const update = <K extends keyof RoomValues>(key: K, value: RoomValues[K]) => {
     setValues((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined }));
+    setEstimate(null);
+  };
+
+  const handleApplyPreset = (preset: (typeof ROOM_PRESETS)[0]) => {
+    const factor = values.unit === "m" ? 0.3048 : 1;
+    setValues((current) => ({
+      ...current,
+      length: String(Math.round(preset.length * factor * 10) / 10),
+      width: String(Math.round(preset.width * factor * 10) / 10),
+      height: String(Math.round(preset.height * factor * 10) / 10),
+    }));
+    setErrors((current) => ({ ...current, length: undefined, width: undefined, height: undefined }));
     setEstimate(null);
   };
 
@@ -159,6 +172,22 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
           </FormField>
         </div>
 
+        <div>
+          <span className="mb-2 block text-xs font-bold text-muted">Quick Room Presets:</span>
+          <div className="flex flex-wrap gap-2">
+            {ROOM_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                className="rounded-md border border-line bg-surface-muted px-3 py-1.5 text-xs font-semibold text-heading hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 transition-colors"
+              >
+                {preset.name} ({preset.length}×{preset.width} ft)
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-5 sm:grid-cols-3">
           {sizeFields.map(({ key, label }) => numberInput(key, `${label} (${values.unit})`))}
         </div>
@@ -200,24 +229,51 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
 
       <div aria-live="polite">
         {estimate && product && (
-          <section aria-labelledby="estimate-heading" className="rounded-card border border-paint-100 bg-accent-50 p-5 sm:p-8">
+          <section aria-labelledby="estimate-heading" className="rounded-card border border-paint-100 bg-accent-50 p-5 sm:p-8 space-y-6">
             <h2 id="estimate-heading" className="text-lg font-extrabold text-heading">
               You need about {estimate.litres} L of {product.label}
             </h2>
-            <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-              <div>
+
+            <dl className="grid gap-4 text-sm sm:grid-cols-2">
+              <div className="rounded-card bg-card border border-line p-4">
                 <dt className="font-bold text-heading">Area to paint</dt>
-                <dd className="text-ink">About {estimate.areaSqft} sq ft</dd>
+                <dd className="mt-1 text-2xl font-black text-brand-700">About {estimate.areaSqft} sq ft</dd>
+                <dd className="mt-2 text-xs text-muted">
+                  Gross wall: {estimate.grossAreaSqft} sq ft · Deductions: -{estimate.deductionsSqft} sq ft
+                  {values.includeCeiling ? ` · Ceiling: +${estimate.ceilingAreaSqft} sq ft` : ""}
+                </dd>
               </div>
-              <div>
+              <div className="rounded-card bg-card border border-line p-4">
                 <dt className="font-bold text-heading">Suggested packs</dt>
-                <dd className="text-ink">{formatPacks(estimate.packs)}</dd>
+                <dd className="mt-1 text-2xl font-black text-brand-700">{formatPacks(estimate.packs)}</dd>
+                <dd className="mt-2 text-xs text-muted">Optimized minimum cans for least wastage</dd>
               </div>
             </dl>
-            <p className="mt-4 text-xs text-muted">
+
+            {(estimate.primerLitres || estimate.puttyKg) && (
+              <div className="rounded-card border border-line bg-card p-4">
+                <h3 className="text-sm font-bold text-heading mb-3">Recommended Preparation Materials:</h3>
+                <div className="grid gap-3 sm:grid-cols-2 text-xs">
+                  {estimate.primerLitres && (
+                    <div className="flex justify-between items-center p-2.5 rounded bg-surface-muted border border-line">
+                      <span className="font-semibold text-heading">Wall Primer (1 coat)</span>
+                      <span className="font-extrabold text-brand-700">~{estimate.primerLitres} L</span>
+                    </div>
+                  )}
+                  {estimate.puttyKg && (
+                    <div className="flex justify-between items-center p-2.5 rounded bg-surface-muted border border-line">
+                      <span className="font-semibold text-heading">Wall Putty (Fresh surface, 2 coats)</span>
+                      <span className="font-extrabold text-brand-700">~{estimate.puttyKg} kg</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs text-muted">
               This is an estimate. Wall condition, colour change and brand affect coverage, so the shop will confirm the final quantity.
             </p>
-            <Button variant="whatsapp" onClick={handleSend} className="mt-5">
+            <Button variant="whatsapp" onClick={handleSend} className="mt-2">
               <WhatsAppIcon className="h-4 w-4" />
               Send estimate on WhatsApp
             </Button>

@@ -5,7 +5,7 @@ import { products as demoProducts } from "@/data/products";
 import { slugify } from "@/lib/slug";
 import type { Database } from "@/server/db/client";
 import { toProductRow } from "@/server/db/product-mapper";
-import { categories, products, subcategories } from "@/server/db/schema";
+import { categories, gallery, products, subcategories } from "@/server/db/schema";
 
 export async function seedCatalog(db: Database) {
   const [{ total: catCount }] = await db.select({ total: count() }).from(categories);
@@ -52,6 +52,30 @@ export async function seedCatalog(db: Database) {
         sortOrder: index,
       })),
     );
+  }
+
+  const [{ total: galCount }] = await db.select({ total: count() }).from(gallery);
+  if (galCount === 0) {
+    await db.insert(gallery).values([
+      {
+        id: "gal_demo_1",
+        title: "Kotul Villa Exterior Paint Project",
+        category: "Painting Works",
+        caption: "Asian Paints Apex Ultima exterior emulsion application",
+        image: "/images/categories/paints.jpg",
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        id: "gal_demo_2",
+        title: "Custom Plywood & Modular Wardrobes",
+        category: "Plywood & Interior",
+        caption: "Century BWP Marine Plywood and Action Tesa HDHMR setup",
+        image: "/images/categories/plywood.jpg",
+        sortOrder: 2,
+        isActive: true,
+      },
+    ]);
   }
 
   return true;

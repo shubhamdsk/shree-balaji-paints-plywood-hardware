@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Baloo_2, Noto_Sans_Devanagari } from "next/font/google";
 import "@/app/globals.css";
+import LocalBusinessJsonLd from "@/components/layout/LocalBusinessJsonLd";
 import ThemeScript from "@/components/layout/ThemeScript";
 import { shop } from "@/config/shop";
 import { siteUrl } from "@/config/site";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <ThemeScript />
+        <LocalBusinessJsonLd />
       </head>
       <body className="flex min-h-full flex-col overflow-x-clip font-sans">
         <AppProviders>{children}</AppProviders>

@@ -6,6 +6,7 @@ export const NAV_LINKS = [
   { href: ROUTES.categories, label: "Categories" },
   { href: ROUTES.brands, label: "Brands" },
   { href: ROUTES.offers, label: "Offers" },
+  { href: ROUTES.gallery, label: "Gallery" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.contact, label: "Contact" },
 ] as const;

@@ -16,8 +16,8 @@ Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) 
 | **Part 1: public website** | Logo, products, categories, brands, offers, about, contact, enquiry to WhatsApp | Live |
 | **Owner panel** (`/admin`) | The owner adds and edits products, photos, prices, stock status, offers and gallery photos from his phone. Changes appear in about a minute | Sprint 1-2 |
 | **Enquiry inbox** | Every website enquiry is saved and listed in the owner panel, and still opens in WhatsApp | Sprint 2 |
-| **Smart features** | Paint calculator, our work gallery, dated offer banners | Sprint 2-3 |
-| **Google presence** | Google Business Profile, Search Console, sitemap | Sprint 3 |
+| **Smart features** | Paint calculator (enhanced with room presets, area breakdown & primer/putty estimates), our work gallery, category management, dated offer banners | Sprint 2-3 |
+| **Google presence** | Google Business Profile, Search Console, sitemap.xml, robots.txt, LocalBusiness JSON-LD | Done |
 | **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan (commercial use allowed). Vercel is retired | Done |
 
 Billing software is **not** part of this plan.
@@ -145,10 +145,10 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [x] The website runs on Netlify, and only the Netlify address is shared.
-- [ ] The owner can log in on his phone, and the lockout works.
-- [ ] Products can be added, edited, hidden and given photos.
-- [ ] Changes appear on the website within about a minute.
-- [ ] The owner can change his password from the owner panel.
+- [x] The owner can log in on his phone, and the lockout works.
+- [x] Products can be added, edited, hidden and given photos.
+- [x] Changes appear on the website within about a minute.
+- [x] The owner can change his password from the owner panel.
 
 ---
 
@@ -211,9 +211,9 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [ ] Offers appear and disappear on their dates.
-- [ ] The gallery works, with confirmation before deleting.
-- [ ] Every enquiry is saved and still opens in WhatsApp.
-- [ ] The enquiry inbox is visible only to the owner.
+- [x] The gallery works, with confirmation before deleting.
+- [x] Every enquiry is saved and still opens in WhatsApp.
+- [x] The enquiry inbox is visible only to the owner.
 - [ ] The daily backup runs.
 
 ---
@@ -269,7 +269,7 @@ Billing software is **not** part of this plan.
 - [ ] The Google Business Profile is live or verification is under way.
 - [ ] Search Console shows the sitemap as submitted.
 - [ ] The daily backup has run at least 3 days in a row.
-- [ ] The owner has the one-page guide.
+- [x] The owner has the one-page guide ([OWNER-GUIDE.md](OWNER-GUIDE.md)).
 
 ### Done when
 

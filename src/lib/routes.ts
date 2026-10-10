@@ -11,6 +11,7 @@ export const ROUTES = {
   brands: "/brands",
   brand: (name: string) => `/brands/${slugify(name)}`,
   offers: "/offers",
+  gallery: "/gallery",
   about: "/about",
   contact: "/contact",
   enquiry: (productId?: string) => (productId ? `/enquiry/${productId}` : "/enquiry"),
@@ -21,6 +22,8 @@ export const ROUTES = {
   adminProducts: "/admin/products",
   adminNewProduct: "/admin/products/new",
   adminProduct: (id: string) => `/admin/products/${id}`,
+  adminCategories: "/admin/categories",
+  adminGallery: "/admin/gallery",
   adminEnquiries: "/admin/enquiries",
 } as const;
 

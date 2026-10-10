@@ -110,8 +110,12 @@ describe("estimatePaint", () => {
   it("subtracts doors and windows and divides by coverage for every coat", () => {
     const estimate = estimatePaint(room, interior);
     expect(estimate.areaSqft).toBe(395);
+    expect(estimate.grossAreaSqft).toBe(440);
+    expect(estimate.deductionsSqft).toBe(45);
     expect(estimate.litres).toBe(8);
     expect(estimate.packs).toEqual([{ label: "4 L", count: 2 }]);
+    expect(estimate.primerLitres).toBe(4);
+    expect(estimate.puttyKg).toBe(27);
   });
 
   it("adds the ceiling when asked", () => {
@@ -136,8 +140,10 @@ describe("buildEstimateMessage", () => {
       "Paint: Asian Paints Royale",
       "Room: 12 × 10 × 10 ft, 1 door(s), 2 window(s)",
       "Coats: 2",
-      "Area: about 395 sq ft",
-      "Estimate: about 8 L (2 × 4 L)",
+      "Paintable Area: about 395 sq ft",
+      "Paint Estimate: about 8 L (2 × 4 L)",
+      "Primer Needed (1 coat): about 4 L",
+      "Wall Putty (Fresh surface): about 27 kg",
       "Please confirm the quantity and price.",
     ]);
   });

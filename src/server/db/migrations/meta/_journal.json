@@ -36,6 +36,13 @@
       "when": 1791480848340,
       "tag": "0004_add_enquiries_table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791550000000,
+      "tag": "0005_add_gallery_table",
+      "breakpoints": true
     }
   ]
 }

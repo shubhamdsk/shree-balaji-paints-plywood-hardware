@@ -21,6 +21,21 @@ const FEET_PER_METRE = 3.28084;
 const MAX_DIMENSION_FT = 200;
 const MAX_OPENINGS = 20;
 
+export interface RoomPreset {
+  name: string;
+  length: number;
+  width: number;
+  height: number;
+}
+
+export const ROOM_PRESETS: RoomPreset[] = [
+  { name: "Small Room", length: 10, width: 8, height: 10 },
+  { name: "Standard Bedroom", length: 12, width: 10, height: 10 },
+  { name: "Master Bedroom", length: 14, width: 12, height: 10 },
+  { name: "Living Room", length: 16, width: 14, height: 10 },
+  { name: "Kitchen / Hall", length: 12, width: 8, height: 10 },
+];
+
 export interface RoomValues {
   productId: string;
   unit: LengthUnit;
@@ -42,8 +57,13 @@ export interface PackLine {
 
 export interface PaintEstimate {
   areaSqft: number;
+  grossAreaSqft: number;
+  deductionsSqft: number;
+  ceilingAreaSqft: number;
   litres: number;
   packs: PackLine[];
+  primerLitres?: number;
+  puttyKg?: number;
 }
 
 export function isCalculablePaint(product: Pick<Product, "category" | "type" | "sizes">) {
@@ -69,8 +89,10 @@ function wallAreaSqft(values: RoomValues) {
   const [length, width, height] = [values.length, values.width, values.height].map((v) =>
     toFeet(Number(v), values.unit),
   );
-  const walls = 2 * (length + width) * height - Number(values.doors) * DOOR_SQFT - Number(values.windows) * WINDOW_SQFT;
-  return { walls, ceiling: length * width };
+  const grossWalls = 2 * (length + width) * height;
+  const deductions = Number(values.doors) * DOOR_SQFT + Number(values.windows) * WINDOW_SQFT;
+  const walls = grossWalls - deductions;
+  return { grossWalls, deductions, walls, ceiling: length * width };
 }
 
 export function validateRoom(values: RoomValues): RoomErrors {
@@ -141,10 +163,28 @@ export function suggestPacks(litresNeeded: number, sizes: string[]): PackLine[] 
 }
 
 export function estimatePaint(values: RoomValues, product: Pick<Product, "type" | "sizes">): PaintEstimate {
-  const { walls, ceiling } = wallAreaSqft(values);
+  const { grossWalls, deductions, walls, ceiling } = wallAreaSqft(values);
+  const ceilingAreaSqft = Math.round(ceiling);
+  const grossAreaSqft = Math.round(grossWalls);
+  const deductionsSqft = Math.round(deductions);
   const areaSqft = Math.round(walls + (values.includeCeiling ? ceiling : 0));
   const litres = Math.ceil((areaSqft * Number(values.coats)) / COVERAGE_SQFT_PER_LITRE[product.type]);
-  return { areaSqft, litres, packs: suggestPacks(litres, product.sizes) };
+  const packs = suggestPacks(litres, product.sizes);
+
+  const isPaint = product.type.includes("Interior") || product.type.includes("Exterior");
+  const primerLitres = isPaint ? Math.ceil(areaSqft / 100) : undefined;
+  const puttyKg = isPaint ? Math.ceil(areaSqft / 15) : undefined;
+
+  return {
+    areaSqft,
+    grossAreaSqft,
+    deductionsSqft,
+    ceilingAreaSqft,
+    litres,
+    packs,
+    primerLitres,
+    puttyKg,
+  };
 }
 
 export function formatPacks(packs: PackLine[]) {
@@ -153,13 +193,20 @@ export function formatPacks(packs: PackLine[]) {
 
 export function buildEstimateMessage(values: RoomValues, estimate: PaintEstimate, productLabel: string) {
   const size = `${values.length} × ${values.width} × ${values.height} ${values.unit}`;
-  return [
+  const lines = [
     `Hello ${shop.shortName}, I used the paint calculator on your website.`,
     `Paint: ${productLabel}`,
     `Room: ${size}, ${Number(values.doors)} door(s), ${Number(values.windows)} window(s)${values.includeCeiling ? ", ceiling included" : ""}`,
     `Coats: ${values.coats}`,
-    `Area: about ${estimate.areaSqft} sq ft`,
-    `Estimate: about ${estimate.litres} L (${formatPacks(estimate.packs)})`,
-    "Please confirm the quantity and price.",
-  ].join("\n");
+    `Paintable Area: about ${estimate.areaSqft} sq ft`,
+    `Paint Estimate: about ${estimate.litres} L (${formatPacks(estimate.packs)})`,
+  ];
+  if (estimate.primerLitres) {
+    lines.push(`Primer Needed (1 coat): about ${estimate.primerLitres} L`);
+  }
+  if (estimate.puttyKg) {
+    lines.push(`Wall Putty (Fresh surface): about ${estimate.puttyKg} kg`);
+  }
+  lines.push("Please confirm the quantity and price.");
+  return lines.join("\n");
 }

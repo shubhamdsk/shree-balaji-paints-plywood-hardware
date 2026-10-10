@@ -14,14 +14,21 @@ export type AuditAction =
   | "product_featured"
   | "product_visibility"
   | "category_create"
-  | "subcategory_create"
+  | "category_update"
   | "category_status"
+  | "subcategory_create"
+  | "subcategory_update"
+  | "subcategory_status"
+  | "gallery_create"
+  | "gallery_update"
+  | "gallery_status"
+  | "gallery_delete"
   | "enquiry_update_status";
 
 interface AuditEntry {
   userId: number | null;
   action: AuditAction;
-  entity: "admin_user" | "product" | "category" | "subcategory" | "enquiry";
+  entity: "admin_user" | "product" | "category" | "subcategory" | "enquiry" | "gallery";
   entityId?: string | null;
   before?: unknown;
   after?: unknown;
