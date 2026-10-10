@@ -17,6 +17,7 @@ import {
   type EnquiryErrors,
   type EnquiryInput,
 } from "@/lib/enquiry";
+import { keepPhoneChars } from "@/lib/text-rules";
 import { submitEnquiryAction } from "@/server/actions/enquiry";
 
 export interface EnquiryProductOption {
@@ -147,7 +148,8 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
             type="tel"
             inputMode="numeric"
             value={values.phone}
-            onChange={(e) => update("phone", e.target.value)}
+            onChange={(e) => update("phone", keepPhoneChars(e.target.value))}
+            maxLength={ENQUIRY_LIMITS.phone}
             autoComplete="tel"
             aria-invalid={Boolean(errors.phone)}
             aria-describedby={describedBy("phone")}

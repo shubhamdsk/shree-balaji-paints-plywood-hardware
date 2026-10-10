@@ -90,6 +90,7 @@ src/
     dates.ts            today's date in India (offers and backups use it)
     backup-token.ts     daily backup cron schedule and the token the cron sends to /api/backup
     password-rules.ts   password length limits, login and change-password checks
+    text-rules.ts       character rules for names, titles and long text (emojis, hidden characters), and typing filters for numbers and phones
     photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
     price.ts            "From ₹520 per litre" / "Ask for price"
     cache-tags.ts       cache tag names for unstable_cache and updateTag, and productChangeTags (which tags a product change refreshes)
@@ -120,7 +121,7 @@ scripts/                db-migrate.ts (build-time migrations) and developer help
 - Check `src/components/ui`, `src/hooks` and `src/lib` before writing new UI or logic. Extend an existing piece with a prop instead of copying it.
 - Icons: import from `@/components/ui/icons`, never from `lucide-react` directly. To use a new icon, add it to the export list in `icons.ts`. A custom SVG icon goes in the same file as a component that takes `IconProps`. Logo artwork stays in `components/brand`.
 - Buttons: `Button` (or `buttonClasses()` for links styled as buttons). Inputs: `FormField` with `fieldClasses`. Dropdowns: `SelectMenu` (themed list, search box on lists over 8 options, full keyboard support, `multiple` for tick-several lists, `placeholder`, `disabled`), never a native `<select>`.
-- Form validation: put the rules in `src/lib/*-input.ts` (or another `src/lib` module) so the browser and the server run the same checks. In the form, use `useFormValidation(validate)`: put `onBlur={checkField}` on the `<form>`, call `checkForm(form)` before saving (it shows every error and focuses the first field), `clearError(field)` on change, and show `summary` (or the server's message) in a `FormAlert`. Give each field an `id` equal to its rule name, and link its error with `aria-describedby`.
+- Form validation: put the rules in `src/lib/*-input.ts` (or another `src/lib` module) so the browser and the server run the same checks. Use `src/lib/text-rules.ts` for character rules (`.superRefine(textRule(labelProblem))` on names and titles), filter number and phone inputs as they're typed (`keepDigits`, `keepPhoneChars`), and give every text input a `maxLength` matching its server limit. In the form, use `useFormValidation(validate)`: put `onBlur={checkField}` on the `<form>`, call `checkForm(form)` before saving (it shows every error and focuses the first field), `clearError(field)` on change, and show `summary` (or the server's message) in a `FormAlert`. Give each field an `id` equal to its rule name, and link its error with `aria-describedby`.
 - Internal links: always `AppLink`, never `next/link` directly. ESLint blocks `next/link` elsewhere.
 - Confirmation for any destructive or irreversible action: `const confirm = useConfirm();` then `if (await confirm({ title, message, confirmLabel, tone: "danger" }))`. Never use `window.confirm`, and never build a one-off modal.
 - Forms with user input: call `useUnsavedChanges(isDirty)`. Navigating through `AppLink`, reloading, or closing the tab then asks before discarding. For in-page actions that would lose input, use the `confirmDiscard` it returns.

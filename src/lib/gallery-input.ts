@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { labelProblem, longTextProblem, textRule } from "@/lib/text-rules";
 
 export const GALLERY_CATEGORIES = [
   "Painting Works",
@@ -33,9 +34,14 @@ const gallerySchema = z.strictObject({
     .string()
     .trim()
     .min(2, "Enter a project title")
-    .max(GALLERY_LIMITS.title, `Keep the title under ${GALLERY_LIMITS.title} characters`),
+    .max(GALLERY_LIMITS.title, `Keep the title under ${GALLERY_LIMITS.title} characters`)
+    .superRefine(textRule(labelProblem)),
   category: z.enum(GALLERY_CATEGORIES, "Choose a category"),
-  caption: z.string().trim().max(GALLERY_LIMITS.caption, `Keep the caption under ${GALLERY_LIMITS.caption} characters`),
+  caption: z
+    .string()
+    .trim()
+    .max(GALLERY_LIMITS.caption, `Keep the caption under ${GALLERY_LIMITS.caption} characters`)
+    .superRefine(textRule(longTextProblem)),
 });
 
 /** A new gallery item needs a photo; an edit keeps the current one unless a new one is chosen. */

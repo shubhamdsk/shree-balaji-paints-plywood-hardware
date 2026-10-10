@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { validateEnquiry, type EnquiryInput } from "@/lib/enquiry";
+import { ENQUIRY_LIMITS, validateEnquiry, type EnquiryInput } from "@/lib/enquiry";
+import { longTextProblem, textRule } from "@/lib/text-rules";
 import { requireOwner } from "@/server/auth/guard";
 import { keyedHash } from "@/server/auth/session-token";
 import {
@@ -16,7 +17,7 @@ import type { EnquiryPage, EnquiryQuery, EnquiryStatus } from "@/types";
 const statusSchema = z.strictObject({
   id: z.string().min(1),
   status: z.enum(["new", "contacted", "closed"]),
-  notes: z.string().optional(),
+  notes: z.string().max(ENQUIRY_LIMITS.notes).superRefine(textRule(longTextProblem)).optional(),
 });
 
 const querySchema = z.strictObject({

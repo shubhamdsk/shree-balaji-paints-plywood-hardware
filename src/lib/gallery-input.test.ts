@@ -29,6 +29,15 @@ describe("validateGalleryInput", () => {
     });
   });
 
+  it("rejects a title with hidden characters or no letters", () => {
+    expect(validateGalleryInput({ ...valid, title: "Villa\u200Bexterior" }, { needsPhoto: false })).toMatchObject({
+      errors: { title: "Remove hidden characters or line breaks" },
+    });
+    expect(validateGalleryInput({ ...valid, title: "2024" }, { needsPhoto: false })).toMatchObject({
+      errors: { title: "Use at least one letter" },
+    });
+  });
+
   it("needs a photo even when the text is fine", () => {
     expect(validateGalleryInput(valid, { needsPhoto: true })).toEqual({
       ok: false,

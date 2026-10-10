@@ -32,6 +32,22 @@ describe("EnquiryForm", () => {
     );
   });
 
+  it("drops letters and emojis typed into the mobile number", async () => {
+    const { user } = renderForm();
+    await user.type(screen.getByLabelText(/Mobile number/), "+91 98a765😀-43210");
+    expect(screen.getByLabelText(/Mobile number/)).toHaveProperty("value", "+91 98765-43210");
+  });
+
+  it("rejects a name without letters", async () => {
+    const { user } = renderForm();
+    await user.type(screen.getByLabelText(/Your name/), "12");
+    await user.tab();
+    const name = screen.getByLabelText(/Your name/);
+    expect(document.getElementById(name.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
+      "Use at least one letter.",
+    );
+  });
+
   it("submits directly to the database, resets the form, and displays success banner with optional WhatsApp link", async () => {
     const { user } = renderForm("ap-royale-luxury");
     await user.type(screen.getByLabelText(/Your name/), "Ramesh Patil");

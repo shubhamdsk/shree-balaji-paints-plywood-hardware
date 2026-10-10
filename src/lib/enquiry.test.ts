@@ -29,6 +29,26 @@ describe("validateEnquiry", () => {
     expect(validateEnquiry({ ...valid, name: " A " }).name).toBeDefined();
   });
 
+  it("rejects names made of digits, symbols or emojis", () => {
+    expect(validateEnquiry({ ...valid, name: "12" }).name).toBe("Use at least one letter.");
+    expect(validateEnquiry({ ...valid, name: "Ramesh99" }).name).toBe("Use letters only.");
+    expect(validateEnquiry({ ...valid, name: "😀😀" }).name).toBe("Emojis aren't allowed here.");
+  });
+
+  it("rejects a phone number with letters or emojis instead of dropping them", () => {
+    expect(validateEnquiry({ ...valid, phone: "98765abc43210" }).phone).toBe("Use digits only.");
+    expect(validateEnquiry({ ...valid, phone: "9876543210😀" }).phone).toBe("Use digits only.");
+    expect(validateEnquiry({ ...valid, phone: "+91 98765-43210" }).phone).toBeUndefined();
+  });
+
+  it("rejects emojis in the quantity but allows them in the details", () => {
+    expect(validateEnquiry({ ...valid, quantity: "20 🪣" }).quantity).toBe("Emojis aren't allowed here.");
+    expect(validateEnquiry({ ...valid, message: "Need 20 L white 👍" }).message).toBeUndefined();
+    expect(validateEnquiry({ ...valid, message: "Need\u200B 20 L white" }).message).toBe(
+      "Remove hidden characters or line breaks.",
+    );
+  });
+
   it("caps the name, quantity and details so a huge message can't be sent", () => {
     expect(
       validateEnquiry({ ...valid, name: "R".repeat(81), quantity: "2".repeat(41), message: "x".repeat(1001) }),

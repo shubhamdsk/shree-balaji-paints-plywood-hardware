@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { todayInIndia } from "@/lib/dates";
+import { labelProblem, longTextProblem, textRule } from "@/lib/text-rules";
+
+export const OFFER_LIMITS = { title: 80, body: 300 } as const;
 
 export interface OfferInput {
   title: string;
@@ -53,8 +56,18 @@ export function readOfferForm(formData: FormData) {
 
 const offerInputSchema = z
   .strictObject({
-    title: z.string().trim().min(2, "Enter the offer title").max(80, "Keep the title under 80 characters"),
-    body: z.string().trim().min(2, "Describe the offer").max(300, "Keep the text under 300 characters"),
+    title: z
+      .string()
+      .trim()
+      .min(2, "Enter the offer title")
+      .max(OFFER_LIMITS.title, `Keep the title under ${OFFER_LIMITS.title} characters`)
+      .superRefine(textRule(labelProblem)),
+    body: z
+      .string()
+      .trim()
+      .min(2, "Describe the offer")
+      .max(OFFER_LIMITS.body, `Keep the text under ${OFFER_LIMITS.body} characters`)
+      .superRefine(textRule(longTextProblem)),
     startsOn: z.string().refine(isRealDate, "Choose the start date"),
     endsOn: z.string().refine(isRealDate, "Choose the end date"),
   })

@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { MessageCircle, Phone, Search, WhatsAppIcon } from "@/components/ui/icons";
 import { whatsappLink } from "@/config/shop";
+import { ENQUIRY_LIMITS } from "@/lib/enquiry";
 import { loadEnquiriesAction, updateEnquiryStatusAction } from "@/server/actions/enquiry";
 import type { EnquiryCounts, EnquiryPage, EnquiryQuery, EnquiryRecord, EnquiryStatus, EnquiryStatusFilter } from "@/types";
 
@@ -279,6 +280,8 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
                       <div className="space-y-2 pt-2">
                         <textarea
                           rows={2}
+                          aria-label="Owner note"
+                          maxLength={ENQUIRY_LIMITS.notes}
                           value={noteInput}
                           onChange={(e) => setNoteInput(e.target.value)}
                           placeholder="Add internal follow-up notes or quote details..."
