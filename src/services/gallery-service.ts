@@ -2,7 +2,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { writeAudit } from "@/server/audit";
-import { getDb } from "@/server/db/client";
+import { getDb, withTransaction } from "@/server/db/client";
 import { gallery, type GalleryRow } from "@/server/db/schema";
 import type { AdminUser, GalleryInput, GalleryItem } from "@/types";
 
@@ -49,11 +49,10 @@ export async function getAdminGalleryItems(): Promise<GalleryItem[]> {
 }
 
 export async function createGalleryItem(actor: AdminUser, input: GalleryInput, image: string): Promise<GalleryItem> {
-  const db = await getDb();
   const id = `gal_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   const now = new Date();
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [row] = await tx
       .insert(gallery)
       .values({
@@ -87,10 +86,9 @@ export async function updateGalleryItem(
   input: GalleryInput,
   image?: string,
 ): Promise<GalleryItem | null> {
-  const db = await getDb();
   const now = new Date();
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(gallery).where(eq(gallery.id, id));
     if (!before) return null;
 
@@ -122,10 +120,9 @@ export async function updateGalleryItem(
 }
 
 export async function toggleGalleryItemActive(actor: AdminUser, id: string, isActive: boolean): Promise<boolean> {
-  const db = await getDb();
   const now = new Date();
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(gallery).where(eq(gallery.id, id));
     if (!before) return false;
 
@@ -149,9 +146,8 @@ export async function toggleGalleryItemActive(actor: AdminUser, id: string, isAc
 }
 
 export async function deleteGalleryItem(actor: AdminUser, id: string): Promise<GalleryItem | null> {
-  const db = await getDb();
 
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(gallery).where(eq(gallery.id, id));
     if (!before) return null;
 

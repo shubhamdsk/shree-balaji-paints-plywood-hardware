@@ -2,7 +2,7 @@ import { and, asc, desc, eq, max } from "drizzle-orm";
 import { LEGACY_CATEGORY_IDS } from "@/lib/legacy-routes";
 import { createProductId, type ProductInput } from "@/lib/product-input";
 import { writeAudit } from "@/server/audit";
-import { getDb, type Database } from "@/server/db/client";
+import { getDb, withTransaction, type Database } from "@/server/db/client";
 import { toAdminProduct } from "@/server/db/product-mapper";
 import { products, subcategories, type ProductRow } from "@/server/db/schema";
 import { getCategoryGroups } from "@/services/catalog-service";
@@ -82,9 +82,8 @@ export async function getProductCounts() {
 }
 
 export async function createProduct(actor: AdminUser, input: ProductInput, image?: string): Promise<string> {
-  const db = await getDb();
   const reservedIds = [...(await getCategoryGroups()).map((group) => group.id), ...LEGACY_CATEGORY_IDS];
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const taken = await tx.select({ id: products.id }).from(products);
     const id = createProductId(input.name, taken.map((row) => row.id), reservedIds);
     const [{ last }] = await tx.select({ last: max(products.sortOrder) }).from(products);
@@ -109,8 +108,7 @@ export async function updateProduct(
   input: ProductInput,
   image?: string,
 ): Promise<{ previousImage: string | null } | null> {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(products).where(eq(products.id, id));
     if (!before) return null;
     const now = new Date();
@@ -130,8 +128,7 @@ export async function updateProduct(
 }
 
 export async function setProductFlag(actor: AdminUser, id: string, flag: ProductFlag, value: boolean) {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(products).where(eq(products.id, id));
     if (!before) return false;
     const now = new Date();

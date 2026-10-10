@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import type { EnquiryInput } from "@/lib/enquiry";
 import { writeAudit } from "@/server/audit";
-import { getDb } from "@/server/db/client";
+import { getDb, withTransaction } from "@/server/db/client";
 import { enquiries, type EnquiryRow } from "@/server/db/schema";
 import { getAdminProduct } from "@/services/admin-product-service";
 import type { AdminUser, EnquiryRecord, EnquiryStatus } from "@/types";
@@ -80,8 +80,7 @@ export async function updateEnquiryStatus(
   status: EnquiryStatus,
   notes?: string,
 ): Promise<EnquiryRecord | null> {
-  const db = await getDb();
-  return db.transaction(async (tx) => {
+  return withTransaction(async (tx) => {
     const [before] = await tx.select().from(enquiries).where(eq(enquiries.id, id));
     if (!before) return null;
 

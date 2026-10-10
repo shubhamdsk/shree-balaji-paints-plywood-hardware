@@ -35,6 +35,16 @@ describe("AdminNav", () => {
     expect(screen.getByRole("link", { name: "Password" }).getAttribute("aria-current")).toBe("page");
   });
 
+  it("scrolls the current section into view on narrow screens", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    pathname.mockReturnValue(ROUTES.adminPassword);
+    renderWithProviders(<AdminNav />);
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(scrollIntoView.mock.contexts[0]).toBe(screen.getByRole("link", { name: "Password" }));
+    Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+  });
+
   it("links to the enquiries page", () => {
     pathname.mockReturnValue(ROUTES.adminEnquiries);
     renderWithProviders(<AdminNav />);
