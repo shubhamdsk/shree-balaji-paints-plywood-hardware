@@ -22,14 +22,17 @@ describe("LoginForm", () => {
     expect(screen.getByLabelText(/Password/).getAttribute("autocomplete")).toBe("current-password");
   });
 
-  it("asks for the missing details and links the message to the fields", async () => {
+  it("asks for the missing details next to each field before sending anything", async () => {
     const { user } = renderWithProviders(<LoginForm />);
     await user.click(screen.getByRole("button", { name: "Log in" }));
 
-    const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toBe("Enter your username and password.");
-    expect(screen.getByLabelText(/Username/).getAttribute("aria-describedby")).toBe(alert.id);
-    expect(screen.getByLabelText(/Password/).getAttribute("aria-invalid")).toBe("true");
+    const username = screen.getByLabelText(/Username/);
+    const password = screen.getByLabelText(/Password/);
+    expect(document.getElementById(username.getAttribute("aria-describedby")!)?.textContent).toBe("Enter your username");
+    expect(document.getElementById(password.getAttribute("aria-describedby")!)?.textContent).toBe("Enter your password");
+    expect(password.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(username);
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("keeps the username after a wrong password", async () => {

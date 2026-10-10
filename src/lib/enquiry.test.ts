@@ -29,6 +29,16 @@ describe("validateEnquiry", () => {
     expect(validateEnquiry({ ...valid, name: " A " }).name).toBeDefined();
   });
 
+  it("caps the name, quantity and details so a huge message can't be sent", () => {
+    expect(
+      validateEnquiry({ ...valid, name: "R".repeat(81), quantity: "2".repeat(41), message: "x".repeat(1001) }),
+    ).toEqual({
+      name: "Keep your name under 80 characters.",
+      quantity: "Keep the quantity under 40 characters.",
+      message: "Keep the details under 1000 characters.",
+    });
+  });
+
   it("accepts an empty phone but rejects an invalid one", () => {
     expect(validateEnquiry({ ...valid, phone: "" }).phone).toBeUndefined();
     expect(validateEnquiry({ ...valid, phone: "12345" }).phone).toBeDefined();

@@ -3,12 +3,20 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { CheckCircle2, WhatsAppIcon } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
+import FormAlert from "@/components/ui/FormAlert";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import SelectMenu from "@/components/ui/SelectMenu";
 import { whatsappLink } from "@/config/shop";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useFormValidation } from "@/hooks/use-form-validation";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
-import { buildEnquiryMessage, validateEnquiry, type EnquiryErrors, type EnquiryInput } from "@/lib/enquiry";
+import {
+  ENQUIRY_LIMITS,
+  buildEnquiryMessage,
+  validateEnquiry,
+  type EnquiryErrors,
+  type EnquiryInput,
+} from "@/lib/enquiry";
 import { submitEnquiryAction } from "@/server/actions/enquiry";
 
 export interface EnquiryProductOption {
@@ -31,7 +39,9 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
     [products],
   );
   const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState<EnquiryErrors>({});
+  const validation = useFormValidation<keyof EnquiryInput>(() => validateEnquiry(values));
+  const [serverMessage, setServerMessage] = useState("");
+  const errors: EnquiryErrors = validation.errors;
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [lastWaMsg, setLastWaMsg] = useState("");
@@ -42,20 +52,20 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
 
   const update = (key: keyof EnquiryInput, value: string) => {
     setValues((current) => ({ ...current, [key]: value }));
-    setErrors((current) => ({ ...current, [key]: undefined }));
+    validation.clearError(key);
+    setServerMessage("");
     setSent(false);
   };
 
   const reset = () => {
     setValues(initialValues);
-    setErrors({});
+    validation.reset();
+    setServerMessage("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const validationErrors = validateEnquiry(values);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    if (!validation.checkForm(event.currentTarget)) return;
 
     setSubmitting(true);
     const productLabel = products.find((p) => p.id === values.productId)?.label;
@@ -68,8 +78,8 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
       setLastWaMsg(waMsg);
       reset();
       setSent(true);
-    } else if (res.message) {
-      setErrors((curr) => ({ ...curr, message: res.message }));
+    } else {
+      setServerMessage(res.message ?? "Please check the highlighted fields.");
     }
   };
 
@@ -86,7 +96,13 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
   const describedBy = (key: keyof EnquiryInput) => (errors[key] ? `${key}-error` : undefined);
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8">
+    <form
+      onSubmit={handleSubmit}
+      onBlur={validation.checkField}
+      noValidate
+      className="space-y-5 rounded-card border border-line bg-card p-5 card-shadow sm:p-8"
+    >
+      <FormAlert>{validation.summary ?? serverMessage}</FormAlert>
       {sent && (
         <div role="status" className="rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100">
           <div className="flex items-center gap-2.5 font-bold text-emerald-800 dark:text-emerald-300 text-base">
@@ -118,6 +134,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
             value={values.name}
             onChange={(e) => update("name", e.target.value)}
             autoComplete="name"
+            maxLength={ENQUIRY_LIMITS.name}
             aria-invalid={Boolean(errors.name)}
             aria-describedby={describedBy("name")}
             className={fieldClasses}
@@ -148,11 +165,14 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
             options={productOptions}
           />
         </FormField>
-        <FormField label="Quantity" htmlFor="quantity" hint="For example 2 x 20 L">
+        <FormField label="Quantity" htmlFor="quantity" error={errors.quantity} hint="For example 2 x 20 L">
           <input
             id="quantity"
             value={values.quantity}
             onChange={(e) => update("quantity", e.target.value)}
+            maxLength={ENQUIRY_LIMITS.quantity}
+            aria-invalid={Boolean(errors.quantity)}
+            aria-describedby={describedBy("quantity")}
             className={fieldClasses}
           />
         </FormField>
@@ -164,6 +184,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
           rows={4}
           value={values.message}
           onChange={(e) => update("message", e.target.value)}
+          maxLength={ENQUIRY_LIMITS.message}
           aria-invalid={Boolean(errors.message)}
           aria-describedby={describedBy("message")}
           className={`${fieldClasses} resize-y`}

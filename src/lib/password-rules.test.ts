@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, validatePasswordChange } from "@/lib/password-rules";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, validateLogin, validatePasswordChange } from "@/lib/password-rules";
+
+describe("validateLogin", () => {
+  it("asks for both details and accepts any filled-in pair", () => {
+    expect(validateLogin({ username: " ", password: "" })).toEqual({
+      username: "Enter your username",
+      password: "Enter your password",
+    });
+    expect(validateLogin({ username: "owner", password: "x" })).toEqual({});
+  });
+});
 
 const valid = { currentPassword: "old-password-1", newPassword: "green door 42 lamp", confirmPassword: "green door 42 lamp" };
 

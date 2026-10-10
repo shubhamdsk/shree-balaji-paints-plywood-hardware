@@ -94,7 +94,9 @@ src/
     admin/                        # owner panel forms and lists
   lib/
     product-input.ts              # product form rules shared by browser and server
+    price-units.ts                # price units and the sizes offered for each (a product's saved values stay valid)
     offer-input.ts                # offer form rules and the live / starts soon / ended status
+    gallery-input.ts              # gallery form rules and categories
     category-input.ts             # category and type form rules (name, position, search title and description)
     category-list.ts              # rows for the owner category and type lists
     legacy-routes.ts              # permanent redirects from the old category addresses

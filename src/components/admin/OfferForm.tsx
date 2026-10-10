@@ -4,7 +4,9 @@ import { startTransition, useActionState, useMemo, useState, type ChangeEvent, t
 import PhotoField from "@/components/admin/PhotoField";
 import AppLink from "@/components/ui/AppLink";
 import Button, { buttonClasses } from "@/components/ui/Button";
+import FormAlert from "@/components/ui/FormAlert";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
+import { useFormValidation } from "@/hooks/use-form-validation";
 import { usePhotoPicker } from "@/hooks/use-photo-picker";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { readOfferForm, validateOfferInput, type OfferFieldErrors, type OfferInput } from "@/lib/offer-input";
@@ -32,25 +34,24 @@ export default function OfferForm({ offer, copyFrom }: OfferFormProps) {
   );
   const [values, setValues] = useState(initial);
   const { photo, error: photoError, choose: choosePhoto } = usePhotoPicker();
-  const [clientErrors, setClientErrors] = useState<OfferFieldErrors>({});
+  const validation = useFormValidation<keyof OfferFieldErrors>((form) => {
+    const result = validateOfferInput(readOfferForm(new FormData(form)));
+    return result.ok ? {} : result.errors;
+  });
   const save = useMemo(
     () => saveOfferAction.bind(null, offer?.id ?? null, copyFrom?.id ?? null),
     [offer?.id, copyFrom?.id],
   );
   const [state, formAction, pending] = useActionState<OfferFormState, FormData>(save, {});
-  const errors: OfferFieldErrors = { ...state.errors, ...clientErrors, ...(photoError && { photo: photoError }) };
+  const errors: OfferFieldErrors = { ...state.errors, ...validation.errors, ...(photoError && { photo: photoError }) };
 
   const isDirty = photo !== null || (Object.keys(values) as Field[]).some((key) => values[key] !== initial[key]);
   useUnsavedChanges(isDirty && !pending);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!validation.checkForm(event.currentTarget)) return;
     const formData = new FormData(event.currentTarget);
-    const validation = validateOfferInput(readOfferForm(formData));
-    if (!validation.ok) {
-      setClientErrors(validation.errors);
-      return;
-    }
     if (photo) formData.set("photo", photo.blob, "photo.jpg");
     startTransition(() => formAction(formData));
   };
@@ -61,7 +62,7 @@ export default function OfferForm({ offer, copyFrom }: OfferFormProps) {
     value: values[field],
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setValues((current) => ({ ...current, [field]: event.target.value }));
-      setClientErrors((current) => ({ ...current, [field]: undefined }));
+      validation.clearError(field);
     },
     "aria-invalid": errors[field] ? true : undefined,
     "aria-describedby": errors[field] ? `${field}-error` : undefined,
@@ -69,12 +70,8 @@ export default function OfferForm({ offer, copyFrom }: OfferFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6">
-      {state.message && (
-        <p role="alert" className="rounded-xl bg-accent-50 px-4 py-3 text-sm font-semibold text-accent-700">
-          {state.message}
-        </p>
-      )}
+    <form onSubmit={handleSubmit} onBlur={validation.checkField} noValidate className="space-y-6">
+      <FormAlert>{validation.summary ?? state.message}</FormAlert>
 
       <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-2 sm:p-6">
         <div className="sm:col-span-2">

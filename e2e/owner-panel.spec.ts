@@ -82,9 +82,13 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await page.getByLabel(/Brand/).fill("Century");
     await choose(page, "Category", "Plywood & Boards");
     await choose(page, "Type", "BWP / Marine Plywood");
-    await page.getByLabel(/Sizes/).fill("8 x 4 ft");
+    await choose(page, "Price unit", "Sheet");
+    await page.getByRole("button", { name: /^Sizes:/ }).click();
+    await page.getByRole("option", { name: "8 x 4 ft", exact: true }).click();
+    await page.getByRole("option", { name: "18 mm", exact: true }).click();
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(page.getByRole("button", { name: "Sizes: 8 x 4 ft, 18 mm" })).toBeVisible();
     await page.getByLabel(/Starting price/).fill("1250");
-    await page.getByLabel(/Price unit/).fill("per sheet");
     await page.getByLabel(/Photo/).setInputFiles(PHOTO);
     await expect(page.getByRole("img", { name: "New photo" })).toBeVisible();
     await page.getByRole("button", { name: "Save product" }).click();

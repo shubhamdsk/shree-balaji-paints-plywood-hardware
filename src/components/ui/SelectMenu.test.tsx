@@ -70,4 +70,48 @@ describe("SelectMenu", () => {
     await user.click(document.body);
     expect(screen.queryByRole("listbox")).toBeNull();
   });
+
+  it("shows a placeholder and can't open while disabled", async () => {
+    const { user } = renderWithProviders(
+      <SelectMenu label="Size" value="" onChange={() => {}} options={[]} placeholder="Choose a unit first" disabled />,
+    );
+    const trigger = screen.getByRole("button", { name: "Size: Choose a unit first" });
+    expect(trigger).toHaveProperty("disabled", true);
+    await user.click(trigger);
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+});
+
+const sizes: SelectOption[] = ["1 L", "4 L", "10 L", "20 L"].map((size) => ({ value: size, label: size }));
+
+function MultiHarness({ initial = [] }: { initial?: string[] }) {
+  const [value, setValue] = useState(initial);
+  return (
+    <SelectMenu label="Sizes" multiple value={value} onChange={setValue} options={sizes} placeholder="Choose sizes" />
+  );
+}
+
+describe("SelectMenu with multiple", () => {
+  it("ticks several options, keeps them in list order and stays open until Done", async () => {
+    const { user } = renderWithProviders(<MultiHarness />);
+    await user.click(screen.getByRole("button", { name: "Sizes: Choose sizes" }));
+    expect(screen.getByRole("listbox").getAttribute("aria-multiselectable")).toBe("true");
+
+    await user.click(screen.getByRole("option", { name: "20 L" }));
+    await user.click(screen.getByRole("option", { name: "1 L" }));
+    expect(screen.getByRole("option", { name: "20 L" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByText("2 selected")).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(screen.getByRole("button", { name: "Sizes: 1 L, 20 L" })).toBeDefined();
+  });
+
+  it("unticks an option that was selected", async () => {
+    const { user } = renderWithProviders(<MultiHarness initial={["1 L", "4 L"]} />);
+    await user.click(screen.getByRole("button", { name: "Sizes: 1 L, 4 L" }));
+    await user.keyboard("{Enter}");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button", { name: "Sizes: 4 L" })).toBeDefined();
+  });
 });

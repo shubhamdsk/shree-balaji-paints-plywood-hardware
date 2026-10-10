@@ -10,7 +10,7 @@ import { readProductForm, validateProductInput, type ProductFieldErrors } from "
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
 import { deletePhoto, savePhoto } from "@/server/storage/photos";
-import { createProduct, setProductFlag, updateProduct } from "@/services/admin-product-service";
+import { createProduct, getAdminProduct, setProductFlag, updateProduct } from "@/services/admin-product-service";
 import { getCategoryGroups } from "@/services/catalog-service";
 
 export interface ProductFormState {
@@ -30,7 +30,8 @@ export async function saveProductAction(
   formData: FormData,
 ): Promise<ProductFormState> {
   const owner = await requireOwner();
-  const validation = validateProductInput(readProductForm(formData), await getCategoryGroups());
+  const saved = productId ? await getAdminProduct(productId) : undefined;
+  const validation = validateProductInput(readProductForm(formData), await getCategoryGroups(), saved);
   const upload = await readPhotoUpload(formData.get("photo"));
   if (!validation.ok || !upload.ok) {
     return {
