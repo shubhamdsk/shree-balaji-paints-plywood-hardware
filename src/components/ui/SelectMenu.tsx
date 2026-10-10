@@ -160,7 +160,7 @@ export default function SelectMenu(props: SelectMenuProps) {
         }}
         className={`${fieldClasses} flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 ${invalid ? "border-accent-600" : ""}`}
       >
-        <span className={`truncate ${selectedLabels.length === 0 && placeholder ? "text-subtle" : ""}`}>{display}</span>
+        <span className={`min-w-0 truncate ${selectedLabels.length === 0 && placeholder ? "text-subtle" : ""}`}>{display}</span>
         <ChevronDown
           aria-hidden
           className={`h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
