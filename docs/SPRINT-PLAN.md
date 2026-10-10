@@ -18,7 +18,7 @@ Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) 
 | **Enquiry inbox** | Every website enquiry is saved and listed in the owner panel, and still opens in WhatsApp | Sprint 2 |
 | **Smart features** | Paint calculator (enhanced with room presets, area breakdown & primer/putty estimates), our work gallery, category management, dated offer banners | Sprint 2-3 |
 | **Google presence** | Google Business Profile, Search Console, sitemap.xml, robots.txt, LocalBusiness JSON-LD | Done |
-| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan, then to Cloudflare Workers' free plan when Netlify's free credits ran out (both allow commercial use). Photos move from Netlify Blobs to Neon Object Storage | In progress |
+| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan, then to Cloudflare Workers' free plan when Netlify's free credits ran out (both allow commercial use). Photos move from Netlify Blobs to Neon Object Storage | Done |
 
 Billing software is **not** part of this plan.
 
@@ -210,11 +210,11 @@ Billing software is **not** part of this plan.
 
 ### Done when
 
-- [ ] Offers appear and disappear on their dates.
+- [x] Offers appear and disappear on their dates (owner panel `/admin/offers`, with copy for next year).
 - [x] The gallery works, with confirmation before deleting.
 - [x] Every enquiry is saved and still opens in WhatsApp.
 - [x] The enquiry inbox is visible only to the owner.
-- [ ] The daily backup runs.
+- [ ] The daily backup runs (built: a Cloudflare cron at 2:00 AM India time; tick once the first backup file appears in the bucket).
 
 ---
 

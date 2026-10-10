@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import type { ProductDetails } from "@/types";
 
 export const adminUsers = pgTable("admin_users", {
@@ -105,11 +105,27 @@ export const gallery = pgTable("gallery", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const offers = pgTable(
+  "offers",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    image: text("image"),
+    startsOn: date("starts_on", { mode: "string" }).notNull(),
+    endsOn: date("ends_on", { mode: "string" }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("offers_ends_on_idx").on(table.endsOn)],
+);
+
 export type CategoryRow = typeof categories.$inferSelect;
 export type SubcategoryRow = typeof subcategories.$inferSelect;
 export type ProductRow = typeof products.$inferSelect;
 export type EnquiryRow = typeof enquiries.$inferSelect;
 export type GalleryRow = typeof gallery.$inferSelect;
+export type OfferRow = typeof offers.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
 
 

@@ -6,25 +6,26 @@ import { AwsClient } from "aws4fetch";
 import { PHOTO_KEY_PATTERN, PHOTO_TYPES, photoTypeFromKey, type PhotoType } from "@/lib/photo";
 
 const BUCKET = "product-photos";
+const BACKUP_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-interface PhotoStore {
-  set(key: string, data: Uint8Array): Promise<void>;
+interface FileStore {
+  set(key: string, data: Uint8Array, contentType: string): Promise<void>;
   get(key: string): Promise<ArrayBuffer | null>;
   delete(key: string): Promise<void>;
 }
 
 async function expectOk(response: Response, action: string) {
-  if (!response.ok) throw new Error(`Photo ${action} failed with status ${response.status}`);
+  if (!response.ok) throw new Error(`Storage ${action} failed with status ${response.status}`);
 }
 
-function bucketStore(endpoint: string, client: AwsClient): PhotoStore {
+function bucketStore(endpoint: string, client: AwsClient): FileStore {
   const objectUrl = (key: string) => `${endpoint.replace(/\/+$/, "")}/${BUCKET}/${key}`;
   return {
-    set: async (key, data) => {
+    set: async (key, data, contentType) => {
       const response = await client.fetch(objectUrl(key), {
         method: "PUT",
         body: data.slice(),
-        headers: { "Content-Type": photoTypeFromKey(key) },
+        headers: { "Content-Type": contentType },
       });
       await expectOk(response, "upload");
     },
@@ -41,11 +42,12 @@ function bucketStore(endpoint: string, client: AwsClient): PhotoStore {
   };
 }
 
-function folderStore(folder: string): PhotoStore {
+function folderStore(folder: string): FileStore {
   return {
     set: async (key, data) => {
-      await mkdir(folder, { recursive: true });
-      await writeFile(path.join(folder, key), data);
+      const file = path.join(folder, key);
+      await mkdir(path.dirname(file), { recursive: true });
+      await writeFile(file, data);
     },
     get: async (key) => {
       try {
@@ -59,7 +61,7 @@ function folderStore(folder: string): PhotoStore {
   };
 }
 
-function photoStore(): PhotoStore {
+function fileStore(): FileStore {
   const { AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
   if (AWS_ENDPOINT_URL_S3 && AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
     const client = new AwsClient({
@@ -75,16 +77,35 @@ function photoStore(): PhotoStore {
 
 export async function savePhoto(data: Uint8Array, type: PhotoType) {
   const key = `${randomUUID()}.${PHOTO_TYPES[type]}`;
-  await photoStore().set(key, data);
+  await fileStore().set(key, data, photoTypeFromKey(key));
   return key;
 }
 
 export async function readPhoto(key: string) {
   if (!PHOTO_KEY_PATTERN.test(key)) return null;
-  return photoStore().get(key);
+  return fileStore().get(key);
 }
 
 export async function deletePhoto(key: string) {
   if (!PHOTO_KEY_PATTERN.test(key)) return;
-  await photoStore().delete(key);
+  await fileStore().delete(key);
+}
+
+function backupKey(date: string) {
+  if (!BACKUP_DATE_PATTERN.test(date)) throw new Error(`Invalid backup date: ${date}`);
+  return `backups/${date}.json`;
+}
+
+export async function saveBackup(date: string, json: string) {
+  const key = backupKey(date);
+  await fileStore().set(key, new TextEncoder().encode(json), "application/json");
+  return key;
+}
+
+export async function readBackup(date: string) {
+  return fileStore().get(backupKey(date));
+}
+
+export async function deleteBackup(date: string) {
+  await fileStore().delete(backupKey(date));
 }

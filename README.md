@@ -177,9 +177,9 @@ To publish changes, open a pull request from `develop` into `main`, wait for CI 
 
 Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sprints):
 
-- Owner panel at `/admin`: products, photos, prices and stock status (**Sprint 1, built**); offers and gallery next
-- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
-- Our work gallery, dated offer banners
+- Owner panel at `/admin`: products, photos, prices and stock status, categories, dated offers and the work gallery (**built**)
+- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp (**built**)
+- Daily backup to Neon Object Storage at 2:00 AM India time, keeping 30 days (**built**)
 - Google Business Profile and Search Console
 - Data on Neon Postgres, photos on Neon Object Storage ([Architecture](docs/ARCHITECTURE.md))
 

@@ -15,15 +15,20 @@ import ProductCard from "@/components/products/ProductCard";
 import { countProducts, HOME_FEATURED_LIMIT } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
 import { getCategories, getFeaturedProducts, getPopularBrands, getProducts } from "@/services/catalog-service";
+import { getLiveOffers } from "@/services/offer-service";
 
 const section = "container-page py-14 sm:py-16 lg:py-20";
 
+// Dated offers start and end at midnight with no owner save to refresh the page.
+export const revalidate = 3600;
+
 export default async function Home() {
-  const [categories, featured, popularBrands, products] = await Promise.all([
+  const [categories, featured, popularBrands, products, datedOffers] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
     getPopularBrands(),
     getProducts(),
+    getLiveOffers(),
   ]);
   const counts = Object.fromEntries(categories.map((c) => [c.id, countProducts(products, c.id)]));
 
@@ -103,7 +108,7 @@ export default async function Home() {
             href={ROUTES.offers}
             linkLabel="All offers"
           />
-          <OfferCards />
+          <OfferCards datedOffers={datedOffers} />
         </div>
       </section>
 

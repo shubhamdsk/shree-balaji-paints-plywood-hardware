@@ -33,9 +33,10 @@
   "images": {
     "binding": "IMAGES",
   },
-  // Keeps the Neon database awake by calling /api/health.
+  // Every 3 minutes keeps the Neon database awake through /api/health. 20:30 UTC (2:00 AM India) runs the
+  // daily backup; it must match DAILY_BACKUP_CRON in src/lib/backup-token.ts.
   "triggers": {
-    "crons": ["*/3 * * * *"],
+    "crons": ["*/3 * * * *", "30 20 * * *"],
   },
   "vars": {
     "SITE_URL": "https://shree-balaji.shreebalajipaints.workers.dev",

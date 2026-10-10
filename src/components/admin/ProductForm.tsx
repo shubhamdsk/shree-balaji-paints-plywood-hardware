@@ -1,16 +1,15 @@
 "use client";
 
-import Image from "next/image";
-import { startTransition, useActionState, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { startTransition, useActionState, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import PhotoField from "@/components/admin/PhotoField";
 import AppLink from "@/components/ui/AppLink";
 import Button, { buttonClasses } from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import SelectMenu from "@/components/ui/SelectMenu";
+import { usePhotoPicker } from "@/hooks/use-photo-picker";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { HOME_FEATURED_LIMIT } from "@/lib/catalog";
-import { MAX_PHOTO_BYTES, PHOTO_ACCEPT, PHOTO_TYPES } from "@/lib/photo";
 import { readProductForm, validateProductInput, type ProductField, type ProductFieldErrors } from "@/lib/product-input";
-import { resizePhoto } from "@/lib/resize-photo";
 import { ROUTES } from "@/lib/routes";
 import { saveProductAction, type ProductFormState } from "@/server/actions/products";
 import type { AdminProduct, CategoryGroup } from "@/types";
@@ -53,18 +52,14 @@ function initialValues(product?: AdminProduct): FormValues {
 export default function ProductForm({ product, categoryGroups }: ProductFormProps) {
   const initial = useMemo(() => initialValues(product), [product]);
   const [values, setValues] = useState(initial);
-  const [photo, setPhoto] = useState<{ blob: Blob; preview: string } | null>(null);
+  const { photo, error: photoError, choose: choosePhoto } = usePhotoPicker();
   const [clientErrors, setClientErrors] = useState<ProductFieldErrors>({});
   const save = useMemo(() => saveProductAction.bind(null, product?.id ?? null), [product?.id]);
   const [state, formAction, pending] = useActionState<ProductFormState, FormData>(save, {});
-  const errors: ProductFieldErrors = { ...state.errors, ...clientErrors };
+  const errors: ProductFieldErrors = { ...state.errors, ...clientErrors, ...(photoError && { photo: photoError }) };
 
   const isDirty = photo !== null || (Object.keys(values) as (keyof FormValues)[]).some((key) => values[key] !== initial[key]);
   useUnsavedChanges(isDirty && !pending);
-
-  useEffect(() => () => {
-    if (photo) URL.revokeObjectURL(photo.preview);
-  }, [photo]);
 
   const group = categoryGroups.find((g) => g.id === values.category);
   const categoryOptions = [
@@ -85,26 +80,6 @@ export default function ProductForm({ product, categoryGroups }: ProductFormProp
       return next;
     });
     clearError(key);
-  };
-
-  const handlePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    clearError("photo");
-    if (!file) return;
-    if (!(file.type in PHOTO_TYPES)) {
-      setClientErrors((current) => ({ ...current, photo: "Choose a JPEG, PNG or WebP photo." }));
-      return;
-    }
-    if (file.size > MAX_PHOTO_BYTES) {
-      setClientErrors((current) => ({ ...current, photo: "This photo is over 8 MB. Choose a smaller one." }));
-      return;
-    }
-    try {
-      const blob = await resizePhoto(file);
-      setPhoto({ blob, preview: URL.createObjectURL(blob) });
-    } catch {
-      setClientErrors((current) => ({ ...current, photo: "This photo couldn't be read. Try another one." }));
-    }
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -191,39 +166,13 @@ export default function ProductForm({ product, categoryGroups }: ProductFormProp
         </div>
       </section>
 
-      <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-[1fr_auto] sm:p-6">
-        <FormField
-          label="Photo"
-          htmlFor="photo"
-          error={errors.photo}
-          hint="Take a photo with your phone or choose one. JPEG, PNG or WebP up to 8 MB."
-        >
-          <input
-            id="photo"
-            type="file"
-            accept={PHOTO_ACCEPT}
-            onChange={handlePhoto}
-            aria-invalid={errors.photo ? true : undefined}
-            aria-describedby={errors.photo ? "photo-error" : undefined}
-            className="block w-full text-sm text-muted file:mr-3 file:min-h-11 file:rounded-xl file:border-0 file:bg-surface-muted file:px-4 file:font-semibold file:text-heading"
-          />
-        </FormField>
-        {(photo || product?.image) && (
-          <figure className="w-32">
-            <div className="relative h-32 w-32 overflow-hidden rounded-xl border border-line bg-surface-muted">
-              <Image
-                src={photo?.preview ?? product?.image ?? ""}
-                alt={photo ? "New photo" : "Current photo"}
-                fill
-                sizes="128px"
-                unoptimized={Boolean(photo)}
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="mt-1 text-center text-xs text-muted">{photo ? "New photo" : "Current photo"}</figcaption>
-          </figure>
-        )}
-      </section>
+      <PhotoField
+        photo={photo}
+        currentImage={product?.image}
+        error={errors.photo}
+        hint="Take a photo with your phone or choose one. JPEG, PNG or WebP up to 8 MB."
+        onChoose={choosePhoto}
+      />
 
       <section className="flex flex-wrap gap-x-8 gap-y-3 rounded-card border border-line bg-card p-5 shadow-card sm:p-6">
         <label className="inline-flex min-h-11 items-center gap-3 font-semibold text-heading">

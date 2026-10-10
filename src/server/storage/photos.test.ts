@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deletePhoto, readPhoto, savePhoto } from "@/server/storage/photos";
+import { deleteBackup, deletePhoto, readBackup, readPhoto, saveBackup, savePhoto } from "@/server/storage/photos";
 
 const ENDPOINT = "https://storage.example.test";
 const bytes = new Uint8Array([1, 2, 3, 4]);
@@ -90,11 +90,36 @@ describe("photo storage", () => {
     it("fails the upload when the bucket rejects it", async () => {
       vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 403 })));
 
-      await expect(savePhoto(bytes, "image/png")).rejects.toThrow("Photo upload failed with status 403");
+      await expect(savePhoto(bytes, "image/png")).rejects.toThrow("Storage upload failed with status 403");
+    });
+
+    it("stores backups as JSON under backups/ in the same bucket", async () => {
+      const bucket = fakeBucket();
+      vi.stubGlobal("fetch", bucket.fetchMock);
+
+      await saveBackup("2026-10-10", '{"ok":true}');
+
+      expect(bucket.requests[0]).toMatchObject({
+        method: "PUT",
+        url: `${ENDPOINT}/product-photos/backups/2026-10-10.json`,
+        signed: true,
+        contentType: "application/json",
+      });
     });
   });
 
-  it("ignores keys that are not photo keys", async () => {
+  it("ignores keys that are not photo keys, so backups can't be read through the photo route", async () => {
+    await saveBackup("2026-10-10", "{}");
     expect(await readPhoto("../.env.local")).toBeNull();
+    expect(await readPhoto("backups/2026-10-10.json")).toBeNull();
+  });
+
+  it("saves, reads and deletes backups by date, and refuses other names", async () => {
+    await saveBackup("2026-10-10", '{"ok":true}');
+    expect(new TextDecoder().decode((await readBackup("2026-10-10"))!)).toBe('{"ok":true}');
+
+    await deleteBackup("2026-10-10");
+    expect(await readBackup("2026-10-10")).toBeNull();
+    await expect(saveBackup("../secrets", "{}")).rejects.toThrow("Invalid backup date");
   });
 });
