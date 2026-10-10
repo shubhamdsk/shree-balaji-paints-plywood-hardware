@@ -12,10 +12,10 @@ afterEach(() => {
 });
 
 describe("MobileNav", () => {
-  it("links to home, products, categories and contact", () => {
+  it("links to home, products, offers and contact", () => {
     renderWithProviders(<MobileNav />);
     const nav = within(screen.getByRole("navigation", { name: "Quick links" }));
-    expect(nav.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/", "/products", "/categories", "/contact"]);
+    expect(nav.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/", "/products", "/offers", "/contact"]);
   });
 
   it("marks the section of the current page", () => {
