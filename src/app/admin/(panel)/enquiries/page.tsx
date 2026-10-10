@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import AdminEnquiryList from "@/components/admin/AdminEnquiryList";
 import { requireOwner } from "@/server/auth/guard";
-import { listAdminEnquiries } from "@/services/enquiry-service";
+import { getEnquiryCounts, listAdminEnquiries } from "@/services/enquiry-service";
 
 export const metadata: Metadata = { title: "Enquiries & Leads | Owner Panel" };
 
 export default async function AdminEnquiriesPage() {
   await requireOwner();
-  const enquiries = await listAdminEnquiries("all");
+  const [page, counts] = await Promise.all([listAdminEnquiries(), getEnquiryCounts()]);
 
   return (
     <div className="space-y-6">
@@ -18,7 +18,7 @@ export default async function AdminEnquiriesPage() {
         </p>
       </div>
 
-      <AdminEnquiryList initialEnquiries={enquiries} />
+      <AdminEnquiryList initialPage={page} initialCounts={counts} />
     </div>
   );
 }

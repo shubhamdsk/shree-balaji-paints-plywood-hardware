@@ -63,8 +63,8 @@ flowchart LR
 | Photos | Neon Object Storage | Uploaded photos in the `product-photos` bucket (declared in `neon.ts`, one per Neon branch), reached over the S3 API with `aws4fetch` because the AWS SDK would not fit the worker size limit. Without the `AWS_*` variables, photos are saved in `.data/photos` |
 | Images | `next/image` through Cloudflare Images (the `IMAGES` binding) | The browser shrinks a photo to at most 1600 px before upload; Cloudflare serves WebP or AVIF |
 | Validation | Zod | Every admin action and the enquiry action, with the same rules in the browser and on the server |
-| Caching | `unstable_cache` with a tag per area (`catalog`, `offers`, `gallery`, ...), `updateTag` after each owner save | Pages stay cached until the owner changes something. The home and offers pages also refresh every hour, so dated offers start and end at midnight on their own |
-| Scheduled jobs | Cloudflare cron triggers in `wrangler.jsonc`, handled in `worker.ts` | Calls `/api/health` every 3 minutes to keep Neon awake, and `/api/backup` daily at 2:00 AM India time |
+| Caching | `unstable_cache` with scoped tags (per product, category and brand, plus the product index, featured list, offers and gallery; see 6.1), `updateTag` after each owner save | Pages stay cached until the owner changes something they show. The home and offers pages also refresh every hour, so dated offers start and end within an hour of midnight India time |
+| Scheduled jobs | Cloudflare cron trigger in `wrangler.jsonc`, handled in `worker.ts` | Calls `/api/backup` daily at 2:00 AM India time. Neon scales to zero when idle and wakes on the next query |
 
 Before building, read the relevant guides in `node_modules/next/dist/docs/` (caching, revalidation, Server Actions, authentication). Next.js 16 has breaking changes; see [AGENTS.md](../AGENTS.md).
 
@@ -162,19 +162,30 @@ sequenceDiagram
   A->>A: store photo in Neon Object Storage (if new)
   A->>DB: insert or update product, write audit_log
   A->>A: delete the replaced photo
-  A->>C: updateTag("catalog")
+  A->>C: updateTag for each tag from productChangeTags(before, after)
   A-->>O: saved
   Note over C: next visitor gets freshly rendered pages
 ```
 
-Product, brand, enquiry and paint-calculator pages render on demand for new ids (`dynamicParams` on), and are cached after the first visit. A hidden product's page returns 404 once the cache is refreshed.
+Only the category list and type pages are rendered at build time. Product, brand, enquiry and paint-calculator pages return no ids from `generateStaticParams`, so each one renders on its first visit and is cached after that (`dynamicParams` on). Every page rendered at build is written to Workers KV on each deploy, and the free plan allows 1,000 KV writes a day. `/api/products/[id]` is a plain dynamic route handler that reads the tagged product cache. A hidden product's page returns 404 once the cache is refreshed.
+
+Cache tags are scoped so one product save doesn't refresh the whole catalogue. `productChangeTags` in `src/lib/cache-tags.ts` maps a change to the reads that depend on it:
+
+| Change | Tags refreshed | Pages affected |
+|--------|----------------|----------------|
+| Any product save or switch | `products`, `product:{id}`, `category-products:{category}` and `brand-products:{brand}` for the old and new values | `/products`, that product's page, its category and type pages, its brand page |
+| Product is or was on the home page | also `featured-products` | home page |
+| New product, or its name, brand, category, type or visibility changed | also `product-index` | sidebar counts, home and categories counts, brands list, enquiry picker, sitemap |
+| Category or type saved or deleted | `catalog-structure` (on every catalogue read) | every catalogue page |
+
+Enquiries aren't cached: the owner's inbox renders per request, so saving one refreshes nothing.
 
 The stock, home-page and hide switches in the product list call `setProductFlagAction`, which follows the same steps without a photo.
 
 ### 6.2 Customer sends an enquiry
 
-1. The form is validated in the browser and posted to the `saveEnquiry` action (Zod, honeypot, rate limit).
-2. The action stores the enquiry and returns success.
+1. The form is validated in the browser and posted to `submitEnquiryAction`, which runs the same rules from `src/lib/enquiry.ts`.
+2. A filled hidden `website` field (the honeypot) gets a success reply without saving. Otherwise the action allows 5 enquiries an hour per visitor and 200 a day in total; the visitor is identified by an HMAC of `cf-connecting-ip` keyed with `SESSION_SECRET`, so no IP address is stored. The action stores the enquiry and returns success.
 3. The browser opens WhatsApp with the same message as today.
 4. If step 1 or 2 fails, the browser still opens WhatsApp, so the owner always receives it.
 

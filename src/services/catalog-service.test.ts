@@ -94,6 +94,44 @@ describe("catalog-service with the database", () => {
     const { getPopularBrands } = await loadService();
     expect(await getPopularBrands()).toContain("Asian Paints");
   });
+
+  it("reads only one category's products, in the catalogue order", async () => {
+    const { getCategoryProducts, getCatalogProducts } = await loadService();
+    const paints = await getCategoryProducts("paints");
+    expect(paints.length).toBeGreaterThan(0);
+    expect(paints.every((p) => p.category === "paints")).toBe(true);
+    const all = await getCatalogProducts();
+    expect(paints.map((p) => p.id)).toEqual(all.filter((p) => p.category === "paints").map((p) => p.id));
+  });
+
+  it("keeps the light index in step with the visible products", async () => {
+    await db().update(products).set({ isVisible: false }).where(eq(products.id, "ap-royale-luxury"));
+    const { getProductIndex, getProducts } = await loadService();
+    const index = await getProductIndex();
+    expect(index.map((p) => p.id).sort()).toEqual((await getProducts()).map((p) => p.id).sort());
+    expect(Object.keys(index[0]).sort()).toEqual(["brand", "category", "id", "name", "type"]);
+  });
+
+  it("finds a brand by its slug and reads only that brand's products", async () => {
+    const { findBrand, getBrandProducts } = await loadService();
+    expect(await findBrand("asian-paints")).toBe("Asian Paints");
+    expect(await findBrand("no-such-brand")).toBeUndefined();
+    const products = await getBrandProducts("Asian Paints");
+    expect(products.length).toBeGreaterThan(0);
+    expect(products.every((p) => p.brand === "Asian Paints")).toBe(true);
+  });
+
+  it("shows the first gallery photo on catalogue cards, falling back to the main photo", async () => {
+    await db()
+      .update(products)
+      .set({ image: "/main.jpg", details: { gallery: ["/gallery-1.jpg", "/gallery-2.jpg"] } })
+      .where(eq(products.id, "ap-royale-luxury"));
+    await db().update(products).set({ image: "/only.jpg", details: {} }).where(eq(products.id, "ap-apex-ultima"));
+    const { getCatalogProducts } = await loadService();
+    const cards = await getCatalogProducts();
+    expect(cards.find((p) => p.id === "ap-royale-luxury")?.image).toBe("/gallery-1.jpg");
+    expect(cards.find((p) => p.id === "ap-apex-ultima")?.image).toBe("/only.jpg");
+  });
 });
 
 describe("catalog-service with an external backend", () => {

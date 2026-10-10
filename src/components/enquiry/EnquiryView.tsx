@@ -1,9 +1,9 @@
 import EnquiryForm from "@/components/enquiry/EnquiryForm";
 import PageHeader from "@/components/ui/PageHeader";
-import { getProducts } from "@/services/catalog-service";
+import { getProductIndex } from "@/services/catalog-service";
 
 export default async function EnquiryView({ productId = "" }: { productId?: string }) {
-  const products = await getProducts();
+  const products = await getProductIndex();
   const options = products
     .map((p) => ({ id: p.id, label: `${p.brand} ${p.name}` }))
     .sort((a, b) => a.label.localeCompare(b.label));

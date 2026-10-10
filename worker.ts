@@ -17,10 +17,6 @@ async function runDailyBackup(env: CloudflareEnv, ctx: ExecutionContext) {
 export default {
   fetch: handler.fetch,
   scheduled(event: ScheduledController, env: CloudflareEnv, ctx: ExecutionContext) {
-    if (event.cron === DAILY_BACKUP_CRON) {
-      ctx.waitUntil(runDailyBackup(env, ctx));
-      return;
-    }
-    ctx.waitUntil(handler.fetch(new Request(`https://worker.internal${API_ENDPOINTS.health}`), env, ctx));
+    if (event.cron === DAILY_BACKUP_CRON) ctx.waitUntil(runDailyBackup(env, ctx));
   },
 } satisfies ExportedHandler<CloudflareEnv>;

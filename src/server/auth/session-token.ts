@@ -13,6 +13,10 @@ export function createSessionToken() {
   return randomBytes(32).toString("base64url");
 }
 
+export function keyedHash(value: string) {
+  return createHmac("sha256", sessionSecret()).update(value).digest("hex");
+}
+
 export function hashSessionToken(token: string) {
-  return createHmac("sha256", sessionSecret()).update(token).digest("hex");
+  return keyedHash(token);
 }

@@ -1,10 +1,23 @@
-import { desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gt, ilike, lt, or, sql } from "drizzle-orm";
 import type { EnquiryInput } from "@/lib/enquiry";
 import { writeAudit } from "@/server/audit";
 import { getDb, withTransaction } from "@/server/db/client";
 import { enquiries, type EnquiryRow } from "@/server/db/schema";
 import { getAdminProduct } from "@/services/admin-product-service";
-import type { AdminUser, EnquiryRecord, EnquiryStatus } from "@/types";
+import type {
+  AdminUser,
+  EnquiryCounts,
+  EnquiryCursor,
+  EnquiryPage,
+  EnquiryQuery,
+  EnquiryRecord,
+  EnquiryStatus,
+} from "@/types";
+
+export const ENQUIRY_PAGE_SIZE = 50;
+export const ENQUIRY_LIMITS = { perClientPerHour: 5, perDay: 200 } as const;
+const HOUR_MS = 3_600_000;
+const DAY_MS = 24 * HOUR_MS;
 
 function toEnquiryRecord(row: EnquiryRow): EnquiryRecord {
   return {
@@ -22,7 +35,7 @@ function toEnquiryRecord(row: EnquiryRow): EnquiryRecord {
   };
 }
 
-export async function createCustomerEnquiry(input: EnquiryInput): Promise<EnquiryRecord> {
+export async function createCustomerEnquiry(input: EnquiryInput, clientHash?: string | null): Promise<EnquiryRecord> {
   const db = await getDb();
   let productName: string | undefined;
 
@@ -45,6 +58,7 @@ export async function createCustomerEnquiry(input: EnquiryInput): Promise<Enquir
       quantity: input.quantity ? input.quantity.trim() : null,
       message: input.message.trim(),
       status: "new",
+      clientHash: clientHash ?? null,
       createdAt: now,
       updatedAt: now,
     })
@@ -53,25 +67,67 @@ export async function createCustomerEnquiry(input: EnquiryInput): Promise<Enquir
   return toEnquiryRecord(row);
 }
 
-export async function listAdminEnquiries(statusFilter?: EnquiryStatus | "all"): Promise<EnquiryRecord[]> {
-  const db = await getDb();
-  const rows = await db.select().from(enquiries).orderBy(desc(enquiries.createdAt));
-  const records = rows.map(toEnquiryRecord);
+const SEARCHED_COLUMNS = [enquiries.name, enquiries.phone, enquiries.productName, enquiries.message, enquiries.notes];
 
-  if (!statusFilter || statusFilter === "all") {
-    return records;
-  }
-  return records.filter((r) => r.status === statusFilter);
+function matchesEveryWord(search: string) {
+  const words = search.toLowerCase().split(/\s+/).filter(Boolean);
+  return words.map((word) => {
+    const pattern = `%${word.replace(/[\\%_]/g, "\\$&")}%`;
+    return or(...SEARCHED_COLUMNS.map((column) => ilike(column, pattern)));
+  });
 }
 
-export async function getEnquiryCounts() {
-  const records = await listAdminEnquiries("all");
-  return {
-    total: records.length,
-    newCount: records.filter((r) => r.status === "new").length,
-    contacted: records.filter((r) => r.status === "contacted").length,
-    closed: records.filter((r) => r.status === "closed").length,
-  };
+function olderThan(cursor: EnquiryCursor) {
+  const createdAt = new Date(cursor.createdAt);
+  return or(lt(enquiries.createdAt, createdAt), and(eq(enquiries.createdAt, createdAt), lt(enquiries.id, cursor.id)));
+}
+
+export async function listAdminEnquiries(
+  { status = "all", search = "", after }: EnquiryQuery = {},
+  pageSize = ENQUIRY_PAGE_SIZE,
+): Promise<EnquiryPage> {
+  const db = await getDb();
+  const rows = await db
+    .select()
+    .from(enquiries)
+    .where(
+      and(
+        status === "all" ? undefined : eq(enquiries.status, status),
+        ...matchesEveryWord(search),
+        after && olderThan(after),
+      ),
+    )
+    .orderBy(desc(enquiries.createdAt), desc(enquiries.id))
+    .limit(pageSize + 1);
+  const items = rows.slice(0, pageSize).map(toEnquiryRecord);
+  const last = items.at(-1);
+  return { items, next: rows.length > pageSize && last ? { createdAt: last.createdAt, id: last.id } : null };
+}
+
+export async function getEnquiryCounts(): Promise<EnquiryCounts> {
+  const db = await getDb();
+  const rows = await db.select({ status: enquiries.status, total: count() }).from(enquiries).groupBy(enquiries.status);
+  const counts: EnquiryCounts = { all: 0, new: 0, contacted: 0, closed: 0 };
+  for (const row of rows) {
+    counts.all += row.total;
+    if (row.status in counts) counts[row.status as EnquiryStatus] += row.total;
+  }
+  return counts;
+}
+
+export async function isEnquiryLimitReached(clientHash: string | null, now = new Date()): Promise<boolean> {
+  const db = await getDb();
+  const hourAgo = new Date(now.getTime() - HOUR_MS);
+  const [row] = await db
+    .select({
+      today: count(),
+      fromClient: clientHash
+        ? count(sql`case when ${enquiries.clientHash} = ${clientHash} and ${enquiries.createdAt} > ${hourAgo.toISOString()} then 1 end`)
+        : sql<number>`0`.mapWith(Number),
+    })
+    .from(enquiries)
+    .where(gt(enquiries.createdAt, new Date(now.getTime() - DAY_MS)));
+  return row.today >= ENQUIRY_LIMITS.perDay || row.fromClient >= ENQUIRY_LIMITS.perClientPerHour;
 }
 
 export async function updateEnquiryStatus(

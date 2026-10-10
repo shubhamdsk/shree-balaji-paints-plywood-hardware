@@ -57,7 +57,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 - All database access goes through `src/services/*` and `src/server/*`. Pages and components never import the database client.
 - An owner action that changes more than one table runs inside one `withTransaction(...)` from `@/server/db/client`. Never call `db.transaction(...)` directly: Neon's HTTP driver in production rejects it, and PGlite in tests doesn't.
-- After a successful save, the action calls `updateTag(...)` for the affected cache tags from `src/lib/cache-tags.ts`. Reads in services are wrapped in `unstable_cache(..., { tags: [...] })`.
+- After a successful save, the action calls `updateTag(...)` for the affected cache tags from `src/lib/cache-tags.ts` (for products, every tag `productChangeTags(before, after)` returns). Reads in services are wrapped in `unstable_cache(..., { tags: [...] })`.
 - Without `DATABASE_URL` the app uses PGlite, so tests run against real Postgres. Tests that touch the database call `setupTestDatabase()` from `@/test/db`, which reseeds before each test.
 - Server code under `src/server` starts with `import "server-only"` when it reads secrets, cookies or the database. Client components may import only Server Actions from `src/server/actions`.
 - **Migrations:**
@@ -71,7 +71,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 - Every owner Server Action and admin Route Handler starts with:
   1. `await requireOwner()`
   2. `schema.parse(input)` with Zod
-- The public enquiry action validates with Zod, checks the honeypot and the rate limit, and never needs a session.
+- The public enquiry action validates with the shared rules in `src/lib/enquiry.ts`, checks the honeypot and the rate limit (5 an hour per visitor, 200 a day), and never needs a session.
 - Share Zod schemas between form validation (client) and the server, but **always validate again on the server**. The rules live in `src/lib` (`product-input.ts`, `offer-input.ts`, `category-input.ts`, `gallery-input.ts`, `enquiry.ts`, `password-rules.ts`).
 - Every form validates in the browser before it submits, through `useFormValidation` from `@/hooks/use-form-validation`: a field is checked when it loses focus, the whole form on submit (the first invalid field gets focus), and each error clears as the field is edited. Each error shows under its field, linked with `aria-describedby`, and the count shows in a `FormAlert` above the save button.
 - Fixed choices (price unit, sizes, category) are `SelectMenu` lists, not free text. Sizes come from the unit's list in `src/lib/price-units.ts`; a product's already-saved unit and sizes stay valid when it's edited, so old data never blocks a save.

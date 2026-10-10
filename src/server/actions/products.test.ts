@@ -113,7 +113,9 @@ describe("saveProductAction", () => {
     await expect(saveProductAction(null, {}, productForm({}, new Blob([JPEG])))).rejects.toEqual(
       redirectsTo(ROUTES.adminProducts),
     );
-    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.catalog);
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.product("weatherbond-advance"));
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.category("paints"));
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.productIndex);
 
     const product = await getAdminProduct("weatherbond-advance");
     expect(product).toMatchObject({ priceFrom: 295, sizes: ["1 L", "4 L"], inStock: true, featured: false });
@@ -141,11 +143,22 @@ describe("saveProductAction", () => {
 describe("setProductFlagAction", () => {
   beforeEach(logInAsOwner);
 
-  it("updates the flag and refreshes the website", async () => {
-    const [product] = await getProducts();
+  it("updates the flag and refreshes only the pages that show that product", async () => {
+    const [product, other] = await getProducts();
     expect(await setProductFlagAction(product.id, "inStock", false)).toEqual({ ok: true });
     expect((await getAdminProduct(product.id))?.inStock).toBe(false);
-    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.catalog);
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.product(product.id));
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.category(product.category));
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.brand(product.brand));
+    expect(updateTag).not.toHaveBeenCalledWith(CACHE_TAGS.product(other.id));
+    expect(updateTag).not.toHaveBeenCalledWith(CACHE_TAGS.productIndex);
+    expect(updateTag).not.toHaveBeenCalledWith(CACHE_TAGS.structure);
+  });
+
+  it("refreshes the product list everywhere when a product is hidden", async () => {
+    const [product] = await getProducts();
+    await setProductFlagAction(product.id, "isVisible", false);
+    expect(updateTag).toHaveBeenCalledWith(CACHE_TAGS.productIndex);
   });
 
   it("rejects unknown flags and missing products", async () => {

@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import CatalogView from "@/components/products/CatalogView";
 import ProductDetailView from "@/components/products/ProductDetailView";
 import { categoryPageMeta } from "@/lib/catalog";
-import { getCategoryGroups, getProductById, getProducts } from "@/services/catalog-service";
+import { getCategoryGroups, getProductById } from "@/services/catalog-service";
 
+// Product pages render on their first visit instead of at build: every prerendered page costs a KV write per deploy.
 export async function generateStaticParams() {
-  const [products, groups] = await Promise.all([getProducts(), getCategoryGroups()]);
-  return [...groups.map((g) => ({ slug: g.id })), ...products.map((p) => ({ slug: p.id }))];
+  return (await getCategoryGroups()).map((g) => ({ slug: g.id }));
 }
 
 async function findGroup(slug: string) {

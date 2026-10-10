@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import EnquiryView from "@/components/enquiry/EnquiryView";
 import { shop } from "@/config/shop";
-import { getProductById, getProducts } from "@/services/catalog-service";
+import { getProductById } from "@/services/catalog-service";
 
+// An empty list renders each page on its first visit (then caches it) instead of writing every one to KV per deploy.
 export async function generateStaticParams() {
-  return (await getProducts()).map((p) => ({ productId: p.id }));
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps<"/enquiry/[productId]">): Promise<Metadata> {

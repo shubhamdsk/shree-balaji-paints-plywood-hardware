@@ -1,8 +1,8 @@
 import { getBrandNames, listStockedSubtypes } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import type { CategoryGroup, Product } from "@/types";
+import type { CategoryGroup, ProductSummary } from "@/types";
 
-export function sitemapPaths(products: Product[], groups: CategoryGroup[]): string[] {
+export function sitemapPaths(products: ProductSummary[], groups: CategoryGroup[]): string[] {
   return [
     ROUTES.home,
     ROUTES.products,

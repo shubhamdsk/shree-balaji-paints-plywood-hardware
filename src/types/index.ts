@@ -98,6 +98,25 @@ export interface Product extends Omit<ProductDetails, "colors"> {
   inStock: boolean;
 }
 
+export type ProductSummary = Pick<Product, "id" | "name" | "brand" | "category" | "type">;
+
+export type CatalogProduct = Pick<
+  Product,
+  | "id"
+  | "name"
+  | "brand"
+  | "category"
+  | "categoryName"
+  | "type"
+  | "description"
+  | "sizes"
+  | "priceFrom"
+  | "unit"
+  | "image"
+  | "featured"
+  | "inStock"
+>;
+
 export interface AdminProduct extends Product {
   needsCategory: boolean;
   isVisible: boolean;
@@ -126,6 +145,26 @@ export interface EnquiryRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+export type EnquiryStatusFilter = "all" | EnquiryStatus;
+
+export interface EnquiryCursor {
+  createdAt: string;
+  id: string;
+}
+
+export interface EnquiryQuery {
+  status?: EnquiryStatusFilter;
+  search?: string;
+  after?: EnquiryCursor;
+}
+
+export interface EnquiryPage {
+  items: EnquiryRecord[];
+  next: EnquiryCursor | null;
+}
+
+export type EnquiryCounts = Record<EnquiryStatusFilter, number>;
 
 export interface GalleryItem {
   id: string;

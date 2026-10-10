@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import { CACHE_TAGS } from "@/lib/cache-tags";
+import { productChangeTags } from "@/lib/cache-tags";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { readProductForm, validateProductInput, type ProductFieldErrors } from "@/lib/product-input";
 import { ROUTES } from "@/lib/routes";
@@ -41,16 +41,19 @@ export async function saveProductAction(
   }
 
   const image = upload.photo ? API_ENDPOINTS.photo(await savePhoto(upload.photo.bytes, upload.photo.type)) : undefined;
-  if (productId) {
-    const updated = await updateProduct(owner, productId, validation.input, image);
+  if (saved) {
+    const updated = await updateProduct(owner, saved.id, validation.input, image);
     if (!updated) return { message: "This product no longer exists." };
     const oldKey = photoKeyFromImage(updated.previousImage);
     if (oldKey) await deletePhoto(oldKey);
+    refreshTags(productChangeTags(saved, { ...saved, ...validation.input }));
+  } else if (productId) {
+    return { message: "This product no longer exists." };
   } else {
-    await createProduct(owner, validation.input, image);
+    const id = await createProduct(owner, validation.input, image);
+    refreshTags(productChangeTags(undefined, { id, ...validation.input, isVisible: true }));
   }
 
-  updateTag(CACHE_TAGS.catalog);
   redirect(ROUTES.adminProducts);
 }
 
@@ -58,7 +61,12 @@ export async function setProductFlagAction(id: string, flag: string, value: bool
   const owner = await requireOwner();
   const parsed = flagSchema.safeParse({ id, flag, value });
   if (!parsed.success) return { ok: false };
-  const ok = await setProductFlag(owner, parsed.data.id, parsed.data.flag, parsed.data.value);
-  if (ok) updateTag(CACHE_TAGS.catalog);
-  return { ok };
+  const { id: productId, flag: changed, value: next } = parsed.data;
+  const before = await setProductFlag(owner, productId, changed, next);
+  if (before) refreshTags(productChangeTags(before, { ...before, [changed]: next }));
+  return { ok: before !== null };
+}
+
+function refreshTags(tags: string[]) {
+  for (const tag of tags) updateTag(tag);
 }

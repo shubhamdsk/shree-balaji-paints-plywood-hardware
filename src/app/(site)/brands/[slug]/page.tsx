@@ -3,28 +3,26 @@ import { notFound } from "next/navigation";
 import ProductCard from "@/components/products/ProductCard";
 import PageHeader from "@/components/ui/PageHeader";
 import { shop } from "@/config/shop";
-import { findBrandBySlug, getBrandNames } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import { slugify } from "@/lib/slug";
-import { getProducts } from "@/services/catalog-service";
+import { findBrand, getBrandProducts } from "@/services/catalog-service";
 
+// An empty list renders each page on its first visit (then caches it) instead of writing every one to KV per deploy.
 export async function generateStaticParams() {
-  return getBrandNames(await getProducts()).map((name) => ({ slug: slugify(name) }));
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps<"/brands/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const brand = findBrandBySlug(await getProducts(), slug);
+  const brand = await findBrand(slug);
   if (!brand) return { title: "Brand not found" };
   return { title: brand, description: `Genuine ${brand} products at ${shop.shortName}, ${shop.address.city}.` };
 }
 
 export default async function BrandPage({ params }: PageProps<"/brands/[slug]">) {
   const { slug } = await params;
-  const products = await getProducts();
-  const brand = findBrandBySlug(products, slug);
+  const brand = await findBrand(slug);
   if (!brand) notFound();
-  const brandProducts = products.filter((p) => p.brand === brand);
+  const brandProducts = await getBrandProducts(brand);
 
   return (
     <div className="bg-surface">

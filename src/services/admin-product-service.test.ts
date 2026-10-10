@@ -5,7 +5,6 @@ import { adminUsers, auditLog, products, subcategories } from "@/server/db/schem
 import {
   createProduct,
   getAdminProduct,
-  getProductCounts,
   listAdminProducts,
   setProductFlag,
   updateProduct,
@@ -110,7 +109,7 @@ describe("setProductFlag", () => {
     const actor = await owner();
     const [product] = await getProducts();
 
-    expect(await setProductFlag(actor, product.id, "isVisible", false)).toBe(true);
+    expect(await setProductFlag(actor, product.id, "isVisible", false)).toMatchObject({ id: product.id, isVisible: true });
     expect(await getProductById(product.id)).toBeUndefined();
     expect((await getAdminProduct(product.id))?.isVisible).toBe(false);
 
@@ -150,13 +149,13 @@ describe("setProductFlag", () => {
     expect((await getFeaturedProducts())[0].id).toBe(newer);
   });
 
-  it("returns false for a missing product", async () => {
-    expect(await setProductFlag(await owner(), "missing", "inStock", false)).toBe(false);
+  it("returns null for a missing product", async () => {
+    expect(await setProductFlag(await owner(), "missing", "inStock", false)).toBeNull();
   });
 });
 
 describe("listing", () => {
-  it("lists hidden products too, most recently changed first, and counts them", async () => {
+  it("lists hidden products too, most recently changed first", async () => {
     const actor = await owner();
     const [first, second] = await getProducts();
     await setProductFlag(actor, first.id, "isVisible", false);
@@ -165,11 +164,6 @@ describe("listing", () => {
 
     const list = await listAdminProducts();
     expect(list.map((p) => p.id).slice(0, 2)).toEqual([second.id, first.id]);
-
-    const counts = await getProductCounts();
-    expect(counts.total).toBe(list.length);
-    expect(counts.hidden).toBe(1);
-    expect(counts.outOfStock).toBe(list.filter((p) => p.isVisible && !p.inStock).length);
   });
 
   it("links each product to its subcategory and flags products whose subcategory is gone", async () => {

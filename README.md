@@ -166,7 +166,7 @@ The site runs on **[Cloudflare Workers](https://developers.cloudflare.com/worker
   - the Workers KV namespace that holds the page cache;
   - the Durable Objects that store cache tags, so owner saves show on the public site straight away;
   - Cloudflare Images, for `next/image`;
-  - a cron trigger every 3 minutes that calls `/api/health` to keep Neon awake.
+  - a daily cron trigger at 2:00 AM India time that writes the backup (Neon scales to zero between visits and wakes on the next query).
 
   [`open-next.config.ts`](open-next.config.ts) sets the cache, and [`worker.ts`](worker.ts) adds the cron handler to the generated worker.
 - **Size limit:** the free plan rejects workers over 3 MiB gzipped. The `cloudflare` CI job builds the worker and fails above that.

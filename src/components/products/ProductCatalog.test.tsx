@@ -32,14 +32,14 @@ afterEach(() => router.push.mockClear());
 describe("ProductCatalog", () => {
   it("shows only the products of the given category type", () => {
     renderWithProviders(
-      <ProductCatalog products={products} categoryGroups={groups} category="paints" subtype="Exterior" />,
+      <ProductCatalog products={products} index={products} categoryGroups={groups} category="paints" subtype="Exterior" />,
     );
     expect(screen.getByRole("heading", { name: "Apex Ultima" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Royale Emulsion" })).toBeNull();
   });
 
   it("opens clean category paths from the sidebar", async () => {
-    const { user } = renderWithProviders(<ProductCatalog products={products} categoryGroups={groups} />);
+    const { user } = renderWithProviders(<ProductCatalog products={products} index={products} categoryGroups={groups} />);
     const sidebar = within(screen.getAllByRole("complementary")[0]);
 
     await user.click(sidebar.getByRole("button", { name: /^Interior/ }));

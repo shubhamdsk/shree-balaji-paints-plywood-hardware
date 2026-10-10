@@ -92,7 +92,7 @@ src/
     password-rules.ts   password length limits, login and change-password checks
     photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
     price.ts            "From ₹520 per litre" / "Ask for price"
-    cache-tags.ts       cache tag names for unstable_cache and updateTag
+    cache-tags.ts       cache tag names for unstable_cache and updateTag, and productChangeTags (which tags a product change refreshes)
   providers/            app-wide providers (confirm, unsaved changes, theme), composed in AppProviders
   server/               server-only code
     db/                 Drizzle schema, client (Neon or PGlite), seed, migrations/
@@ -129,7 +129,8 @@ scripts/                db-migrate.ts (build-time migrations) and developer help
 
 - Pages, components and API routes get data from `src/services/*`. They never import `src/data/*` (ESLint enforces this); only services and `src/server/db/seed.ts` do.
 - Products live in the database (`src/server/db/schema.ts`). Change the schema, then run `npm run db:generate` and commit the migration. Never edit a migration that has run in production.
-- Owner changes go through Server Actions in `src/server/actions`. Each one calls `requireOwner()` first, validates with Zod, writes the audit log, then calls `updateTag(...)` with a tag from `src/lib/cache-tags.ts`. Service reads that pages use are wrapped in `unstable_cache` with the same tags.
+- Owner changes go through Server Actions in `src/server/actions`. Each one calls `requireOwner()` first, validates with Zod, writes the audit log, then calls `updateTag(...)` with tags from `src/lib/cache-tags.ts`. Service reads that pages use are wrapped in `unstable_cache` with the same tags. Keep tags scoped: a product change refreshes only the tags `productChangeTags` returns, so one save never re-renders the whole catalogue.
+- Workers Free plan budget: 10 ms CPU per request and 1,000 KV writes a day. Pages rendered at build cost a KV write on every deploy, so dynamic pages for single products, brands, enquiries and calculator paints return `[]` from `generateStaticParams` and are cached on first visit. Pass client components only the fields they show (`CatalogProduct`, `ProductSummary`, `compactGroups`). Don't load-test the live site; see [docs/SCALABILITY.md](docs/SCALABILITY.md).
 - Client components may import Server Actions from `src/server/actions`, and nothing else from `src/server`.
 - Prices are whole rupees (`integer`). Format them with `formatPrice` from `src/lib/price.ts`.
 - Every API path is defined once in `src/lib/api/endpoints.ts`. Never write an `/api/...` string anywhere else.

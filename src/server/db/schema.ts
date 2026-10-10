@@ -129,13 +129,17 @@ export const enquiries = pgTable("enquiries", {
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
   notes: text("notes"),
+  clientHash: text("client_hash"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-});
+}, (table) => [
+  index("enquiries_status_created_at_idx").on(table.status, table.createdAt.desc()),
+  index("enquiries_client_hash_created_at_idx").on(table.clientHash, table.createdAt),
+]);
 
 export const gallery = pgTable("gallery", {
   id: text("id").primaryKey(),

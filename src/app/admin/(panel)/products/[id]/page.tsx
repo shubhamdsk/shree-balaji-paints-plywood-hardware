@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import AppLink from "@/components/ui/AppLink";
+import { compactGroups } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
 import { getAdminProduct } from "@/services/admin-product-service";
@@ -25,7 +26,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
           </AppLink>
         )}
       </div>
-      <ProductForm key={product.updatedAt} product={product} categoryGroups={categoryGroups} />
+      <ProductForm key={product.updatedAt} product={product} categoryGroups={compactGroups(categoryGroups)} />
     </div>
   );
 }

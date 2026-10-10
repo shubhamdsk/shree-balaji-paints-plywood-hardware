@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import PaintCalculatorView from "@/components/calculator/PaintCalculatorView";
 import { getCalculablePaints } from "@/services/catalog-service";
 
+// An empty list renders each page on its first visit (then caches it) instead of writing every one to KV per deploy.
 export async function generateStaticParams() {
-  return (await getCalculablePaints()).map((p) => ({ productId: p.id }));
+  return [];
 }
 
 async function findPaint(productId: string) {

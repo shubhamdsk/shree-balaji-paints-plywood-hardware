@@ -5,7 +5,7 @@ import { buttonClasses } from "@/components/ui/Button";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { stockedHref } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
-import type { Product } from "@/types";
+import type { ProductSummary } from "@/types";
 
 const paintTypes = [
   { icon: Palette, label: "Interior Paints", category: "paints", subtype: "Interior Emulsion" },
@@ -16,7 +16,7 @@ const paintTypes = [
   { icon: ShieldCheck, label: "Metal Paints", category: "paints", subtype: "Metal Paint" },
 ];
 
-export default function PaintShowcase({ products }: { products: Product[] }) {
+export default function PaintShowcase({ products }: { products: ProductSummary[] }) {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
       <div className="relative order-last aspect-[4/3] overflow-hidden rounded-card border border-line bg-surface-muted shadow-card-hover lg:order-first lg:aspect-[5/4]">

@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { MessageCircle, Phone, Search, WhatsAppIcon } from "@/components/ui/icons";
 import { whatsappLink } from "@/config/shop";
-import { matchesQuery } from "@/lib/search";
-import { updateEnquiryStatusAction } from "@/server/actions/enquiry";
-import type { EnquiryRecord, EnquiryStatus } from "@/types";
+import { loadEnquiriesAction, updateEnquiryStatusAction } from "@/server/actions/enquiry";
+import type { EnquiryCounts, EnquiryPage, EnquiryQuery, EnquiryRecord, EnquiryStatus, EnquiryStatusFilter } from "@/types";
 
 interface AdminEnquiryListProps {
-  initialEnquiries: EnquiryRecord[];
+  initialPage: EnquiryPage;
+  initialCounts: EnquiryCounts;
 }
 
-type StatusFilter = "all" | EnquiryStatus;
+type StatusFilter = EnquiryStatusFilter;
+
+const SEARCH_DELAY_MS = 300;
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All Enquiries" },
@@ -21,48 +24,73 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "closed", label: "Closed / Converted" },
 ];
 
-export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListProps) {
-  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(initialEnquiries);
+export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEnquiryListProps) {
+  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(initialPage.items);
+  const [next, setNext] = useState(initialPage.next);
+  const [counts, setCounts] = useState(initialCounts);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState("");
   const [, startTransition] = useTransition();
+  const latestRequest = useRef(0);
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const filtered = useMemo(() => {
-    return enquiries.filter((e) => {
-      const matchesStatus = statusFilter === "all" || e.status === statusFilter;
-      const matchesText = matchesQuery(
-        `${e.name} ${e.phone ?? ""} ${e.productName ?? ""} ${e.message} ${e.notes ?? ""}`,
-        query,
-      );
-      return matchesStatus && matchesText;
-    });
-  }, [enquiries, statusFilter, query]);
+  const load = async (filter: EnquiryQuery, append = false) => {
+    const request = ++latestRequest.current;
+    setLoading(true);
+    setError("");
+    try {
+      const page = await loadEnquiriesAction(filter);
+      if (request !== latestRequest.current) return;
+      if (!page) throw new Error("Invalid enquiry filter");
+      setEnquiries((current) => (append ? [...current, ...page.items] : page.items));
+      setNext(page.next);
+    } catch {
+      if (request === latestRequest.current) setError("Could not load enquiries. Please try again.");
+    } finally {
+      if (request === latestRequest.current) setLoading(false);
+    }
+  };
 
-  const counts = useMemo(() => {
-    return {
-      total: enquiries.length,
-      newLeads: enquiries.filter((e) => e.status === "new").length,
-      contacted: enquiries.filter((e) => e.status === "contacted").length,
-      closed: enquiries.filter((e) => e.status === "closed").length,
-    };
-  }, [enquiries]);
+  const chooseStatus = (status: StatusFilter) => {
+    clearTimeout(searchTimer.current);
+    setStatusFilter(status);
+    void load({ status, search: query });
+  };
 
-  const handleStatusChange = (id: string, newStatus: EnquiryStatus, notes?: string) => {
+  const changeQuery = (search: string) => {
+    setQuery(search);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => void load({ status: statusFilter, search }), SEARCH_DELAY_MS);
+  };
+
+  const loadMore = () => {
+    if (next) void load({ status: statusFilter, search: query, after: next }, true);
+  };
+
+  const handleStatusChange = (item: EnquiryRecord, newStatus: EnquiryStatus, notes?: string) => {
+    const { id, status: oldStatus } = item;
     setPendingId(id);
     setError("");
     startTransition(async () => {
       try {
         const res = await updateEnquiryStatusAction(id, newStatus, notes);
         if (res.ok) {
+          const leavesView = statusFilter !== "all" && newStatus !== statusFilter;
           setEnquiries((current) =>
-            current.map((item) =>
-              item.id === id ? { ...item, status: newStatus, ...(notes !== undefined && { notes }) } : item,
-            ),
+            leavesView
+              ? current.filter((entry) => entry.id !== id)
+              : current.map((entry) =>
+                  entry.id === id ? { ...entry, status: newStatus, ...(notes !== undefined && { notes }) } : entry,
+                ),
           );
+          if (newStatus !== oldStatus) {
+            setCounts((current) => ({ ...current, [oldStatus]: current[oldStatus] - 1, [newStatus]: current[newStatus] + 1 }));
+          }
         } else {
           setError(res.message || "Failed to update enquiry status.");
         }
@@ -75,8 +103,8 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
     });
   };
 
-  const handleSaveNotes = (id: string, currentStatus: EnquiryStatus) => {
-    handleStatusChange(id, currentStatus, noteInput);
+  const handleSaveNotes = (item: EnquiryRecord) => {
+    handleStatusChange(item, item.status, noteInput);
   };
 
   return (
@@ -85,27 +113,27 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
       <div className="grid gap-3 sm:grid-cols-4">
         <button
           type="button"
-          onClick={() => setStatusFilter("all")}
+          onClick={() => chooseStatus("all")}
           className={`rounded-card border p-4 text-left shadow-card transition ${
             statusFilter === "all" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
           }`}
         >
           <span className="text-xs font-bold uppercase tracking-wider text-muted">Total Enquiries</span>
-          <span className="mt-1 block text-2xl font-black text-heading">{counts.total}</span>
+          <span className="mt-1 block text-2xl font-black text-heading">{counts.all}</span>
         </button>
         <button
           type="button"
-          onClick={() => setStatusFilter("new")}
+          onClick={() => chooseStatus("new")}
           className={`rounded-card border p-4 text-left shadow-card transition ${
             statusFilter === "new" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
           }`}
         >
           <span className="text-xs font-bold uppercase tracking-wider text-accent-700">New Leads</span>
-          <span className="mt-1 block text-2xl font-black text-accent-600">{counts.newLeads}</span>
+          <span className="mt-1 block text-2xl font-black text-accent-600">{counts.new}</span>
         </button>
         <button
           type="button"
-          onClick={() => setStatusFilter("contacted")}
+          onClick={() => chooseStatus("contacted")}
           className={`rounded-card border p-4 text-left shadow-card transition ${
             statusFilter === "contacted" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
           }`}
@@ -115,7 +143,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
         </button>
         <button
           type="button"
-          onClick={() => setStatusFilter("closed")}
+          onClick={() => chooseStatus("closed")}
           className={`rounded-card border p-4 text-left shadow-card transition ${
             statusFilter === "closed" ? "border-accent-600 bg-accent-50/20" : "border-line bg-card hover:bg-surface-muted"
           }`}
@@ -134,7 +162,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
               id="enquiry-search"
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => changeQuery(e.target.value)}
               placeholder="Name, phone, product or message text"
               className={`${fieldClasses} pl-9`}
             />
@@ -145,7 +173,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
             <button
               key={f.value}
               type="button"
-              onClick={() => setStatusFilter(f.value)}
+              onClick={() => chooseStatus(f.value)}
               className={`min-h-11 rounded-xl px-3 text-xs font-bold transition ${
                 statusFilter === f.value ? "bg-heading text-card" : "border border-line bg-card text-heading hover:bg-surface-muted"
               }`}
@@ -163,14 +191,14 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
       )}
 
       {/* Enquiry List */}
-      {filtered.length === 0 ? (
+      {enquiries.length === 0 && !loading ? (
         <div className="rounded-card border border-dashed border-line bg-card p-10 text-center text-muted">
           <MessageCircle aria-hidden className="mx-auto mb-3 h-8 w-8 text-subtle" />
           No customer enquiries match your search filter.
         </div>
       ) : (
         <ul className="grid gap-4">
-          {filtered.map((item) => {
+          {enquiries.map((item) => {
             const isPending = pendingId === item.id;
             const isEditingNotes = editingNotesId === item.id;
             const formattedDate = new Date(item.createdAt).toLocaleString("en-IN", {
@@ -259,7 +287,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
                         <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => handleSaveNotes(item.id, item.status)}
+                            onClick={() => handleSaveNotes(item)}
                             disabled={isPending}
                             className="rounded-lg bg-heading px-3 py-1 text-xs font-bold text-card"
                           >
@@ -284,7 +312,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
                       <button
                         type="button"
                         disabled={isPending || item.status === "new"}
-                        onClick={() => handleStatusChange(item.id, "new")}
+                        onClick={() => handleStatusChange(item, "new")}
                         className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                           item.status === "new"
                             ? "bg-accent-600 text-white"
@@ -296,7 +324,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
                       <button
                         type="button"
                         disabled={isPending || item.status === "contacted"}
-                        onClick={() => handleStatusChange(item.id, "contacted")}
+                        onClick={() => handleStatusChange(item, "contacted")}
                         className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                           item.status === "contacted"
                             ? "bg-amber-600 text-white"
@@ -308,7 +336,7 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
                       <button
                         type="button"
                         disabled={isPending || item.status === "closed"}
-                        onClick={() => handleStatusChange(item.id, "closed")}
+                        onClick={() => handleStatusChange(item, "closed")}
                         className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                           item.status === "closed"
                             ? "bg-green-600 text-white"
@@ -337,6 +365,14 @@ export default function AdminEnquiryList({ initialEnquiries }: AdminEnquiryListP
             );
           })}
         </ul>
+      )}
+
+      {next && (
+        <div className="flex justify-center">
+          <Button variant="secondary" onClick={loadMore} disabled={loading}>
+            {loading ? "Loading..." : "Load more enquiries"}
+          </Button>
+        </div>
       )}
     </div>
   );

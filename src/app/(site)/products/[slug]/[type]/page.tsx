@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import CatalogView from "@/components/products/CatalogView";
 import { categoryPageMeta, findSubtypeBySlug, listStockedSubtypes } from "@/lib/catalog";
 import { slugify } from "@/lib/slug";
-import { getCategoryGroups, getProducts } from "@/services/catalog-service";
+import { getCategoryGroups, getProductIndex } from "@/services/catalog-service";
 
 export async function generateStaticParams() {
-  const [products, groups] = await Promise.all([getProducts(), getCategoryGroups()]);
+  const [products, groups] = await Promise.all([getProductIndex(), getCategoryGroups()]);
   return listStockedSubtypes(products, groups).map(({ group, subtype }) => ({ slug: group.id, type: slugify(subtype) }));
 }
 
