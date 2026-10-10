@@ -29,7 +29,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
 ## 3. Free-plan budget (Cloudflare and Neon)
 
-The Workers Free plan allows 100,000 requests a day, a worker of at most 3 MiB gzipped, and 10 ms of CPU time per request. Static files (`public/`, `_next/static`) are free and don't count as requests. R2 includes 10 GB of storage. Neon's free plan has its own monthly compute allowance.
+The Workers Free plan allows 100,000 requests a day, a worker of at most 3 MiB gzipped, and 10 ms of CPU time per request. Static files (`public/`, `_next/static`) are free and don't count as requests. Workers KV (the page cache) allows 100,000 reads and 1,000 writes a day; each deploy writes the prerendered pages once. Photos use Neon Object Storage, alongside Neon's own compute and storage allowance. No payment card is needed on Cloudflare.
 
 | Rule | Why |
 |------|-----|

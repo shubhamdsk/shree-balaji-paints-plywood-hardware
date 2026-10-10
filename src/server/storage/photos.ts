@@ -2,8 +2,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { PHOTO_KEY_PATTERN, PHOTO_TYPES, type PhotoType } from "@/lib/photo";
+import { AwsClient } from "aws4fetch";
+import { PHOTO_KEY_PATTERN, PHOTO_TYPES, photoTypeFromKey, type PhotoType } from "@/lib/photo";
+
+const BUCKET = "product-photos";
 
 interface PhotoStore {
   set(key: string, data: Uint8Array): Promise<void>;
@@ -11,27 +13,31 @@ interface PhotoStore {
   delete(key: string): Promise<void>;
 }
 
-interface R2Bucket {
-  put(key: string, data: Uint8Array): Promise<unknown>;
-  get(key: string): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null>;
-  delete(key: string): Promise<void>;
+async function expectOk(response: Response, action: string) {
+  if (!response.ok) throw new Error(`Photo ${action} failed with status ${response.status}`);
 }
 
-function cloudflarePhotoBucket(): R2Bucket | undefined {
-  try {
-    return (getCloudflareContext().env as { PHOTOS_BUCKET?: R2Bucket }).PHOTOS_BUCKET;
-  } catch {
-    return undefined;
-  }
-}
-
-function r2Store(bucket: R2Bucket): PhotoStore {
+function bucketStore(endpoint: string, client: AwsClient): PhotoStore {
+  const objectUrl = (key: string) => `${endpoint.replace(/\/+$/, "")}/${BUCKET}/${key}`;
   return {
     set: async (key, data) => {
-      await bucket.put(key, data);
+      const response = await client.fetch(objectUrl(key), {
+        method: "PUT",
+        body: data.slice(),
+        headers: { "Content-Type": photoTypeFromKey(key) },
+      });
+      await expectOk(response, "upload");
     },
-    get: async (key) => (await bucket.get(key))?.arrayBuffer() ?? null,
-    delete: (key) => bucket.delete(key),
+    get: async (key) => {
+      const response = await client.fetch(objectUrl(key));
+      if (response.status === 404) return null;
+      await expectOk(response, "download");
+      return response.arrayBuffer();
+    },
+    delete: async (key) => {
+      const response = await client.fetch(objectUrl(key), { method: "DELETE" });
+      if (response.status !== 404) await expectOk(response, "delete");
+    },
   };
 }
 
@@ -54,8 +60,16 @@ function folderStore(folder: string): PhotoStore {
 }
 
 function photoStore(): PhotoStore {
-  const bucket = cloudflarePhotoBucket();
-  if (bucket) return r2Store(bucket);
+  const { AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  if (AWS_ENDPOINT_URL_S3 && AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+    const client = new AwsClient({
+      accessKeyId: AWS_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      region: AWS_REGION || "us-east-2",
+      service: "s3",
+    });
+    return bucketStore(AWS_ENDPOINT_URL_S3, client);
+  }
   return folderStore(process.env.PHOTO_STORAGE_DIR ?? path.join(process.cwd(), ".data/photos"));
 }
 

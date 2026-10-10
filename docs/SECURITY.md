@@ -68,7 +68,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 
 | Secret | Stored in | Protection |
 |--------|-----------|------------|
-| `DATABASE_URL`, `SESSION_SECRET` | Cloudflare Worker secrets (`DATABASE_URL` is also a build variable) | Never committed. `.env*` is in `.gitignore`, and `.env.example` documents keys without values |
+| `DATABASE_URL`, `SESSION_SECRET`, `AWS_*` storage keys | Cloudflare Worker secrets (`DATABASE_URL` is also a build variable) | Never committed. `.env*` is in `.gitignore`, and `.env.example` documents keys without values |
 | `ADMIN_INITIAL_PASSWORD` | Cloudflare Worker secret | Used once; removed after the owner sets his own password |
 | Owner password | Database (scrypt hash) | Never stored in plain text or logged |
 
@@ -99,7 +99,7 @@ GitHub secret scanning and push protection stay on.
 - Commit `package-lock.json` and install with `npm ci`.
 - `npm audit --omit=dev` runs in CI. High or critical issues block a release.
 - Dependabot opens weekly update pull requests.
-- New dependencies (Drizzle, the Neon HTTP driver, `pg` for migrations, Zod, the OpenNext Cloudflare adapter) each need a reason in the pull request.
+- New dependencies (Drizzle, the Neon HTTP driver, `pg` for migrations, Zod, the OpenNext Cloudflare adapter, `aws4fetch` for photo storage) each need a reason in the pull request.
 
 ---
 

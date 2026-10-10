@@ -1,28 +1,36 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { deletePhoto, readPhoto, savePhoto } from "@/server/storage/photos";
 
-const cloudflareContext = Symbol.for("__cloudflare-context__");
-const globalScope = globalThis as Record<symbol, unknown>;
+const ENDPOINT = "https://storage.example.test";
 const bytes = new Uint8Array([1, 2, 3, 4]);
 
 function fakeBucket() {
   const objects = new Map<string, Uint8Array>();
-  return {
-    objects,
-    put: async (key: string, data: Uint8Array) => {
-      objects.set(key, data);
-    },
-    get: async (key: string) => {
-      const data = objects.get(key);
-      return data ? { arrayBuffer: async () => data.slice().buffer } : null;
-    },
-    delete: async (key: string) => {
+  const requests: { method: string; url: string; signed: boolean; contentType: string | null }[] = [];
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = new Request(input, init);
+    const key = new URL(request.url).pathname;
+    requests.push({
+      method: request.method,
+      url: request.url,
+      signed: request.headers.get("authorization")?.startsWith("AWS4-HMAC-SHA256") ?? false,
+      contentType: request.headers.get("content-type"),
+    });
+    if (request.method === "PUT") {
+      objects.set(key, new Uint8Array(await request.arrayBuffer()));
+      return new Response(null, { status: 200 });
+    }
+    if (request.method === "DELETE") {
       objects.delete(key);
-    },
-  };
+      return new Response(null, { status: 204 });
+    }
+    const object = objects.get(key);
+    return object ? new Response(object.slice()) : new Response(null, { status: 404 });
+  });
+  return { objects, requests, fetchMock };
 }
 
 describe("photo storage", () => {
@@ -30,16 +38,14 @@ describe("photo storage", () => {
 
   beforeEach(async () => {
     folder = await mkdtemp(path.join(tmpdir(), "photos-"));
-    process.env.PHOTO_STORAGE_DIR = folder;
+    vi.stubEnv("PHOTO_STORAGE_DIR", folder);
   });
 
   afterEach(async () => {
-    delete globalScope[cloudflareContext];
-    delete process.env.PHOTO_STORAGE_DIR;
     await rm(folder, { recursive: true, force: true });
   });
 
-  it("saves, reads and deletes photos in the local folder outside Cloudflare", async () => {
+  it("saves, reads and deletes photos in the local folder without bucket credentials", async () => {
     const key = await savePhoto(bytes, "image/jpeg");
 
     expect(key).toMatch(/\.jpg$/);
@@ -49,17 +55,43 @@ describe("photo storage", () => {
     expect(await readPhoto(key)).toBeNull();
   });
 
-  it("uses the R2 bucket bound to the Cloudflare worker", async () => {
-    const bucket = fakeBucket();
-    globalScope[cloudflareContext] = { env: { PHOTOS_BUCKET: bucket } };
+  describe("with Neon Object Storage credentials", () => {
+    beforeEach(() => {
+      vi.stubEnv("AWS_ENDPOINT_URL_S3", ENDPOINT);
+      vi.stubEnv("AWS_ACCESS_KEY_ID", "test-key");
+      vi.stubEnv("AWS_SECRET_ACCESS_KEY", "test-secret");
+      vi.stubEnv("AWS_REGION", "us-east-2");
+    });
 
-    const key = await savePhoto(bytes, "image/webp");
+    it("stores photos in the product-photos bucket with signed requests", async () => {
+      const bucket = fakeBucket();
+      vi.stubGlobal("fetch", bucket.fetchMock);
 
-    expect(bucket.objects.has(key)).toBe(true);
-    expect(new Uint8Array((await readPhoto(key))!)).toEqual(bytes);
+      const key = await savePhoto(bytes, "image/webp");
 
-    await deletePhoto(key);
-    expect(bucket.objects.size).toBe(0);
+      expect(bucket.requests[0]).toEqual({
+        method: "PUT",
+        url: `${ENDPOINT}/product-photos/${key}`,
+        signed: true,
+        contentType: "image/webp",
+      });
+      expect(new Uint8Array((await readPhoto(key))!)).toEqual(bytes);
+
+      await deletePhoto(key);
+      expect(bucket.objects.size).toBe(0);
+    });
+
+    it("returns null for a photo that is not in the bucket", async () => {
+      vi.stubGlobal("fetch", fakeBucket().fetchMock);
+
+      expect(await readPhoto("00000000-0000-0000-0000-000000000000.jpg")).toBeNull();
+    });
+
+    it("fails the upload when the bucket rejects it", async () => {
+      vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 403 })));
+
+      await expect(savePhoto(bytes, "image/png")).rejects.toThrow("Photo upload failed with status 403");
+    });
   });
 
   it("ignores keys that are not photo keys", async () => {

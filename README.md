@@ -56,7 +56,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Styling | Tailwind CSS v4 |
 | UI | React 19, [Lucide](https://lucide.dev) icons, [Framer Motion](https://www.framer.com/motion/) |
 | Data | Postgres through [Drizzle ORM](https://orm.drizzle.team): [Neon](https://neon.tech) (free plan) in production, [PGlite](https://pglite.dev) locally and in tests |
-| Photos | [Cloudflare R2](https://developers.cloudflare.com/r2/) in production, the `.data/photos` folder locally |
+| Photos | [Neon Object Storage](https://neon.com/docs/storage/overview) (the `product-photos` bucket in [`neon.ts`](neon.ts)) when the `AWS_*` variables are set, otherwise the `.data/photos` folder |
 | Validation | [Zod](https://zod.dev) |
 
 ## Getting started
@@ -76,9 +76,11 @@ Without `DATABASE_URL`, the app runs an in-process Postgres (PGlite) saved in `.
 To develop against Neon instead, check out a Neon branch of your own. Never use `production` for this, because every save in the local owner panel would change the live site:
 
 ```bash
-neon checkout dev --create   # writes the branch's DATABASE_URL into .env.local
+neon checkout dev --create   # writes the branch's DATABASE_URL and storage credentials into .env.local
 npm run db:migrate           # run again after every new migration
 ```
+
+With the branch's `AWS_*` storage credentials in `.env.local`, photos uploaded locally go to that branch's `product-photos` bucket. `neon deploy` creates the bucket on a branch that doesn't have it yet.
 
 The project is linked in the git-ignored `.neon` file, and [`neon.ts`](neon.ts) holds the Neon branch policy (`neon deploy` applies it).
 
@@ -158,9 +160,9 @@ The site runs on **[Cloudflare Workers](https://developers.cloudflare.com/worker
   - Build command: `npm run db:migrate && npx opennextjs-cloudflare build`
   - Deploy command: `npx opennextjs-cloudflare deploy`
   - Build variables: `DATABASE_URL` (Neon's pooled connection string; pages are prerendered from it and the build fails without it) and `SITE_URL`.
-- **Runtime secrets** (Settings → Variables and Secrets, type *Secret*, never in Git): `DATABASE_URL`, `SESSION_SECRET` (at least 32 random characters), and `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD` (used once, on the first owner login). Add `SITE_URL` there as a plain variable.
+- **Runtime secrets** (Settings → Variables and Secrets, type *Secret*, never in Git): `DATABASE_URL`, `SESSION_SECRET` (at least 32 random characters), `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD` (used once, on the first owner login), and the production branch's Object Storage credentials `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3` and `AWS_REGION` (from `neon env pull --branch production --file <temp file>`; delete the file afterwards). Add `SITE_URL` there as a plain variable.
 - **Config:** [`wrangler.jsonc`](wrangler.jsonc) names the worker and its bindings:
-  - the R2 buckets `shree-balaji-photos` (uploaded photos) and `shree-balaji-next-cache` (page cache);
+  - the Workers KV namespace that holds the page cache;
   - the Durable Objects that store cache tags, so owner saves show on the public site straight away;
   - Cloudflare Images, for `next/image`;
   - a cron trigger every 3 minutes that calls `/api/health` to keep Neon awake.
@@ -179,7 +181,7 @@ Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sp
 - Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
 - Our work gallery, dated offer banners
 - Google Business Profile and Search Console
-- Data on Neon Postgres, photos on Cloudflare R2 ([Architecture](docs/ARCHITECTURE.md))
+- Data on Neon Postgres, photos on Neon Object Storage ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 

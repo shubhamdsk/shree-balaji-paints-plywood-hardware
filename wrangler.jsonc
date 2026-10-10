@@ -14,10 +14,7 @@
       "service": "shree-balaji",
     },
   ],
-  "r2_buckets": [
-    { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "shree-balaji-next-cache" },
-    { "binding": "PHOTOS_BUCKET", "bucket_name": "shree-balaji-photos" },
-  ],
+  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV", "id": "c18a078d428f41b8937be9af4c138002" }],
   "durable_objects": {
     "bindings": [
       { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },

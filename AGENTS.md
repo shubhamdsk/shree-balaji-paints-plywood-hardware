@@ -91,7 +91,7 @@ src/
     db/                 Drizzle schema, client (Neon or PGlite), seed, migrations/
     auth/               password hashing, session tokens and cookie, requireOwner guard
     actions/            Server Actions (auth.ts, products.ts)
-    storage/photos.ts   Cloudflare R2, or a local folder
+    storage/photos.ts   Neon Object Storage (S3 API through aws4fetch), or a local folder
     audit.ts            audit log writer
   services/             data access used by pages, actions and API routes
   test/                 test setup, render helpers, mocks and setupTestDatabase (db.ts)
