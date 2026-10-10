@@ -3,13 +3,12 @@
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { productChangeTags } from "@/lib/cache-tags";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { readProductForm, validateProductInput, type ProductFieldErrors } from "@/lib/product-input";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
-import { deletePhoto, savePhoto } from "@/server/storage/photos";
+import { deletePhoto, PHOTO_UPLOAD_FAILED, uploadPhoto } from "@/server/storage/photos";
 import { createProduct, getAdminProduct, setProductFlag, updateProduct } from "@/services/admin-product-service";
 import { getCategoryGroups } from "@/services/catalog-service";
 
@@ -40,7 +39,9 @@ export async function saveProductAction(
     };
   }
 
-  const image = upload.photo ? API_ENDPOINTS.photo(await savePhoto(upload.photo.bytes, upload.photo.type)) : undefined;
+  const photo = await uploadPhoto(upload.photo);
+  if (!photo.ok) return { message: PHOTO_UPLOAD_FAILED };
+  const image = photo.image;
   if (saved) {
     const updated = await updateProduct(owner, saved.id, validation.input, image);
     if (!updated) return { message: "This product no longer exists." };

@@ -2,13 +2,12 @@
 
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { readGalleryForm, validateGalleryInput, type GalleryFieldErrors } from "@/lib/gallery-input";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
-import { deletePhoto, savePhoto } from "@/server/storage/photos";
+import { deletePhoto, PHOTO_UPLOAD_FAILED, uploadPhoto } from "@/server/storage/photos";
 import {
   createGalleryItem,
   deleteGalleryItem,
@@ -37,11 +36,9 @@ export async function saveGalleryItemAction(
     };
   }
 
-  let image: string | undefined;
-  if (upload.photo) {
-    const photoKey = await savePhoto(upload.photo.bytes, upload.photo.type);
-    image = API_ENDPOINTS.photo(photoKey);
-  }
+  const photo = await uploadPhoto(upload.photo);
+  if (!photo.ok) return { message: PHOTO_UPLOAD_FAILED };
+  const image = photo.image;
 
   if (id) {
     const updated = await updateGalleryItem(owner, id, parsed.input, image);
