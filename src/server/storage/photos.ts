@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { AwsClient } from "aws4fetch";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { PHOTO_KEY_PATTERN, PHOTO_TYPES, photoTypeFromKey, type PhotoType } from "@/lib/photo";
 
 const BUCKET = "product-photos";
@@ -79,6 +80,18 @@ export async function savePhoto(data: Uint8Array, type: PhotoType) {
   const key = `${randomUUID()}.${PHOTO_TYPES[type]}`;
   await fileStore().set(key, data, photoTypeFromKey(key));
   return key;
+}
+
+export const PHOTO_UPLOAD_FAILED = "The photo couldn't be saved. Check the internet connection and press Save again.";
+
+export async function uploadPhoto(photo: { bytes: Uint8Array; type: PhotoType } | null) {
+  if (!photo) return { ok: true as const, image: undefined };
+  try {
+    return { ok: true as const, image: API_ENDPOINTS.photo(await savePhoto(photo.bytes, photo.type)) };
+  } catch (error) {
+    console.error("Photo upload failed", error);
+    return { ok: false as const };
+  }
 }
 
 export async function readPhoto(key: string) {

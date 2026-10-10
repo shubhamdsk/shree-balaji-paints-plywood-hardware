@@ -109,10 +109,10 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
         <div role="status" className="rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100">
           <div className="flex items-center gap-2.5 font-bold text-emerald-800 dark:text-emerald-300 text-base">
             <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-            Enquiry Submitted Successfully!
+            Enquiry sent
           </div>
           <p className="mt-1.5 text-sm text-emerald-800/90 dark:text-emerald-200">
-            Thank you! Your enquiry has been received directly in our shop inbox. We will contact you shortly.
+            Thank you. The shop has your enquiry and will get back to you soon.
           </p>
           {lastWaMsg && (
             <div className="mt-4">
@@ -122,7 +122,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
-                <WhatsAppIcon className="h-4 w-4" /> Want an instant response? Chat on WhatsApp
+                <WhatsAppIcon className="h-4 w-4" /> Chat on WhatsApp now
               </a>
             </div>
           )}
@@ -159,7 +159,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
       </div>
 
       <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
-        <FormField label="Product" htmlFor="productId" hint="Leave empty for a general enquiry">
+        <FormField label="Product" htmlFor="productId">
           <SelectMenu
             id="productId"
             label="Product"
@@ -205,7 +205,7 @@ export default function EnquiryForm({ products, initialProductId = "" }: Enquiry
           Clear
         </Button>
         <Button type="submit" variant="cta" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Enquiry"}
+          {submitting ? "Sending..." : "Send enquiry"}
         </Button>
       </div>
     </form>

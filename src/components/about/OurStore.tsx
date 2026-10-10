@@ -1,7 +1,9 @@
 import Image from "next/image";
-import { Clock, MapPin, Navigation } from "@/components/ui/icons";
+import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
+import { MapPin } from "@/components/ui/icons";
 import { shop } from "@/config/shop";
+import { ROUTES } from "@/lib/routes";
 
 const photos = [
   { src: "/images/shop/storefront.jpg", alt: "Paint and hardware store storefront" },
@@ -10,8 +12,6 @@ const photos = [
 ] as const;
 
 export default function OurStore() {
-  const addressLine = `${shop.address.line1}, ${shop.address.city}, ${shop.address.state} ${shop.address.pincode}`;
-
   return (
     <section className="container-page py-10 sm:py-14 lg:py-16">
       <div className="max-w-3xl">
@@ -46,27 +46,9 @@ export default function OurStore() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-4 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:p-6">
-        <div className="flex gap-3">
-          <MapPin aria-hidden className="h-6 w-6 shrink-0 text-accent-600" />
-          <div>
-            <p className="font-semibold text-heading">Address</p>
-            <p className="text-sm text-muted">{addressLine}</p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <Clock aria-hidden className="h-6 w-6 shrink-0 text-accent-600" />
-          <div>
-            <p className="font-semibold text-heading">Timings</p>
-            <p className="text-sm text-muted">
-              {shop.hoursShort} · {shop.openDays}
-            </p>
-          </div>
-        </div>
-        <a href={shop.mapLink} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary")}>
-          <Navigation className="h-4 w-4" /> Get Directions
-        </a>
-      </div>
+      <AppLink href={ROUTES.contact} className={`mt-6 ${buttonClasses("primary")}`}>
+        <MapPin aria-hidden className="h-4 w-4" /> Contact and directions
+      </AppLink>
     </section>
   );
 }

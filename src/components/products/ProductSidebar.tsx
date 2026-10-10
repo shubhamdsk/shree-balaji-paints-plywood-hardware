@@ -15,7 +15,7 @@ interface ProductSidebarProps {
 
 export default function ProductSidebar({ index, categoryGroups, category, subtype, onSelect }: ProductSidebarProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(categoryGroups.map((g) => [g.id, g.id === category || category === "all"])),
+    Object.fromEntries(categoryGroups.map((g) => [g.id, g.id === category])),
   );
 
   const toggle = (id: string) => setOpenGroups((o) => ({ ...o, [id]: !o[id] }));
@@ -37,6 +37,7 @@ export default function ProductSidebar({ index, categoryGroups, category, subtyp
       <ul className="mt-2 space-y-1">
         {categoryGroups.map((group) => {
           const total = countProducts(index, group.id);
+          if (total === 0 && group.id !== category) return null;
           const expanded = openGroups[group.id];
           return (
             <li key={group.id}>

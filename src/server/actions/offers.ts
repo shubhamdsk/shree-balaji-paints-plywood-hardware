@@ -3,13 +3,12 @@
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { readOfferForm, validateOfferInput, type OfferFieldErrors } from "@/lib/offer-input";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
-import { deletePhoto, savePhoto } from "@/server/storage/photos";
+import { deletePhoto, PHOTO_UPLOAD_FAILED, uploadPhoto } from "@/server/storage/photos";
 import {
   createOffer,
   deleteOffer,
@@ -46,7 +45,9 @@ export async function saveOfferAction(
     };
   }
 
-  const uploaded = upload.photo ? API_ENDPOINTS.photo(await savePhoto(upload.photo.bytes, upload.photo.type)) : undefined;
+  const photo = await uploadPhoto(upload.photo);
+  if (!photo.ok) return { message: PHOTO_UPLOAD_FAILED };
+  const uploaded = photo.image;
   if (offerId) {
     const updated = await updateOffer(owner, offerId, validation.input, uploaded);
     if (!updated) return { message: "This offer no longer exists." };

@@ -2,7 +2,15 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteBackup, deletePhoto, readBackup, readPhoto, saveBackup, savePhoto } from "@/server/storage/photos";
+import {
+  deleteBackup,
+  deletePhoto,
+  readBackup,
+  readPhoto,
+  saveBackup,
+  savePhoto,
+  uploadPhoto,
+} from "@/server/storage/photos";
 
 const ENDPOINT = "https://storage.example.test";
 const bytes = new Uint8Array([1, 2, 3, 4]);
@@ -91,6 +99,14 @@ describe("photo storage", () => {
       vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 403 })));
 
       await expect(savePhoto(bytes, "image/png")).rejects.toThrow("Storage upload failed with status 403");
+    });
+
+    it("reports a failed upload instead of throwing when the bucket can't be reached", async () => {
+      vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new TypeError("fetch failed"))));
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+      expect(await uploadPhoto({ bytes, type: "image/jpeg" })).toEqual({ ok: false });
+      expect(await uploadPhoto(null)).toEqual({ ok: true, image: undefined });
     });
 
     it("stores backups as JSON under backups/ in the same bucket", async () => {

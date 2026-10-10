@@ -36,4 +36,10 @@ describe("CategoryDirectory", () => {
     expect(types.getAllByRole("link").map((a) => a.textContent)).toEqual(["Interior", "Exterior"]);
     expect(screen.queryByRole("list", { name: "Tools types" })).toBeNull();
   });
+
+  it("leaves out categories with no products", () => {
+    renderWithProviders(<CategoryDirectory categories={categories} groups={groups} products={products.slice(0, 2)} />);
+    expect(screen.queryByRole("link", { name: /Tools/ })).toBeNull();
+    expect(screen.getByRole("link", { name: /Paints\s*2 products/ })).toBeDefined();
+  });
 });

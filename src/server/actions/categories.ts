@@ -3,13 +3,12 @@
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { readCategoryForm, validateCategoryInput, type CategoryFieldErrors } from "@/lib/category-input";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
-import { deletePhoto, savePhoto } from "@/server/storage/photos";
+import { deletePhoto, PHOTO_UPLOAD_FAILED, uploadPhoto } from "@/server/storage/photos";
 import {
   createCategory,
   createSubcategory,
@@ -45,7 +44,9 @@ async function saveFromForm(formData: FormData, save: Save): Promise<CategoryFor
     };
   }
 
-  const uploaded = upload.photo ? API_ENDPOINTS.photo(await savePhoto(upload.photo.bytes, upload.photo.type)) : undefined;
+  const photo = await uploadPhoto(upload.photo);
+  if (!photo.ok) return { message: PHOTO_UPLOAD_FAILED };
+  const uploaded = photo.image;
   const result = await save(validation.input, uploaded);
   const unusedPhoto = result.ok ? result.replacedImage : uploaded;
   const key = photoKeyFromImage(unusedPhoto);

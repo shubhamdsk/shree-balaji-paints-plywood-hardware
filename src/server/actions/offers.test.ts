@@ -83,6 +83,20 @@ describe("saveOfferAction", () => {
     expect((await getLiveOffers("2026-10-27")).map((o) => o.id)).toEqual([offer.id]);
   });
 
+  it("asks to try again, without saving, when the photo can't be uploaded", async () => {
+    await logInAsOwner();
+    vi.stubEnv("AWS_ENDPOINT_URL_S3", "https://storage.example.test");
+    vi.stubEnv("AWS_ACCESS_KEY_ID", "test-key");
+    vi.stubEnv("AWS_SECRET_ACCESS_KEY", "test-secret");
+    vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new TypeError("fetch failed"))));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const state = await save(offerForm({}, new Blob([JPEG], { type: "image/jpeg" })));
+
+    expect(state.message).toMatch(/photo couldn't be saved/);
+    expect(await getAdminOffers()).toEqual([]);
+  });
+
   it("edits an offer and deletes the photo it replaced", async () => {
     await logInAsOwner();
     await save(offerForm({}, new Blob([JPEG], { type: "image/jpeg" }))).catch(() => undefined);
