@@ -34,6 +34,9 @@
   "triggers": {
     "crons": ["*/3 * * * *"],
   },
+  "vars": {
+    "SITE_URL": "https://shree-balaji.shreebalajipaints.workers.dev",
+  },
   "observability": {
     "enabled": true,
   },
