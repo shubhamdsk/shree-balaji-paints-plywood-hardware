@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { MAX_PASSWORD_LENGTH, validatePasswordChange, type PasswordChangeErrors } from "@/lib/password-rules";
+import { MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH, validatePasswordChange, type PasswordChangeErrors } from "@/lib/password-rules";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
 import { clearSessionCookie, readSessionToken, setSessionCookie } from "@/server/auth/session";
@@ -21,7 +21,7 @@ const INVALID_LOGIN_MESSAGE = "Incorrect username or password";
 const LOCKED_LOGIN_MESSAGE = "Too many wrong tries. Login is locked for 15 minutes.";
 
 export async function logInAction(_previous: LoginState, formData: FormData): Promise<LoginState> {
-  const username = String(formData.get("username") ?? "").slice(0, 100);
+  const username = String(formData.get("username") ?? "").slice(0, MAX_USERNAME_LENGTH);
   const password = String(formData.get("password") ?? "").slice(0, MAX_PASSWORD_LENGTH);
   if (!username.trim() || !password) return { error: "Enter your username and password.", username };
 

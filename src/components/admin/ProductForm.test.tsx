@@ -82,11 +82,17 @@ describe("ProductForm", () => {
     expect(screen.getByRole("button", { name: "Sizes: Choose sizes" })).toBeDefined();
   });
 
-  it("checks the price as soon as the field is left", async () => {
+  it("keeps only digits as the price is typed", async () => {
     const { user } = renderWithProviders(<ProductForm categoryGroups={groups} />);
-    await user.type(screen.getByLabelText(/Starting price/), "520.50");
+    await user.type(screen.getByLabelText(/Starting price/), "₹5,2a😀0");
+    expect(screen.getByLabelText(/Starting price/)).toHaveProperty("value", "520");
+  });
+
+  it("checks the name as soon as the field is left", async () => {
+    const { user } = renderWithProviders(<ProductForm categoryGroups={groups} />);
+    await user.type(screen.getByLabelText(/Product name/), "Royale 🎨");
     await user.tab();
-    expect(description(screen.getByLabelText(/Starting price/))).toBe("Enter the price in whole rupees, like 520");
+    expect(description(screen.getByLabelText(/Product name/))).toBe("Emojis aren't allowed here");
   });
 
   it("offers only the types of the chosen category and clears a type that no longer fits", async () => {

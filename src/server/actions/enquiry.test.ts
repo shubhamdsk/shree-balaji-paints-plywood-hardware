@@ -80,6 +80,15 @@ describe("enquiry server actions", () => {
     expect(items.map((e) => e.notes)).toEqual(["WhatsApp message sent"]);
   });
 
+  test("updateEnquiryStatusAction rejects notes with hidden characters or over the limit", async () => {
+    const { id } = await submitEnquiryAction(enquiry("Prakash", "Plywood quote requested"));
+    await logInAsOwner();
+
+    expect((await updateEnquiryStatusAction(id!, "contacted", "Called\u200B back")).ok).toBe(false);
+    expect((await updateEnquiryStatusAction(id!, "contacted", "x".repeat(501))).ok).toBe(false);
+    expect((await updateEnquiryStatusAction(id!, "contacted", "Quote sent 👍")).ok).toBe(true);
+  });
+
   test("loadEnquiriesAction requires owner login and checks the filter", async () => {
     await submitEnquiryAction(enquiry("Prakash", "Plywood quote requested"));
     await expect(loadEnquiriesAction({ status: "new" })).rejects.toThrow();

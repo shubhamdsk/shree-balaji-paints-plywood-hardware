@@ -10,12 +10,14 @@ import { useFormValidation } from "@/hooks/use-form-validation";
 import { usePhotoPicker } from "@/hooks/use-photo-picker";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import {
+  CATEGORY_LIMITS,
   SEO_DESCRIPTION_MAX,
   SEO_TITLE_MAX,
   readCategoryForm,
   validateCategoryInput,
   type CategoryFieldErrors,
 } from "@/lib/category-input";
+import { keepDigits } from "@/lib/text-rules";
 import { saveCategoryAction, saveSubcategoryAction, type CategoryFormState } from "@/server/actions/categories";
 import type { AdminCategoryRecord, AdminSubcategoryRecord } from "@/types";
 
@@ -74,7 +76,8 @@ export default function CategoryForm(props: CategoryFormProps) {
     name: field,
     value: values[field],
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setValues((current) => ({ ...current, [field]: event.target.value }));
+      const value = field === "sortOrder" ? keepDigits(event.target.value) : event.target.value;
+      setValues((current) => ({ ...current, [field]: value }));
       validation.clearError(field);
     },
     "aria-invalid": errors[field] ? true : undefined,
@@ -94,21 +97,21 @@ export default function CategoryForm(props: CategoryFormProps) {
           hint={record ? "Products stay linked when you rename it." : undefined}
           required
         >
-          <input {...fieldProps("name")} autoComplete="off" />
+          <input {...fieldProps("name")} autoComplete="off" maxLength={CATEGORY_LIMITS.name} />
         </FormField>
         <FormField label="Position" htmlFor="sortOrder" error={errors.sortOrder} hint="Lower numbers show first" required>
-          <input {...fieldProps("sortOrder")} inputMode="numeric" autoComplete="off" />
+          <input {...fieldProps("sortOrder")} inputMode="numeric" autoComplete="off" maxLength={4} />
         </FormField>
         {kind === "category" && (
           <div className="sm:col-span-2">
             <FormField label="Tagline" htmlFor="tagline" error={errors.tagline} hint="One short line shown on the home page">
-              <input {...fieldProps("tagline")} autoComplete="off" />
+              <input {...fieldProps("tagline")} autoComplete="off" maxLength={CATEGORY_LIMITS.tagline} />
             </FormField>
           </div>
         )}
         <div className="sm:col-span-2">
           <FormField label="Description" htmlFor="description" error={errors.description}>
-            <textarea {...fieldProps("description")} rows={3} />
+            <textarea {...fieldProps("description")} rows={3} maxLength={CATEGORY_LIMITS.description} />
           </FormField>
         </div>
       </section>
@@ -129,7 +132,7 @@ export default function CategoryForm(props: CategoryFormProps) {
           error={errors.seoTitle}
           hint={`Optional, up to ${SEO_TITLE_MAX} characters. The shop name is added after it. Leave empty to use the name.`}
         >
-          <input {...fieldProps("seoTitle")} autoComplete="off" />
+          <input {...fieldProps("seoTitle")} autoComplete="off" maxLength={SEO_TITLE_MAX} />
         </FormField>
         <FormField
           label="Search description"
@@ -137,7 +140,7 @@ export default function CategoryForm(props: CategoryFormProps) {
           error={errors.seoDescription}
           hint={`Optional, up to ${SEO_DESCRIPTION_MAX} characters. Leave empty to use the description.`}
         >
-          <textarea {...fieldProps("seoDescription")} rows={2} />
+          <textarea {...fieldProps("seoDescription")} rows={2} maxLength={SEO_DESCRIPTION_MAX} />
         </FormField>
       </section>
 

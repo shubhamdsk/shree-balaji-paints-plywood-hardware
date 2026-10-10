@@ -6,7 +6,7 @@ import FormAlert from "@/components/ui/FormAlert";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { KeyRound } from "@/components/ui/icons";
 import { useFormValidation } from "@/hooks/use-form-validation";
-import { validateLogin, type LoginInput } from "@/lib/password-rules";
+import { MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH, validateLogin, type LoginInput } from "@/lib/password-rules";
 import { logInAction, type LoginState } from "@/server/actions/auth";
 
 const ERROR_ID = "login-error";
@@ -44,11 +44,17 @@ export default function LoginForm() {
           autoComplete="username"
           autoCapitalize="none"
           spellCheck={false}
+          maxLength={MAX_USERNAME_LENGTH}
           defaultValue={state.username}
         />
       </FormField>
       <FormField label="Password" htmlFor="password" error={errors.password} required>
-        <input {...fieldProps("password")} type="password" autoComplete="current-password" />
+        <input
+          {...fieldProps("password")}
+          type="password"
+          autoComplete="current-password"
+          maxLength={MAX_PASSWORD_LENGTH}
+        />
       </FormField>
       <FormAlert id={ERROR_ID}>{state.error}</FormAlert>
       <Button type="submit" variant="primary" className="w-full" disabled={pending}>

@@ -83,6 +83,15 @@ describe("validateProductInput", () => {
     });
   });
 
+  it("rejects emojis and digit-only text in the name and brand, but allows emojis in the description", () => {
+    expect(
+      validateProductInput({ ...valid, name: "Weatherbond 🌧️", brand: "123", description: "Rain proof 🌧️\nTwo coats" }, groups),
+    ).toEqual({
+      ok: false,
+      errors: { name: "Emojis aren't allowed here", brand: "Use at least one letter" },
+    });
+  });
+
   it("puts sizes in the unit's list order", () => {
     expect(validateProductInput({ ...valid, sizes: ["20 L", "1 L"] }, groups)).toMatchObject({
       ok: true,

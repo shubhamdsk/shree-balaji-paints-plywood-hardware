@@ -35,12 +35,23 @@ describe("CategoryForm", () => {
     );
     expect(screen.getByLabelText(/Position/)).toHaveProperty("value", "11");
     await user.clear(screen.getByLabelText(/Position/));
-    await user.type(screen.getByLabelText(/Search title/), "x".repeat(71));
+    await user.type(screen.getByLabelText(/Search title/), "Glass 🪟");
     await user.click(screen.getByRole("button", { name: "Save category" }));
 
     expect(description(screen.getByLabelText(/Category name/))).toBe("Enter the name");
     expect(description(screen.getByLabelText(/Position/))).toBe("Enter a whole number from 0 to 9999");
-    expect(description(screen.getByLabelText(/Search title/))).toBe("Keep the search title under 70 characters");
+    expect(description(screen.getByLabelText(/Search title/))).toBe("Emojis aren't allowed here");
+  });
+
+  it("keeps only digits in the position and stops long text at the limit", async () => {
+    const { user } = renderWithProviders(
+      <CategoryForm kind="category" cancelHref={ROUTES.adminCategories} defaultSortOrder={11} />,
+    );
+    await user.clear(screen.getByLabelText(/Position/));
+    await user.type(screen.getByLabelText(/Position/), "-1a2.5");
+    expect(screen.getByLabelText(/Position/)).toHaveProperty("value", "125");
+    await user.type(screen.getByLabelText(/Search title/), "x".repeat(75));
+    expect(screen.getByLabelText(/Search title/)).toHaveProperty("value", "x".repeat(70));
   });
 
   it("fills in a saved type without the category-only tagline", () => {

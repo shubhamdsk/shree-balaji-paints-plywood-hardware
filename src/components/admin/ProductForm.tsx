@@ -15,6 +15,7 @@ import { formatPrice } from "@/lib/price";
 import { sizesForUnit, unitOptions } from "@/lib/price-units";
 import { readProductForm, validateProductInput, type ProductField, type ProductFieldErrors } from "@/lib/product-input";
 import { ROUTES } from "@/lib/routes";
+import { keepDigits } from "@/lib/text-rules";
 import { saveProductAction, type ProductFormState } from "@/server/actions/products";
 import type { AdminProduct, CategoryGroup } from "@/types";
 
@@ -108,7 +109,8 @@ export default function ProductForm({ product, categoryGroups }: ProductFormProp
     id: field,
     name: field,
     value: values[field],
-    onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => update(field, event.target.value),
+    onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      update(field, field === "priceFrom" ? keepDigits(event.target.value) : event.target.value),
     "aria-invalid": errors[field] ? true : undefined,
     "aria-describedby": errors[field] ? `${field}-error` : undefined,
     className: fieldClasses,
@@ -203,7 +205,7 @@ export default function ProductForm({ product, categoryGroups }: ProductFormProp
           error={errors.priceFrom}
           hint={pricePreview ? `Shows as "${pricePreview}"` : "Whole rupees. Leave empty to show Ask for price"}
         >
-          <input {...fieldProps("priceFrom")} inputMode="numeric" autoComplete="off" />
+          <input {...fieldProps("priceFrom")} inputMode="numeric" autoComplete="off" maxLength={7} />
         </FormField>
         <div className="sm:col-span-2">
           <FormField label="Short description" htmlFor="description" error={errors.description} hint="Up to 500 characters">

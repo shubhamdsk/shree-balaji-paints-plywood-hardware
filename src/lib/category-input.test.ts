@@ -29,4 +29,14 @@ describe("validateCategoryInput", () => {
       },
     });
   });
+
+  it("rejects emojis in names and titles but allows them in descriptions", () => {
+    const result = validateCategoryInput(
+      readCategoryForm(form({ name: "Glass 🪟", sortOrder: "1", tagline: "1234", description: "Clear glass ✨" })),
+    );
+    expect(result).toEqual({
+      ok: false,
+      errors: { name: "Emojis aren't allowed here", tagline: "Use at least one letter" },
+    });
+  });
 });

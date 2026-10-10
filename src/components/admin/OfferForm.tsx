@@ -9,7 +9,7 @@ import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import { usePhotoPicker } from "@/hooks/use-photo-picker";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
-import { readOfferForm, validateOfferInput, type OfferFieldErrors, type OfferInput } from "@/lib/offer-input";
+import { OFFER_LIMITS, readOfferForm, validateOfferInput, type OfferFieldErrors, type OfferInput } from "@/lib/offer-input";
 import { ROUTES } from "@/lib/routes";
 import { saveOfferAction, type OfferFormState } from "@/server/actions/offers";
 import type { Offer } from "@/types";
@@ -76,12 +76,12 @@ export default function OfferForm({ offer, copyFrom }: OfferFormProps) {
       <section className="grid gap-5 rounded-card border border-line bg-card p-5 shadow-card sm:grid-cols-2 sm:p-6">
         <div className="sm:col-span-2">
           <FormField label="Offer title" htmlFor="title" error={errors.title} required>
-            <input {...fieldProps("title")} autoComplete="off" />
+            <input {...fieldProps("title")} autoComplete="off" maxLength={OFFER_LIMITS.title} />
           </FormField>
         </div>
         <div className="sm:col-span-2">
           <FormField label="Offer details" htmlFor="body" error={errors.body} required>
-            <textarea {...fieldProps("body")} rows={3} />
+            <textarea {...fieldProps("body")} rows={3} maxLength={OFFER_LIMITS.body} />
           </FormField>
         </div>
         <FormField label="Start date" htmlFor="startsOn" error={errors.startsOn} hint="Shows from the start of this day" required>

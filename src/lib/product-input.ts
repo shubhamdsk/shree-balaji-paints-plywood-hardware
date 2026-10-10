@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isAllowedUnit, sizesForUnit, sortSizes, type SavedSizing } from "@/lib/price-units";
 import { slugify } from "@/lib/slug";
+import { labelProblem, longTextProblem, textRule } from "@/lib/text-rules";
 import type { CategoryGroup, CategoryId } from "@/types";
 
 export interface ProductInput {
@@ -51,11 +52,25 @@ export function readProductForm(formData: FormData) {
 export function productInputSchema(groups: CategoryGroup[], saved?: SavedSizing) {
   return z
     .strictObject({
-      name: z.string().trim().min(2, "Enter the product name").max(120, "Keep the name under 120 characters"),
-      brand: z.string().trim().min(1, "Enter the brand").max(60, "Keep the brand under 60 characters"),
+      name: z
+        .string()
+        .trim()
+        .min(2, "Enter the product name")
+        .max(120, "Keep the name under 120 characters")
+        .superRefine(textRule(labelProblem)),
+      brand: z
+        .string()
+        .trim()
+        .min(1, "Enter the brand")
+        .max(60, "Keep the brand under 60 characters")
+        .superRefine(textRule(labelProblem)),
       category: z.custom<CategoryId>((id) => groups.some((group) => group.id === id), "Choose a category"),
       type: z.string().trim().min(1, "Choose a type"),
-      description: z.string().trim().max(500, "Keep the description under 500 characters"),
+      description: z
+        .string()
+        .trim()
+        .max(500, "Keep the description under 500 characters")
+        .superRefine(textRule(longTextProblem)),
       sizes: z.array(z.string()).min(1, "Choose at least one size").max(20, "Choose at most 20 sizes"),
       priceFrom: z
         .number("Enter the price in whole rupees, like 520")

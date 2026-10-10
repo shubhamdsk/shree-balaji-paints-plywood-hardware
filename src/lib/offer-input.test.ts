@@ -23,6 +23,13 @@ describe("validateOfferInput", () => {
     expect(validateOfferInput(valid)).toEqual({ ok: true, input: valid });
   });
 
+  it("rejects an emoji title but allows emojis in the text", () => {
+    expect(validateOfferInput({ ...valid, title: "Diwali 🪔 offer", body: "10% off 🎉" })).toEqual({
+      ok: false,
+      errors: { title: "Emojis aren't allowed here" },
+    });
+  });
+
   it("requires a title, text and both dates", () => {
     expect(validateOfferInput({ title: "", body: " ", startsOn: "", endsOn: "" })).toEqual({
       ok: false,
