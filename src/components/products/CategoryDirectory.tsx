@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { ArrowRight } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
+import CoverImage from "@/components/ui/CoverImage";
 import { countProducts } from "@/lib/catalog";
 import { ROUTES } from "@/lib/routes";
 import type { Category, CategoryGroup, Product } from "@/types";
@@ -22,10 +22,9 @@ export default function CategoryDirectory({ categories, groups, products }: Prop
         return (
           <li key={category.id} className="flex flex-col overflow-hidden rounded-card border border-line bg-card shadow-card">
             <AppLink href={ROUTES.category(category.id)} className="group relative block aspect-[16/9] overflow-hidden bg-surface-muted">
-              <Image
+              <CoverImage
                 src={category.image}
                 alt=""
-                fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                 className="img-zoom object-cover"
               />

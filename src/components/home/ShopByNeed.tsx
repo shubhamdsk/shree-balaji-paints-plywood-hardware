@@ -6,8 +6,8 @@ const needs = [
   {
     icon: House,
     title: "New Home",
-    body: "Plywood, door hardware, plumbing and electrical for a new build.",
-    href: ROUTES.category("plywood"),
+    body: "Plywood, boards, laminates and door fittings for a new build.",
+    href: ROUTES.category("plywood-boards"),
     tone: "bg-surface-muted text-heading",
   },
   {
@@ -21,14 +21,14 @@ const needs = [
     icon: Hammer,
     title: "Renovation",
     body: "Locks, hinges, handles and fittings to refresh doors and furniture.",
-    href: ROUTES.category("hardware"),
+    href: ROUTES.category("furniture-hardware"),
     tone: "bg-surface-muted text-accent-600",
   },
   {
     icon: Wrench,
     title: "Repairs",
-    body: "Tools, adhesives and sealants for quick fixes around the house.",
-    href: ROUTES.category("tools"),
+    body: "Adhesives, sealants, screws and fasteners for quick fixes around the house.",
+    href: ROUTES.category("adhesives-chemicals"),
     tone: "bg-surface-muted text-gold-600",
   },
 ];

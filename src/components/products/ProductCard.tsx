@@ -1,20 +1,12 @@
-import Image from "next/image";
 import { ArrowRight, WhatsAppIcon } from "@/components/ui/icons";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
+import CoverImage from "@/components/ui/CoverImage";
 import { whatsappLink } from "@/config/shop";
-import { productLabel } from "@/lib/catalog";
+import { categoryLabel, productLabel } from "@/lib/catalog";
 import { productEnquiryMessage } from "@/lib/enquiry";
 import { ROUTES } from "@/lib/routes";
 import type { Product } from "@/types";
-
-function productImage(product: Product) {
-  return product.gallery?.[0] ?? product.image ?? `/images/categories/${product.category}.jpg`;
-}
-
-function categoryName(product: Product) {
-  return product.category.charAt(0).toUpperCase() + product.category.slice(1);
-}
 
 const MAX_SIZES = 4;
 
@@ -25,10 +17,9 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-card shadow-card transition-all duration-200 ease-premium hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover">
       <AppLink href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-surface-muted">
-        <Image
-          src={productImage(product)}
+        <CoverImage
+          src={product.gallery?.[0] ?? product.image}
           alt=""
-          fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1440px) 33vw, 25vw"
           className="img-zoom object-cover"
         />
@@ -47,7 +38,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </AppLink>
         </h3>
         <p className="mt-1 text-sm text-muted">
-          {categoryName(product)} · {product.type}
+          {categoryLabel(product)} · {product.type}
         </p>
 
         {product.sizes.length > 0 && (

@@ -19,7 +19,7 @@ const reasons = [
   {
     icon: Store,
     title: "One stop for the whole job",
-    body: "Paints, plywood, hardware, plumbing and tools under one roof, so you finish faster.",
+    body: "Paints, plywood, laminates, hardware and painting tools under one roof, so you finish faster.",
   },
 ];
 

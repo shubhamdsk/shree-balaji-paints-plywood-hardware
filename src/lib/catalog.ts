@@ -1,3 +1,4 @@
+import { shop } from "@/config/shop";
 import { ROUTES } from "@/lib/routes";
 import { slugify } from "@/lib/slug";
 import type { CategoryGroup, CategoryId, Product } from "@/types";
@@ -10,6 +11,10 @@ export function countProducts(products: Product[], categoryId: CategoryId, subty
 
 export function productLabel(product: Pick<Product, "brand" | "name">) {
   return `${product.brand} ${product.name}`;
+}
+
+export function categoryLabel(product: Pick<Product, "category" | "categoryName">) {
+  return product.categoryName ?? product.category.charAt(0).toUpperCase() + product.category.slice(1).replaceAll("-", " ");
 }
 
 export function getBrandNames(products: Product[]) {
@@ -45,6 +50,16 @@ export function compareByPrice(a: Product, b: Product, direction: "asc" | "desc"
   if (a.priceFrom === undefined) return 1;
   if (b.priceFrom === undefined) return -1;
   return direction === "asc" ? a.priceFrom - b.priceFrom : b.priceFrom - a.priceFrom;
+}
+
+export function categoryPageMeta(group: CategoryGroup, subtype?: string) {
+  const details = subtype ? group.subtypeDetails?.find((d) => d.name === subtype) : group;
+  const name = subtype ? `${subtype} ${group.name}` : group.name;
+  return {
+    title: details?.seoTitle ?? name,
+    description:
+      details?.seoDescription ?? details?.description ?? `Browse ${name.toLowerCase()} at ${shop.shortName}, ${shop.address.city}.`,
+  };
 }
 
 export function findSubtypeBySlug(group: CategoryGroup, slug: string) {

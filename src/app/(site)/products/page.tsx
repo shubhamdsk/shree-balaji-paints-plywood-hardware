@@ -3,7 +3,7 @@ import CatalogView from "@/components/products/CatalogView";
 
 export const metadata: Metadata = {
   title: "Products",
-  description: "Browse paints, plywood, hardware, plumbing, electrical and tools at Shree Balaji, Kotul.",
+  description: "Browse paints, plywood, laminates, hardware, adhesives and painting tools at Shree Balaji, Kotul.",
 };
 
 export default function ProductsPage() {

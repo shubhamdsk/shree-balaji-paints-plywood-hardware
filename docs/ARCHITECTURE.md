@@ -45,11 +45,12 @@ flowchart LR
 - Clean paths with no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts):
   - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`). Category ids and product ids must never overlap.
   - `/products/[slug]/[type]` is a category type (`/products/paints/interior-emulsion`).
+  - Addresses from the old category list (`/products/plywood/marine`, `/products/hardware`, `/products/plumbing`) redirect permanently to the new ones. The list lives in [`src/lib/legacy-routes.ts`](../src/lib/legacy-routes.ts) and is loaded by `redirects()` in `next.config.ts`.
   - `/brands/[slug]` is a brand (`/brands/asian-paints`), and `/enquiry/[productId]` opens the enquiry form with that product chosen.
   - Brands, Offers, About and Contact are their own routes.
 - **Data access:** pages and the REST endpoints in `src/app/api/` read through [`src/services/catalog-service.ts`](../src/services/catalog-service.ts). Paths are defined once in [`src/lib/api/endpoints.ts`](../src/lib/api/endpoints.ts).
 - Public pages live in the `src/app/(site)` route group, which adds the navbar, footer and floating buttons. The owner panel under `src/app/admin` has its own frame.
-- **Products** come from the database since Sprint 1 (see 3.2). Categories, their types and the popular-brands list still come from `src/data`. Enquiries are still only a WhatsApp message built in the browser until Sprint 2.
+- **Products, categories and their types** come from the database, so the owner panel and the public site always show the same list. `src/data` only seeds an empty database (and is the fallback when the category tables are empty). The popular-brands list still comes from `src/data`.
 
 ### 3.2 What Part 2 adds
 
@@ -83,6 +84,7 @@ src/
       (panel)/page.tsx            # dashboard: counts and quick links
       (panel)/products/...        # list, new, [id] edit
       (panel)/offers/...          # list, new, [id] edit, [id]/copy
+      (panel)/categories/...      # list, new, [id] edit with its types, [id]/types/new, [id]/types/[typeId]
       (panel)/gallery/...
       (panel)/enquiries/page.tsx
     api/photos/[key]/route.ts     # serves uploaded photos
@@ -93,6 +95,9 @@ src/
   lib/
     product-input.ts              # product form rules shared by browser and server
     offer-input.ts                # offer form rules and the live / starts soon / ended status
+    category-input.ts             # category and type form rules (name, position, search title and description)
+    category-list.ts              # rows for the owner category and type lists
+    legacy-routes.ts              # permanent redirects from the old category addresses
     dates.ts                      # today's date in India
     backup-token.ts               # daily backup cron schedule and token
     photo.ts  resize-photo.ts     # photo type checks; browser-side resizing
@@ -103,7 +108,7 @@ src/
     actions/                      # Server Actions: auth, products, categories, offers, gallery, enquiry
     storage/photos.ts             # photos and daily backups in Neon Object Storage, or a local folder
     audit.ts
-  services/                       # catalog, admin-product, auth, offer, gallery, enquiry, backup
+  services/                       # catalog, admin-product, admin-category, auth, offer, gallery, enquiry, backup
 scripts/db-migrate.ts             # applies migrations and the first seed at build time
 worker.ts                         # Cloudflare entry: the generated Next.js worker plus the cron handler
 ```
@@ -118,6 +123,8 @@ worker.ts                         # Cloudflare entry: the generated Next.js work
 erDiagram
   ADMIN_USERS ||--o{ SESSIONS : has
   ADMIN_USERS ||--o{ AUDIT_LOG : performs
+  CATEGORIES ||--o{ SUBCATEGORIES : contains
+  SUBCATEGORIES ||--o{ PRODUCTS : files
   PRODUCTS ||--o{ ENQUIRIES : "asked about"
 ```
 
@@ -125,13 +132,15 @@ erDiagram
 |-------|-------------------|-------|
 | `admin_users` | username, password_hash, failed_attempts, locked_until | One owner account in v1 |
 | `sessions` | token_hash, user_id, expires_at | Only a hash of the token is stored |
-| `products` | id (slug), name, brand, category, type, description, sizes (jsonb), price_from (whole rupees; empty means "Ask for price"), unit, image, details (jsonb: colours, features, technical data), featured, featured_at, in_stock, is_visible, sort_order, updated_at | `id` unique and never equal to a category id. `in_stock` is true or false only. The home page shows the 8 featured products with the latest `featured_at` |
+| `categories` | id (slug, fixed once created), name, tagline, description, image (optional), seo_title, seo_description, sort_order, is_active | Never deleted from the panel, only hidden. A hidden category hides its types and products from the public site. The id can't equal a product id or an old category address |
+| `subcategories` (types) | id (`<category>-<slug>`), category_id, name, description, image, seo_title, seo_description, sort_order, is_active | Name unique within its category. Renaming keeps products linked; the public type address follows the name |
+| `products` | id (slug), name, brand, subcategory_id (FK, set null on delete), category and type (names as last saved), description, sizes (jsonb), price_from (whole rupees; empty means "Ask for price"), unit, image, details (jsonb: colours, features, technical data), featured, featured_at, in_stock, is_visible, sort_order, updated_at | `id` unique and never equal to a category id. `in_stock` is true or false only. The public site reads the category and type through `subcategory_id` and shows a product only when it, its type and its category are all visible. A product with no `subcategory_id` is flagged "Needs a category" in the panel. The home page shows the 8 featured products with the latest `featured_at` |
 | `offers` | title, body, image (optional), starts_on, ends_on | Shown only from the start of `starts_on` to the end of `ends_on` (Asia/Kolkata). A copied offer shares its photo, which is deleted only when no offer uses it |
 | `gallery_items` | caption, image_key, sort_order | |
 | `enquiries` | name, phone, product_id, quantity, message, source (`form` / `calculator`), status (`NEW` / `CALLED` / `DONE`), created_at | Owner-only. Deleted after 12 months |
 | `audit_log` | user_id, action, entity, entity_id, before (jsonb), after (jsonb), at | Append-only |
 
-Categories and their types stay in code (`src/data/category-tree.ts`), because they change rarely and drive the URL structure. Brands are derived from products, as today.
+Category photos are stored in `categories.image`: a bundled photo under `/images/categories/` or an owner upload under `/api/photos/`. A category without one shows a plain placeholder (`CoverImage`), never a random stock photo. Brands are derived from products, as today.
 
 ---
 
@@ -205,7 +214,7 @@ Neon's automatic snapshots aren't available on the free plan, so the app makes i
 | 3 | Cached pages refreshed by tag | Fast pages, changes in about a minute, no redeploy (deploys cost free-plan credits) | Rebuild on every change, fully dynamic pages |
 | 4 | Postgres with Drizzle | Real constraints and migrations, free, no native binaries | Google Sheets as a CMS (no validation, fragile), JSON committed to Git (no place for enquiries) |
 | 5 | Save the enquiry, then open WhatsApp | Nothing lost, and the owner keeps his WhatsApp habit | WhatsApp only (lost chats), form only (slower replies) |
-| 6 | Categories stay in code | They define the URL structure and rarely change | Editable categories (risk of broken links) |
+| 6 | Categories and types live in the database, products link by subcategory id | One list for the panel and the site; renaming a type can't orphan its products. Category ids never change and old addresses redirect | Categories in code (owner can't change them), linking products by type name (a rename breaks the link) |
 | 7 | Neon's free Postgres plan | Plain Postgres that works with any host | A host-specific database (ties the data to the host) |
 | 8 | `unstable_cache` with tags, not Cache Components | Works with the current pages unchanged and is shared across Cloudflare locations through the KV cache and Durable Object tags | `cacheComponents` (needs Suspense around the navbar, bans `dynamicParams`, keeps `use cache` in one instance's memory) |
 | 9 | PGlite when no `DATABASE_URL` | Developers, tests and CI run real Postgres SQL with no setup | A shared cloud database for development (slow, easy to damage), SQLite (different SQL) |

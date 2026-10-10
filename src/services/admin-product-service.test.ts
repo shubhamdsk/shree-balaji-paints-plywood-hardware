@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import type { ProductInput } from "@/lib/product-input";
-import { adminUsers, auditLog, products } from "@/server/db/schema";
+import { adminUsers, auditLog, products, subcategories } from "@/server/db/schema";
 import {
   createProduct,
   getAdminProduct,
@@ -20,7 +20,7 @@ const input: ProductInput = {
   name: "Weatherbond Advance",
   brand: "Nippon Paint",
   category: "paints",
-  type: "Exterior",
+  type: "Exterior Emulsion",
   description: "Exterior emulsion that resists rain and dust.",
   sizes: ["1 L", "4 L", "10 L"],
   priceFrom: 295,
@@ -61,6 +61,7 @@ describe("createProduct", () => {
     const [existing] = await listAdminProducts();
     expect(await createProduct(actor, { ...input, name: existing.name }, undefined)).not.toBe(existing.id);
     expect(await createProduct(actor, { ...input, name: "Paints" })).toBe("paints-2");
+    expect(await createProduct(actor, { ...input, name: "Plywood" })).toBe("plywood-2");
   });
 
   it("stores a product without a price as Ask for price", async () => {
@@ -168,6 +169,17 @@ describe("listing", () => {
     const counts = await getProductCounts();
     expect(counts.total).toBe(list.length);
     expect(counts.hidden).toBe(1);
-    expect(counts.outOfStock).toBe(list.filter((p) => p.isVisible && !p.inStock).length);
+    expect(counts.outOfStock).toBe(list.filter((p) => p.isVisible && !p.inStock).length);
+  });
+
+  it("links each product to its subcategory and flags products whose subcategory is gone", async () => {
+    const id = await createProduct(await owner(), input);
+    const [row] = await db().select({ subcategoryId: products.subcategoryId }).from(products).where(eq(products.id, id));
+    expect(row.subcategoryId).toBe("paints-exterior-emulsion");
+    expect(await getAdminProduct(id)).toMatchObject({ needsCategory: false, type: "Exterior Emulsion" });
+
+    await db().delete(subcategories).where(eq(subcategories.id, "paints-exterior-emulsion"));
+    expect(await getAdminProduct(id)).toMatchObject({ needsCategory: true, type: "Exterior Emulsion" });
+    expect(await getProductById(id)).toBeUndefined();
   });
 });

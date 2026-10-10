@@ -49,9 +49,15 @@ export async function seedCatalog(db: Database) {
   const [{ total: prodCount }] = await db.select({ total: count() }).from(products);
   if (prodCount === 0) {
     seeded = true;
+    const subcategoryIds = new Map(
+      (await db.select({ id: subcategories.id, categoryId: subcategories.categoryId, name: subcategories.name }).from(subcategories)).map(
+        (s) => [`${s.categoryId}/${s.name}`, s.id],
+      ),
+    );
     await db.insert(products).values(
       demoProducts.map((product, index) => ({
         ...toProductRow(product),
+        subcategoryId: subcategoryIds.get(`${product.category}/${product.type}`) ?? null,
         sortOrder: index,
       })),
     );

@@ -106,6 +106,12 @@ export default function ProductForm({ product, categoryGroups }: ProductFormProp
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
+      {product?.needsCategory && (
+        <p className="rounded-xl bg-gold-100 px-4 py-3 text-sm font-semibold text-heading">
+          The type this product was in has been removed, so it isn&apos;t on the website. Choose a category and type, then
+          save.
+        </p>
+      )}
       {state.message && (
         <p role="alert" className="rounded-xl bg-accent-50 px-4 py-3 text-sm font-semibold text-accent-700">
           {state.message}
