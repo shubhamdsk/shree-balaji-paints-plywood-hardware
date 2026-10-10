@@ -81,7 +81,7 @@ src/
     admin/
       login/page.tsx
       (panel)/layout.tsx          # requires a session; owner navigation
-      (panel)/page.tsx            # dashboard: counts and quick links
+      (panel)/page.tsx            # dashboard: new enquiries, out of stock, live offers
       (panel)/products/...        # list, new, [id] edit
       (panel)/offers/...          # list, new, [id] edit, [id]/copy
       (panel)/categories/...      # list, new, [id] edit with its types, [id]/types/new, [id]/types/[typeId]
