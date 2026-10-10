@@ -32,6 +32,11 @@
     "server-only": "^0.0.1",
     "zod": "^4.6.5"
   },
+  "overrides": {
+    "@node-minify/core": {
+      "glob": "^10.5.0"
+    }
+  },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@neon/config": "^1.8.4",
