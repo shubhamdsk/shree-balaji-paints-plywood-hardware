@@ -2,9 +2,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { PHOTO_KEY_PATTERN, PHOTO_TYPES, type PhotoType } from "@/lib/photo";
+import { AwsClient } from "aws4fetch";
+import { PHOTO_KEY_PATTERN, PHOTO_TYPES, photoTypeFromKey, type PhotoType } from "@/lib/photo";
 
-const STORE_NAME = "product-photos";
+const BUCKET = "product-photos";
 
 interface PhotoStore {
   set(key: string, data: Uint8Array): Promise<void>;
@@ -12,19 +13,31 @@ interface PhotoStore {
   delete(key: string): Promise<void>;
 }
 
-function isOnNetlify() {
-  return Boolean(process.env.NETLIFY_BLOBS_CONTEXT || (globalThis as { netlifyBlobsContext?: unknown }).netlifyBlobsContext);
+async function expectOk(response: Response, action: string) {
+  if (!response.ok) throw new Error(`Photo ${action} failed with status ${response.status}`);
 }
 
-async function netlifyStore(): Promise<PhotoStore> {
-  const { getStore } = await import("@netlify/blobs");
-  const store = getStore({ name: STORE_NAME, consistency: "strong" });
+function bucketStore(endpoint: string, client: AwsClient): PhotoStore {
+  const objectUrl = (key: string) => `${endpoint.replace(/\/+$/, "")}/${BUCKET}/${key}`;
   return {
     set: async (key, data) => {
-      await store.set(key, data.slice().buffer);
+      const response = await client.fetch(objectUrl(key), {
+        method: "PUT",
+        body: data.slice(),
+        headers: { "Content-Type": photoTypeFromKey(key) },
+      });
+      await expectOk(response, "upload");
     },
-    get: (key) => store.get(key, { type: "arrayBuffer" }),
-    delete: (key) => store.delete(key),
+    get: async (key) => {
+      const response = await client.fetch(objectUrl(key));
+      if (response.status === 404) return null;
+      await expectOk(response, "download");
+      return response.arrayBuffer();
+    },
+    delete: async (key) => {
+      const response = await client.fetch(objectUrl(key), { method: "DELETE" });
+      if (response.status !== 404) await expectOk(response, "delete");
+    },
   };
 }
 
@@ -46,23 +59,32 @@ function folderStore(folder: string): PhotoStore {
   };
 }
 
-function photoStore() {
-  if (isOnNetlify()) return netlifyStore();
-  return Promise.resolve(folderStore(process.env.PHOTO_STORAGE_DIR ?? path.join(process.cwd(), ".data/photos")));
+function photoStore(): PhotoStore {
+  const { AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  if (AWS_ENDPOINT_URL_S3 && AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+    const client = new AwsClient({
+      accessKeyId: AWS_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      region: AWS_REGION || "us-east-2",
+      service: "s3",
+    });
+    return bucketStore(AWS_ENDPOINT_URL_S3, client);
+  }
+  return folderStore(process.env.PHOTO_STORAGE_DIR ?? path.join(process.cwd(), ".data/photos"));
 }
 
 export async function savePhoto(data: Uint8Array, type: PhotoType) {
   const key = `${randomUUID()}.${PHOTO_TYPES[type]}`;
-  await (await photoStore()).set(key, data);
+  await photoStore().set(key, data);
   return key;
 }
 
 export async function readPhoto(key: string) {
   if (!PHOTO_KEY_PATTERN.test(key)) return null;
-  return (await photoStore()).get(key);
+  return photoStore().get(key);
 }
 
 export async function deletePhoto(key: string) {
   if (!PHOTO_KEY_PATTERN.test(key)) return;
-  await (await photoStore()).delete(key);
+  await photoStore().delete(key);
 }

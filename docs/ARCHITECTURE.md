@@ -13,7 +13,7 @@ Related documents: [Sprint plan](SPRINT-PLAN.md) · [Security](SECURITY.md) · [
 | The owner updates the site without coding | A phone-friendly owner panel at `/admin` writes to a database |
 | Changes show quickly | Pages are cached and refreshed on demand when the owner saves, in about a minute, with no redeploy |
 | Fast on every phone | Cached pages and images served from a CDN |
-| Zero running cost | Netlify free plan (commercial use allowed) with Netlify Blobs for photos, and Neon's free Postgres plan for data |
+| Zero running cost | Cloudflare Workers free plan (commercial use allowed) and Neon's free plan for data and photos (Postgres and Object Storage). No payment card on file anywhere |
 | No enquiry is lost | Enquiries are saved first, then WhatsApp opens as before |
 | Customer data stays private | Enquiries are visible only to the logged-in owner, never on public pages or in the API |
 | Pages don't care where data comes from | All reads go through `src/services`, so moving from local data to the database changes no page |
@@ -26,11 +26,12 @@ Related documents: [Sprint plan](SPRINT-PLAN.md) · [Security](SECURITY.md) · [
 
 ```mermaid
 flowchart LR
-  Customers[Customers] -->|mobile or desktop| Site[Website on Netlify]
+  Customers[Customers] -->|mobile or desktop| Site[Website on Cloudflare Workers]
   Site -->|enquiry message| WhatsApp[Owner's WhatsApp]
   Owner[Owner on phone] -->|/admin, logged in| Site
   Site --> DB[(Neon Postgres, free plan)]
-  Site --> Blobs[(Netlify Blobs: photos, backups)]
+  Site --> Storage[(Neon Object Storage: photos)]
+  Site --> KV[(Workers KV: page cache)]
   Site -->|sitemap| Google[Google Search and Business Profile]
 ```
 
@@ -40,7 +41,7 @@ flowchart LR
 
 ### 3.1 Public website (Part 1, live)
 
-- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on **Netlify**'s free plan (configured in [`netlify.toml`](../netlify.toml)); it moved from Vercel because Vercel's free plan is for non-commercial use only.
+- **Next.js 16 (App Router)**, React 19, Tailwind CSS v4. Hosted on **Cloudflare Workers** (free plan) through the OpenNext adapter, configured in [`wrangler.jsonc`](../wrangler.jsonc) and [`open-next.config.ts`](../open-next.config.ts). It moved from Vercel (free plan is non-commercial only), then from Netlify (free credits ran out).
 - Clean paths with no query strings. Every page path is built in [`src/lib/routes.ts`](../src/lib/routes.ts):
   - `/products/[slug]` is a category (`/products/paints`) or a product (`/products/ap-royale-luxury`). Category ids and product ids must never overlap.
   - `/products/[slug]/[type]` is a category type (`/products/paints/interior`).
@@ -54,15 +55,15 @@ flowchart LR
 
 | Piece | Technology | Notes |
 |-------|-----------|-------|
-| Hosting | Netlify (free plan) with its Next.js adapter | Next.js 16 supported with zero configuration, including tag revalidation |
+| Hosting | Cloudflare Workers (free plan) with `@opennextjs/cloudflare` | Pages are cached in Workers KV, and cache tags are kept in Durable Objects, which are always checked before a cached page is served, so `updateTag` refreshes pages across the network. The free plan caps the worker at 3 MiB gzipped (checked in CI) |
 | Database | Neon Postgres (free plan) | Products, admin users, sessions and audit log (Sprint 1); offers, gallery and enquiries next |
 | Local database | PGlite (Postgres compiled to WebAssembly) | Used when `DATABASE_URL` is not set: saved in `.data/pglite` while developing, in memory for tests and CI. Migrated and seeded with the demo catalogue automatically |
-| Data access | Drizzle ORM + `pg` | SQL migrations in `src/server/db/migrations`, applied by `npm run db:migrate` before every Netlify build |
-| Photos and backups | Netlify Blobs | Uploaded photos (the `product-photos` store), plus daily JSON backups. Without Netlify, photos are saved in `.data/photos` |
-| Images | `next/image` through Netlify's image CDN | The browser shrinks a photo to at most 1600 px before upload; the CDN serves WebP or AVIF |
+| Data access | Drizzle ORM over Neon's HTTP driver (`@neondatabase/serverless`) | A Worker can't reuse a connection opened by another request, so each query is one HTTP request. SQL migrations in `src/server/db/migrations`, applied with `pg` by `npm run db:migrate` before every Cloudflare build |
+| Photos | Neon Object Storage | Uploaded photos in the `product-photos` bucket (declared in `neon.ts`, one per Neon branch), reached over the S3 API with `aws4fetch` because the AWS SDK would not fit the worker size limit. Without the `AWS_*` variables, photos are saved in `.data/photos` |
+| Images | `next/image` through Cloudflare Images (the `IMAGES` binding) | The browser shrinks a photo to at most 1600 px before upload; Cloudflare serves WebP or AVIF |
 | Validation | Zod | Every admin action and the enquiry action, with the same rules in the browser and on the server |
 | Caching | `unstable_cache` with the `catalog` tag on product reads, `updateTag("catalog")` after each owner save | Pages stay cached until the owner changes something |
-| Scheduled jobs | Netlify scheduled function | Daily backup |
+| Scheduled jobs | Cloudflare cron trigger in `wrangler.jsonc`, handled in `worker.ts` | Calls `/api/health` every 3 minutes to keep Neon awake; daily backup later |
 
 Before building, read the relevant guides in `node_modules/next/dist/docs/` (caching, revalidation, Server Actions, authentication). Next.js 16 has breaking changes; see [AGENTS.md](../AGENTS.md).
 
@@ -96,11 +97,11 @@ src/
     db/schema.ts  db/client.ts  db/seed.ts  db/migrations/
     auth/password.ts  auth/session-token.ts  auth/session.ts  auth/guard.ts
     actions/                      # Server Actions: auth.ts, products.ts
-    storage/photos.ts             # Netlify Blobs, or a local folder
+    storage/photos.ts             # Neon Object Storage, or a local folder
     audit.ts
   services/                       # catalog-service, admin-product-service, auth-service
 scripts/db-migrate.ts             # applies migrations and the first seed at build time
-netlify/functions/daily-backup.mts  # later
+worker.ts                         # Cloudflare entry: the generated Next.js worker plus the cron handler
 ```
 
 **Dependency rule:** pages and components → `services` → `server/db`. Client components import nothing from `server/` except Server Actions in `server/actions`. `lib/paint-calculator.ts` imports nothing from Next.js or the database.
@@ -143,7 +144,7 @@ sequenceDiagram
   O->>O: browser validates and shrinks the photo
   O->>A: form fields and photo
   A->>A: check session, validate with Zod, check photo bytes
-  A->>A: store photo in Blobs (if new)
+  A->>A: store photo in Neon Object Storage (if new)
   A->>DB: insert or update product, write audit_log
   A->>A: delete the replaced photo
   A->>C: updateTag("catalog")
@@ -174,7 +175,7 @@ Coverage per litre for each paint type is in `COVERAGE_SQFT_PER_LITRE`. The page
 
 ### 6.4 Daily backup
 
-A scheduled function exports all tables (except sessions) to `backups/YYYY-MM-DD.json` in Blobs and keeps the last 30. Uploaded photos are written to a second Blobs store at upload time. Postgres also keeps its own short restore window.
+Later: a cron trigger exports all tables (except sessions) to `backups/YYYY-MM-DD.json` in Neon Object Storage and keeps the last 30. Postgres also keeps its own short restore window.
 
 ---
 
@@ -182,10 +183,11 @@ A scheduled function exports all tables (except sessions) to `backups/YYYY-MM-DD
 
 | Setting | Where | Notes |
 |---------|-------|-------|
-| `DATABASE_URL` | Netlify environment: Neon's pooled connection string. Use a separate Neon branch for deploy previews | Never in Git. Netlify builds fail without it. Leave it unset locally to use PGlite |
-| `SESSION_SECRET` | Netlify environment | 32+ random characters. Production refuses to start sessions without it |
-| `ADMIN_USERNAME`, `ADMIN_INITIAL_PASSWORD` | Netlify environment | Used once to create the owner; the owner changes the password at handover |
-| `SITE_URL` | Netlify environment | Used by the sitemap, `robots.txt` and metadata. Set in `netlify.toml` |
+| `DATABASE_URL` | Cloudflare build variable and runtime secret: Neon's pooled connection string | Never in Git. Cloudflare builds fail without it. Leave it unset locally to use PGlite |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3`, `AWS_REGION` | Cloudflare runtime secrets: the production branch's Object Storage credentials | Locally, `neon env pull` writes the dev branch's values into `.env.local` |
+| `SESSION_SECRET` | Cloudflare runtime secret | 32+ random characters. Production refuses to start sessions without it |
+| `ADMIN_USERNAME`, `ADMIN_INITIAL_PASSWORD` | Cloudflare runtime secrets | Used once to create the owner; the owner changes the password at handover |
+| `SITE_URL` | Cloudflare build and runtime variable | Used by the sitemap, `robots.txt` and metadata. Defaults to the `workers.dev` address |
 | Shop name, phone, address, hours | `src/config/shop.ts` | Unchanged |
 
 ---
@@ -194,12 +196,12 @@ A scheduled function exports all tables (except sessions) to `backups/YYYY-MM-DD
 
 | # | Decision | Reason | Alternatives rejected |
 |---|----------|--------|-----------------------|
-| 1 | Netlify free plan | Allows commercial use, supports Next.js 16, includes blob storage | Vercel free (non-commercial only), Vercel Pro (monthly cost), Cloudflare (more adapter work, worker size limits) |
+| 1 | Cloudflare Workers free plan | Allows commercial use, supports Next.js 16 through OpenNext, no monthly build credits and no payment card needed | Vercel free (non-commercial only), Netlify free (credits ran out), paid plans (monthly cost) |
 | 2 | Owner panel inside the same Next.js app | One codebase, one deploy, shared components and services | Separate admin app, a hosted CMS |
 | 3 | Cached pages refreshed by tag | Fast pages, changes in about a minute, no redeploy (deploys cost free-plan credits) | Rebuild on every change, fully dynamic pages |
 | 4 | Postgres with Drizzle | Real constraints and migrations, free, no native binaries | Google Sheets as a CMS (no validation, fragile), JSON committed to Git (no place for enquiries) |
 | 5 | Save the enquiry, then open WhatsApp | Nothing lost, and the owner keeps his WhatsApp habit | WhatsApp only (lost chats), form only (slower replies) |
 | 6 | Categories stay in code | They define the URL structure and rarely change | Editable categories (risk of broken links) |
-| 7 | Neon's free Postgres plan | Plain Postgres that doesn't use up Netlify's free credits | Netlify Database (its compute is billed from the same free credits, so a busy month could pause the whole site) |
-| 8 | `unstable_cache` with tags, not Cache Components | Works with the current pages unchanged and is shared across Netlify's server instances | `cacheComponents` (needs Suspense around the navbar, bans `dynamicParams`, keeps `use cache` in one instance's memory) |
+| 7 | Neon's free Postgres plan | Plain Postgres that works with any host | A host-specific database (ties the data to the host) |
+| 8 | `unstable_cache` with tags, not Cache Components | Works with the current pages unchanged and is shared across Cloudflare locations through the KV cache and Durable Object tags | `cacheComponents` (needs Suspense around the navbar, bans `dynamicParams`, keeps `use cache` in one instance's memory) |
 | 9 | PGlite when no `DATABASE_URL` | Developers, tests and CI run real Postgres SQL with no setup | A shared cloud database for development (slow, easy to damage), SQLite (different SQL) |

@@ -3,100 +3,101 @@
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import { slugify } from "@/lib/slug";
 import { requireOwner } from "@/server/auth/guard";
-import { getDb } from "@/server/db/client";
-import { categories, subcategories } from "@/server/db/schema";
-import { writeAudit } from "@/server/audit";
-import { eq } from "drizzle-orm";
+import {
+  createCategory,
+  createSubcategory,
+  toggleCategoryActive,
+  toggleSubcategoryActive,
+  updateCategory,
+  updateSubcategory,
+} from "@/services/admin-category-service";
+import type { CategoryInput, SubcategoryInput } from "@/types";
 
 const categorySchema = z.strictObject({
-  id: z.string().min(1).max(60),
-  name: z.string().trim().min(2).max(100),
-  tagline: z.string().trim().max(150).optional(),
-  description: z.string().trim().max(500).optional(),
+  name: z.string().min(1, "Name is required").max(100),
+  slug: z.string().max(100).optional(),
+  tagline: z.string().max(200).optional(),
+  description: z.string().max(500).optional(),
+  image: z.string().max(300).optional(),
+  sortOrder: z.number().int().optional(),
+  isActive: z.boolean().optional(),
 });
 
 const subcategorySchema = z.strictObject({
-  categoryId: z.string().min(1).max(60),
-  name: z.string().trim().min(2).max(100),
-  description: z.string().trim().max(500).optional(),
+  categoryId: z.string().min(1, "Category is required"),
+  name: z.string().min(1, "Name is required").max(100),
+  slug: z.string().max(100).optional(),
+  description: z.string().max(500).optional(),
+  image: z.string().max(300).optional(),
+  sortOrder: z.number().int().optional(),
+  isActive: z.boolean().optional(),
 });
 
-export async function createCategoryAction(name: string, tagline?: string, description?: string) {
+export async function saveCategoryAction(id: string | null, input: CategoryInput) {
   const owner = await requireOwner();
-  const slug = slugify(name);
-  const id = slug || `cat-${Date.now()}`;
-  const parsed = categorySchema.safeParse({ id, name, tagline, description });
-  if (!parsed.success) return { ok: false, error: "Invalid category details" };
+  const parsed = categorySchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: "Please check the entered values." };
+  }
 
-  const db = await getDb();
-  await db.insert(categories).values({
-    id: parsed.data.id,
-    name: parsed.data.name,
-    slug: parsed.data.id,
-    tagline: parsed.data.tagline,
-    description: parsed.data.description,
-    sortOrder: 100,
-    isActive: true,
-  });
-
-  await writeAudit(db, {
-    userId: owner.id,
-    action: "category_create",
-    entity: "category",
-    entityId: parsed.data.id,
-    after: parsed.data,
-  });
-
-  updateTag(CACHE_TAGS.catalog);
-  return { ok: true, id: parsed.data.id };
+  try {
+    if (id) {
+      await updateCategory(owner, id, parsed.data);
+    } else {
+      await createCategory(owner, parsed.data);
+    }
+    updateTag(CACHE_TAGS.catalog);
+    updateTag(CACHE_TAGS.categories);
+    return { ok: true };
+  } catch (err) {
+    console.error("saveCategoryAction error:", err);
+    return { ok: false, message: "Could not save category. Please check if it already exists." };
+  }
 }
 
-export async function createSubcategoryAction(categoryId: string, name: string, description?: string) {
+export async function toggleCategoryActiveAction(id: string, isActive: boolean) {
   const owner = await requireOwner();
-  const parsed = subcategorySchema.safeParse({ categoryId, name, description });
-  if (!parsed.success) return { ok: false, error: "Invalid subcategory details" };
+  if (!id) return { ok: false, message: "Invalid category ID." };
 
-  const slug = slugify(name);
-  const id = `${categoryId}-${slug}`;
-  const db = await getDb();
-
-  await db.insert(subcategories).values({
-    id,
-    categoryId: parsed.data.categoryId,
-    name: parsed.data.name,
-    slug,
-    description: parsed.data.description,
-    sortOrder: 100,
-    isActive: true,
-  });
-
-  await writeAudit(db, {
-    userId: owner.id,
-    action: "subcategory_create",
-    entity: "subcategory",
-    entityId: id,
-    after: parsed.data,
-  });
-
-  updateTag(CACHE_TAGS.catalog);
-  return { ok: true, id };
+  const ok = await toggleCategoryActive(owner, id, isActive);
+  if (ok) {
+    updateTag(CACHE_TAGS.catalog);
+    updateTag(CACHE_TAGS.categories);
+  }
+  return { ok };
 }
 
-export async function toggleCategoryStatusAction(id: string, isActive: boolean) {
+export async function saveSubcategoryAction(id: string | null, input: SubcategoryInput) {
   const owner = await requireOwner();
-  const db = await getDb();
-  await db.update(categories).set({ isActive, updatedAt: new Date() }).where(eq(categories.id, id));
-  await writeAudit(db, {
-    userId: owner.id,
-    action: "category_status",
-    entity: "category",
-    entityId: id,
-    before: { isActive: !isActive },
-    after: { isActive },
-  });
+  const parsed = subcategorySchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: "Please check the entered values." };
+  }
 
-  updateTag(CACHE_TAGS.catalog);
-  return { ok: true };
+  try {
+    if (id) {
+      await updateSubcategory(owner, id, parsed.data);
+    } else {
+      await createSubcategory(owner, parsed.data);
+    }
+    updateTag(CACHE_TAGS.catalog);
+    updateTag(CACHE_TAGS.categories);
+    return { ok: true };
+  } catch (err) {
+    console.error("saveSubcategoryAction error:", err);
+    return { ok: false, message: "Could not save subcategory. Please try again." };
+  }
+}
+
+export async function toggleSubcategoryActiveAction(id: string, isActive: boolean) {
+  const owner = await requireOwner();
+  if (!id) return { ok: false, message: "Invalid subcategory ID." };
+
+  const ok = await toggleSubcategoryActive(owner, id, isActive);
+  if (ok) {
+    updateTag(CACHE_TAGS.catalog);
+    updateTag(CACHE_TAGS.categories);
+  }
+  return { ok };
 }

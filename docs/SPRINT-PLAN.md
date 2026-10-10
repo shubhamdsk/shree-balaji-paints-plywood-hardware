@@ -3,7 +3,7 @@
 **Customer:** Shree Balaji Paints Plywood and Hardware, Kotul
 **Prepared by:** Shubham Deshmukh · Phone / WhatsApp: +91 72184 38401
 **Duration:** 3 sprints of 1 week each, plus 1 month of free support after handover
-**Live website:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)
+**Live website:** [shree-balaji.shreebalajipaints.workers.dev](https://shree-balaji.shreebalajipaints.workers.dev/)
 
 Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) · [Scalability](SCALABILITY.md) · [Coding standards](CODING-STANDARDS.md)
 
@@ -16,9 +16,9 @@ Technical documents: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md) 
 | **Part 1: public website** | Logo, products, categories, brands, offers, about, contact, enquiry to WhatsApp | Live |
 | **Owner panel** (`/admin`) | The owner adds and edits products, photos, prices, stock status, offers and gallery photos from his phone. Changes appear in about a minute | Sprint 1-2 |
 | **Enquiry inbox** | Every website enquiry is saved and listed in the owner panel, and still opens in WhatsApp | Sprint 2 |
-| **Smart features** | Paint calculator, our work gallery, dated offer banners | Sprint 2-3 |
-| **Google presence** | Google Business Profile, Search Console, sitemap | Sprint 3 |
-| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan (commercial use allowed). Vercel is retired | Done |
+| **Smart features** | Paint calculator (enhanced with room presets, area breakdown & primer/putty estimates), our work gallery, category management, dated offer banners | Sprint 2-3 |
+| **Google presence** | Google Business Profile, Search Console, sitemap.xml, robots.txt, LocalBusiness JSON-LD | Done |
+| **Hosting move** | From Vercel's free plan (non-commercial only) to Netlify's free plan, then to Cloudflare Workers' free plan when Netlify's free credits ran out (both allow commercial use). Photos move from Netlify Blobs to Neon Object Storage | In progress |
 
 Billing software is **not** part of this plan.
 
@@ -145,10 +145,10 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [x] The website runs on Netlify, and only the Netlify address is shared.
-- [ ] The owner can log in on his phone, and the lockout works.
-- [ ] Products can be added, edited, hidden and given photos.
-- [ ] Changes appear on the website within about a minute.
-- [ ] The owner can change his password from the owner panel.
+- [x] The owner can log in on his phone, and the lockout works.
+- [x] Products can be added, edited, hidden and given photos.
+- [x] Changes appear on the website within about a minute.
+- [x] The owner can change his password from the owner panel.
 
 ---
 
@@ -211,9 +211,9 @@ Billing software is **not** part of this plan.
 ### Done when
 
 - [ ] Offers appear and disappear on their dates.
-- [ ] The gallery works, with confirmation before deleting.
-- [ ] Every enquiry is saved and still opens in WhatsApp.
-- [ ] The enquiry inbox is visible only to the owner.
+- [x] The gallery works, with confirmation before deleting.
+- [x] Every enquiry is saved and still opens in WhatsApp.
+- [x] The enquiry inbox is visible only to the owner.
 - [ ] The daily backup runs.
 
 ---
@@ -269,7 +269,7 @@ Billing software is **not** part of this plan.
 - [ ] The Google Business Profile is live or verification is under way.
 - [ ] Search Console shows the sitemap as submitted.
 - [ ] The daily backup has run at least 3 days in a row.
-- [ ] The owner has the one-page guide.
+- [x] The owner has the one-page guide ([OWNER-GUIDE.md](OWNER-GUIDE.md)).
 
 ### Done when
 
@@ -290,14 +290,14 @@ Billing software is **not** part of this plan.
 
 ## 9. Things to buy
 
-Nothing. The free `.netlify.app` address is used, and the owner manages the website from his phone.
+Nothing. The free `.workers.dev` address is used, and the owner manages the website from his phone.
 
 ## 10. Risks and how we handle them
 
 | Risk | Impact | How we handle it |
 |------|--------|------------------|
-| Netlify free credits run out | The site pauses until next month | Content edits don't redeploy, images go through the image CDN, production deploys are batched, and usage is checked monthly during support. The next plan is about Rs 800 per month if ever needed |
-| Address change confuses customers | Old Vercel links stop working once Vercel is removed | Share the Netlify address on WhatsApp and put it on Google Business Profile, the shop board and visiting cards |
+| Cloudflare free-plan limits (daily requests, CPU time per request) | Some requests fail until the daily reset | Pages are cached, content edits don't redeploy, and usage is checked monthly during support. Workers Paid lifts the limits with no code change |
+| Address change confuses customers | Old Vercel and Netlify links stop working once those sites are removed | Share the `workers.dev` address on WhatsApp and put it on Google Business Profile, the shop board and visiting cards |
 | Google Business verification is slow | Shop not on Maps at handover | Started on day 1 of Sprint 3. Finished during free support if needed |
 | Owner forgets the password | Can't update the site | Reset through the developer during support, with a new password set by the owner |
 | Product list arrives late | Demo products still live at handover | Owner adds the rest himself after training. Demo products are hidden, not left live |

@@ -27,17 +27,17 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 | Enquiry save | under 1 s | One insert. WhatsApp opens even if it fails |
 | First request after the database sleeps | under 1 s extra | The database wakes on demand; public pages are served from the cache meanwhile |
 
-## 3. Free-plan budget (Netlify)
+## 3. Free-plan budget (Cloudflare and Neon)
 
-The free plan has 300 credits a month with a hard limit, and the site pauses if they run out. Approximate costs: a production deploy uses 15 credits, 1 GB of bandwidth uses 20, 10,000 requests use 2, and compute uses 10 per GB-hour.
+The Workers Free plan allows 100,000 requests a day, a worker of at most 3 MiB gzipped, and 10 ms of CPU time per request. Static files (`public/`, `_next/static`) are free and don't count as requests. Workers KV (the page cache) allows 100,000 reads and 1,000 writes a day; each deploy writes the prerendered pages once. Photos use Neon Object Storage, alongside Neon's own compute and storage allowance. No payment card is needed on Cloudflare.
 
 | Rule | Why |
 |------|-----|
 | Owner edits never trigger a deploy | Edits refresh cached pages by tag instead |
-| Batch code releases (a few production deploys a month) | Each deploy costs credits; preview deploys on branches are for testing |
-| All images through `next/image` and the image CDN | Bandwidth is the largest cost |
-| Check usage monthly during support | Spot growth before the limit; the next plan is about Rs 800 a month |
-| The database is on Neon, not Netlify | Database compute doesn't use Netlify credits. Neon's free plan sleeps after 5 idle minutes and has its own monthly compute allowance |
+| Keep the worker under 3 MiB gzipped | The `cloudflare` CI job fails above it; check new dependencies before adding them |
+| Watch CPU time on login and owner pages | Password hashing and server rendering can pass 10 ms. If the logs show "exceeded CPU" errors (1102), move to Workers Paid, which allows up to 30 s and needs no code change |
+| All images through `next/image` and Cloudflare Images | Keeps pages light on mobile data |
+| Check usage monthly during support | Workers & Pages → `shree-balaji` → Metrics, and Neon's usage page |
 
 ## 4. Indexes (planned)
 
@@ -57,11 +57,11 @@ The free plan has 300 credits a month with a hard limit, and the site pauses if 
 
 | Stage | Change | Effort |
 |-------|--------|--------|
-| **Part 2 (now)** | One owner account, cached pages, Netlify free plan | n/a |
+| **Part 2 (now)** | One owner account, cached pages, Cloudflare Workers free plan | n/a |
 | **Staff logins** | Add a `role` column and limit staff to products and enquiries | Small |
-| **Custom website name** | Buy a domain, point it at Netlify, update `SITE_URL` and Google | Small |
+| **Custom website name** | Buy a domain, add it to Cloudflare as a custom domain for the worker, update `SITE_URL` and Google | Small |
 | **Marathi / English switch** | Locale route segment, translated labels and product names | Medium |
-| **More traffic** | Netlify's paid plan; no code change | Small |
+| **More traffic** | Cloudflare Workers Paid; no code change | Small |
 | **Online orders** | Cart, order table and owner order inbox; payment gateway later | Medium-Large |
 | **Billing software** | Separate project; would read and write the same product table | Large (separate quote) |
 
@@ -70,7 +70,7 @@ The free plan has 300 credits a month with a hard limit, and the site pauses if 
 | Failure | Effect | Recovery |
 |---------|--------|----------|
 | Database asleep or briefly down | Public pages still served from the cache. Owner panel and enquiry saving wait | Enquiries still reach WhatsApp. Retry the edit |
-| Free credits exhausted | Site paused until next month | Upgrade the plan the same day if needed |
+| Free daily request limit reached | Requests fail until the daily reset (00:00 UTC) | Move to Workers Paid the same day if it happens more than once |
 | Bad edit by the owner | Wrong price shown | Fix it in the panel; the audit log shows the previous value |
 | Data lost or corrupted | Products or enquiries missing | Restore from the daily JSON backup or the database restore window |
-| Netlify outage | Site unavailable | Wait. The code and backups can be deployed elsewhere if it lasts |
+| Cloudflare outage | Site unavailable | Wait. The code and backups can be deployed elsewhere if it lasts |

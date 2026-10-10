@@ -13,7 +13,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 | Owner login | Anyone with it can change prices, products and offers |
 | Enquiries (customer names and phone numbers) | Personal data, which must not leak |
 | Product, offer and gallery data | Wrong prices or offers damage the shop's reputation |
-| Netlify, GitHub and Google accounts | Control of the hosting, code and Google listing |
+| Cloudflare, Neon, GitHub and Google accounts | Control of the hosting, code and Google listing |
 | Backups | A full copy of the data, including enquiries |
 
 ## 2. Threat model (main risks)
@@ -28,7 +28,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 | Injection (SQL, XSS) | A product name containing script | Drizzle parameterised queries, React escaping, no `dangerouslySetInnerHTML`, Zod validation |
 | Malicious upload | A script disguised as a photo | Type checked by content, size limit, images served through the image CDN, never executed |
 | Vulnerable dependency | npm package issue | Lockfile, `npm audit` in CI, Dependabot, minimal dependencies |
-| Account takeover of the host | Netlify or GitHub password stolen | 2-step verification on Netlify, GitHub and Google |
+| Account takeover of the host | Cloudflare, Neon or GitHub password stolen | 2-step verification on Cloudflare, Neon, GitHub and Google |
 
 ---
 
@@ -68,8 +68,8 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 
 | Secret | Stored in | Protection |
 |--------|-----------|------------|
-| `DATABASE_URL`, `SESSION_SECRET` | Netlify environment variables | Never committed. `.env*` is in `.gitignore`, and `.env.example` documents keys without values |
-| `ADMIN_INITIAL_PASSWORD` | Netlify environment variable | Used once; removed after the owner sets his own password |
+| `DATABASE_URL`, `SESSION_SECRET`, `AWS_*` storage keys | Cloudflare Worker secrets (`DATABASE_URL` is also a build variable) | Never committed. `.env*` is in `.gitignore`, and `.env.example` documents keys without values |
+| `ADMIN_INITIAL_PASSWORD` | Cloudflare Worker secret | Used once; removed after the owner sets his own password |
 | Owner password | Database (scrypt hash) | Never stored in plain text or logged |
 
 GitHub secret scanning and push protection stay on.
@@ -99,7 +99,7 @@ GitHub secret scanning and push protection stay on.
 - Commit `package-lock.json` and install with `npm ci`.
 - `npm audit --omit=dev` runs in CI. High or critical issues block a release.
 - Dependabot opens weekly update pull requests.
-- New dependencies (Drizzle, `pg`, Zod, the Netlify Blobs client) each need a reason in the pull request.
+- New dependencies (Drizzle, the Neon HTTP driver, `pg` for migrations, Zod, the OpenNext Cloudflare adapter, `aws4fetch` for photo storage) each need a reason in the pull request.
 
 ---
 

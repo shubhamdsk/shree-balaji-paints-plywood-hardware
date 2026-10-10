@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shree-balaji",
+  "main": "worker.ts",
+  "workers_dev": true,
+  // Preview versions would share the production secrets and database.
+  "preview_urls": false,
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "shree-balaji",
+    },
+  ],
+  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV", "id": "c18a078d428f41b8937be9af4c138002" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+      { "name": "NEXT_TAG_CACHE_DO_SHARDED", "class_name": "DOShardedTagCache" },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOQueueHandler", "DOShardedTagCache"],
+    },
+  ],
+  "images": {
+    "binding": "IMAGES",
+  },
+  // Keeps the Neon database awake by calling /api/health.
+  "triggers": {
+    "crons": ["*/3 * * * *"],
+  },
+  "vars": {
+    "SITE_URL": "https://shree-balaji.shreebalajipaints.workers.dev",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}
