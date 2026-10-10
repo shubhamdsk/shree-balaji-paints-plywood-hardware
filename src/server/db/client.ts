@@ -1,6 +1,7 @@
 import "server-only";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import type { PoolClient } from "@neondatabase/serverless";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 import * as schema from "@/server/db/schema";
@@ -65,9 +66,24 @@ export async function withTransaction<T>(work: (tx: Transaction) => Promise<T>):
   // so each transaction opens its own WebSocket connection and closes it before returning.
   const pool = new Pool({ connectionString: url });
   try {
-    return await (drizzle({ client: pool, schema }) as unknown as Database).transaction(work);
+    const client = await openConnection<PoolClient>(pool);
+    try {
+      return await (drizzle({ client, schema }) as unknown as Database).transaction(work);
+    } finally {
+      client.release();
+    }
   } finally {
     await pool.end();
+  }
+}
+
+// A connection that never opened has run nothing, so retrying it can't save anything twice.
+export async function openConnection<Connection>(pool: { connect(): Promise<Connection> }): Promise<Connection> {
+  try {
+    return await pool.connect();
+  } catch {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return pool.connect();
   }
 }
 

@@ -30,6 +30,10 @@ describe("EnquiryForm", () => {
     expect(document.getElementById(name.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
       "Please enter your name.",
     );
+    const phone = screen.getByLabelText(/Mobile number/);
+    expect(document.getElementById(phone.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
+      "Please enter your mobile number.",
+    );
   });
 
   it("drops letters and emojis typed into the mobile number", async () => {
@@ -51,6 +55,7 @@ describe("EnquiryForm", () => {
   it("submits directly to the database, resets the form, and displays success banner with optional WhatsApp link", async () => {
     const { user } = renderForm("ap-royale-luxury");
     await user.type(screen.getByLabelText(/Your name/), "Ramesh Patil");
+    await user.type(screen.getByLabelText(/Mobile number/), "9876543210");
     await user.type(screen.getByLabelText("Quantity"), "2 x 20 L");
     await user.click(screen.getByRole("button", { name: "Send enquiry" }));
 
