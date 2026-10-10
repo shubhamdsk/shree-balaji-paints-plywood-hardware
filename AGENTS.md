@@ -12,6 +12,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Cloudflare Workers through the OpenNext adapter (`wrangler.jsonc`, `open-next.config.ts`, `worker.ts`). Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
 
+## Simplicity first
+
+Simple beats clever. Every change should keep the site easy to use and the code easy to maintain.
+
+- **Owner panel:** the owner isn't technical. Keep screens short, labels plain, and each task to as few steps as possible. Prefer one clear button to a menu of options, and sensible defaults to extra settings. Don't add a setting, filter or workflow step unless the owner will really use it.
+- **Public site:** visitors should find a product, its price or the shop's contact details, and send an enquiry, without confusion. Show what helps them decide and leave out the rest. No extra steps, popups or busy UI.
+- **Add features only when they bring real value.** Keep existing behaviour working, and don't change what already works without a reason.
+- **Behind the scenes:** reuse the shared components and helpers, and keep the code small and readable. A simple screen for the owner can still have careful code underneath.
+
 ## Commands
 
 - `npm run dev`: local server
@@ -41,6 +50,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - The WhatsApp and phone links.
    - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, add an offer for today and see it on `/offers`, delete it (confirm), change the password, and log out. `npm run test:e2e` covers this flow; still check it by hand on a phone-sized screen.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
+   - An extra option, step or screen that the owner or a visitor doesn't need.
    - Duplicated UI or logic.
    - Data imported directly instead of through a service.
    - A missing confirmation or unsaved-changes guard.

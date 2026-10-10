@@ -4,6 +4,8 @@ The rules for writing code in this repository: the public website and its owner 
 
 Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
 
+**Simplicity first.** Keep the owner panel easy for a non-technical owner: short screens, plain labels, few steps, sensible defaults. Keep the public site focused on finding products and getting in touch. Add a feature only when it brings real value, and keep existing behaviour working. The full principle is in [AGENTS.md](../AGENTS.md#simplicity-first).
+
 ---
 
 ## 1. Language and tooling
