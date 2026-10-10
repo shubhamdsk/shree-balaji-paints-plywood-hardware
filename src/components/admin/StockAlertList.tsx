@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import AppLink from "@/components/ui/AppLink";
-import { AlertTriangle, CheckCircle2 } from "@/components/ui/icons";
+import { AlertTriangle } from "@/components/ui/icons";
 import { ROUTES } from "@/lib/routes";
 import { setProductFlagAction } from "@/server/actions/products";
 import type { AdminProduct } from "@/types";
@@ -16,36 +16,13 @@ export default function StockAlertList({ outOfStockProducts }: { outOfStockProdu
     });
   };
 
-  if (outOfStockProducts.length === 0) {
-    return (
-      <div className="rounded-card border border-line bg-card p-6 shadow-card">
-        <div className="flex items-center gap-3 text-success">
-          <CheckCircle2 className="h-6 w-6 shrink-0" />
-          <div>
-            <h3 className="text-base font-bold text-heading">100% Stock Availability!</h3>
-            <p className="text-xs font-semibold text-muted">All items in your catalog are currently marked in stock.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (outOfStockProducts.length === 0) return null;
 
   return (
-    <div className="rounded-card border border-line bg-card p-5 shadow-card">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-accent-600" />
-            <h3 className="text-base font-bold text-heading">Out of Stock Items ({outOfStockProducts.length})</h3>
-          </div>
-          <p className="text-xs font-semibold text-muted">Products currently marked unavailable for customers</p>
-        </div>
-        <AppLink
-          href={ROUTES.adminProducts}
-          className="text-xs font-bold text-accent-600 hover:text-accent-700 hover:underline"
-        >
-          Manage all products →
-        </AppLink>
+    <section className="rounded-card border border-line bg-card p-5 shadow-card">
+      <div className="mb-4 flex items-center gap-2">
+        <AlertTriangle className="h-5 w-5 text-accent-600" aria-hidden />
+        <h2 className="text-base font-bold text-heading">Out of stock ({outOfStockProducts.length})</h2>
       </div>
 
       <div className="divide-y divide-line overflow-hidden rounded-xl border border-line">
@@ -62,9 +39,10 @@ export default function StockAlertList({ outOfStockProducts }: { outOfStockProdu
                 type="button"
                 disabled={isPending}
                 onClick={() => toggleStock(product)}
+                aria-label={`Mark ${product.name} in stock`}
                 className="rounded-lg border border-line bg-surface-muted px-3 py-1.5 text-xs font-bold text-heading transition hover:border-success hover:bg-success/10 hover:text-success disabled:opacity-50"
               >
-                Mark In Stock
+                Mark in stock
               </button>
               <AppLink
                 href={ROUTES.adminProduct(product.id)}
@@ -78,12 +56,12 @@ export default function StockAlertList({ outOfStockProducts }: { outOfStockProdu
       </div>
       {outOfStockProducts.length > 5 && (
         <p className="mt-3 text-center text-xs font-semibold text-muted">
-          + {outOfStockProducts.length - 5} more items marked out of stock.{" "}
-          <AppLink href={ROUTES.adminProducts} className="text-accent-600 font-bold hover:underline">
-            View full list
+          {outOfStockProducts.length - 5} more.{" "}
+          <AppLink href={ROUTES.adminProducts} className="font-bold text-accent-600 hover:underline">
+            See all products
           </AppLink>
         </p>
       )}
-    </div>
+    </section>
   );
 }
