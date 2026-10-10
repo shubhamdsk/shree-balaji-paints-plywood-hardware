@@ -16,7 +16,7 @@ export default async function NewTypePage({ params }: PageProps<"/admin/categori
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-extrabold text-heading sm:text-3xl">Add a type to {category.name}</h1>
+      <h1 className="text-2xl font-extrabold text-heading sm:text-3xl">Add type to {category.name}</h1>
       <CategoryForm
         kind="type"
         categoryId={category.id}

@@ -96,7 +96,7 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     await expect(page.getByText("Loading page...", { exact: true })).toHaveCount(0);
     await expect(productRow(page, name)).toContainText("Century · BWP / Marine Plywood · From ₹1,250 per sheet");
 
-    const href = await page.getByRole("link", { name, exact: true }).getAttribute("href");
+    const href = await page.getByRole("link", { name: `Edit ${name}`, exact: true }).getAttribute("href");
     productPath = href!.replace("/admin", "");
   });
 
@@ -170,10 +170,10 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
     await page.goto("/admin");
     await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Offers" }).click();
-    await page.getByRole("link", { name: "Add an offer" }).click();
+    await page.getByRole("link", { name: "Add offer" }).click();
     await page.getByLabel(/Offer title/).fill(offerTitle);
     await page.getByLabel(/Offer details/).fill("10% off on Royale this week");
-    await page.getByLabel(/Start date/).fill(today);
+    await expect(page.getByLabel(/Start date/)).toHaveValue(today);
     await page.getByLabel(/End date/).fill(today);
     await page.getByRole("button", { name: "Save offer" }).click();
     await expect(page).toHaveURL(/\/admin\/offers$/);

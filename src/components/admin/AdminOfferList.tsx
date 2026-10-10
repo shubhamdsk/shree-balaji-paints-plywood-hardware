@@ -49,13 +49,13 @@ export default function AdminOfferList({ offers: initialOffers, today }: AdminOf
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold text-heading sm:text-3xl">Offers</h1>
-          <p className="mt-1 text-sm text-muted">Each offer shows on the home page and the offers page only between its dates.</p>
+          <p className="mt-1 text-muted">Each offer shows on the home page and the offers page only between its dates.</p>
         </div>
-        <AppLink href={ROUTES.adminNewOffer} className={buttonClasses("cta")}>
-          <Plus aria-hidden className="h-4 w-4" /> Add an offer
+        <AppLink href={ROUTES.adminNewOffer} className={buttonClasses("primary")}>
+          <Plus aria-hidden className="h-4 w-4" /> Add offer
         </AppLink>
       </div>
 

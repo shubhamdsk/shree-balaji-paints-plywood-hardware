@@ -44,10 +44,17 @@ describe("OfferForm", () => {
     expect(screen.getByLabelText(/End date/)).toHaveProperty("value", "2026-10-27");
   });
 
-  it("copies the text but asks for new dates", () => {
-    renderWithProviders(<OfferForm copyFrom={offer} />);
+  it("starts a new offer today", () => {
+    renderWithProviders(<OfferForm today="2026-10-11" />);
+    expect(screen.getByLabelText(/Start date/)).toHaveProperty("value", "2026-10-11");
+    expect(screen.getByLabelText(/End date/)).toHaveProperty("value", "");
+  });
+
+  it("copies the text, starts today and asks for the end date", () => {
+    renderWithProviders(<OfferForm copyFrom={offer} today="2026-10-11" />);
     expect(screen.getByLabelText(/Offer details/)).toHaveProperty("value", "10% off on Royale");
-    expect(screen.getByLabelText(/Start date/)).toHaveProperty("value", "");
+    expect(screen.getByLabelText(/Start date/)).toHaveProperty("value", "2026-10-11");
+    expect(screen.getByLabelText(/End date/)).toHaveProperty("value", "");
   });
 
   it("rejects a file that is not a photo", async () => {

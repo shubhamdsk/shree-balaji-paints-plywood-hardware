@@ -93,7 +93,7 @@ export default function AdminCategoryList({ kind, items }: AdminCategoryListProp
       </FormField>
 
       <p className="text-sm text-muted" aria-live="polite">
-        {shown.length} of {list.length} {copy.noun}
+        {query && `${shown.length} of ${list.length} ${copy.noun}`}
       </p>
       {error && (
         <p role="alert" className="rounded-xl bg-accent-50 px-4 py-3 text-sm font-semibold text-accent-700">
@@ -119,11 +119,7 @@ export default function AdminCategoryList({ kind, items }: AdminCategoryListProp
                 <CoverImage src={item.image} alt="" sizes="56px" />
               </div>
               <div className="min-w-0">
-                <h2 className="font-bold text-heading">
-                  <AppLink href={item.editHref} className="hover:underline">
-                    {item.name}
-                  </AppLink>
-                </h2>
+                <h2 className="font-bold text-heading">{item.name}</h2>
                 <p className="text-sm text-muted">{item.detail}</p>
                 {!item.isActive && (
                   <span className="mt-1 inline-block rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-bold text-muted">

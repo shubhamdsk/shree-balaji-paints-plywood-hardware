@@ -4,7 +4,7 @@ import { compactGroups } from "@/lib/catalog";
 import { requireOwner } from "@/server/auth/guard";
 import { getCategoryGroups } from "@/services/catalog-service";
 
-export const metadata: Metadata = { title: "Add a product" };
+export const metadata: Metadata = { title: "Add product" };
 
 export default async function NewProductPage() {
   await requireOwner();
@@ -12,7 +12,7 @@ export default async function NewProductPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-extrabold text-heading sm:text-3xl">Add a product</h1>
+      <h1 className="text-2xl font-extrabold text-heading sm:text-3xl">Add product</h1>
       <ProductForm categoryGroups={compactGroups(categoryGroups)} />
     </div>
   );

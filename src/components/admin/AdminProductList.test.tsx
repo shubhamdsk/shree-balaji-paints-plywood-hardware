@@ -30,7 +30,7 @@ beforeEach(async () => {
 describe("AdminProductList", () => {
   it("searches by name, brand or type", async () => {
     const { user } = renderWithProviders(<AdminProductList products={products} />);
-    expect(screen.getByText(`${products.length} of ${products.length} products`)).toBeDefined();
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(products.length);
 
     await user.type(screen.getByLabelText("Search products"), "tractor");
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Tractor Emulsion"]);
@@ -42,8 +42,8 @@ describe("AdminProductList", () => {
 
   it("filters to products that are out of stock", async () => {
     const { user } = renderWithProviders(<AdminProductList products={products} />);
-    await user.click(screen.getByRole("button", { name: "Show: All products" }));
-    await user.click(screen.getByRole("option", { name: "Out of stock" }));
+    const outOfStockCount = products.filter((p) => !p.inStock).length;
+    await user.click(screen.getByRole("button", { name: `Out of stock ${outOfStockCount}` }));
 
     const outOfStock = products.filter((p) => !p.inStock).map((p) => p.name);
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(outOfStock);
@@ -101,13 +101,17 @@ describe("AdminProductList", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
+  it("offers the needs-a-category filter only when a product needs one", () => {
+    renderWithProviders(<AdminProductList products={products} />);
+    expect(screen.queryByRole("button", { name: /^Needs a category/ })).toBeNull();
+  });
+
   it("flags and filters products whose type was removed", async () => {
     const orphan = { ...products[0], needsCategory: true };
     const { user } = renderWithProviders(<AdminProductList products={[orphan, ...products.slice(1)]} />);
     expect(screen.getByText("Needs a category — not on the website")).toBeDefined();
 
-    await user.click(screen.getByRole("button", { name: "Show: All products" }));
-    await user.click(screen.getByRole("option", { name: "Needs a category" }));
+    await user.click(screen.getByRole("button", { name: "Needs a category 1" }));
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([orphan.name]);
   });
 });

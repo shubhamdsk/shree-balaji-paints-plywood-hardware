@@ -20,7 +20,7 @@ export default async function AdminProductsPage() {
           <p className="mt-1 text-muted">Recently changed products are listed first.</p>
         </div>
         <AppLink href={ROUTES.adminNewProduct} className={buttonClasses("primary")}>
-          Add a product
+          Add product
         </AppLink>
       </div>
       <AdminProductList products={products} />

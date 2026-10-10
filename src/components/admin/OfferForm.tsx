@@ -17,20 +17,21 @@ import type { Offer } from "@/types";
 interface OfferFormProps {
   offer?: Offer;
   copyFrom?: Offer;
+  today?: string;
 }
 
 type Field = keyof OfferInput;
 
-export default function OfferForm({ offer, copyFrom }: OfferFormProps) {
+export default function OfferForm({ offer, copyFrom, today = "" }: OfferFormProps) {
   const source = offer ?? copyFrom;
   const initial = useMemo<OfferInput>(
     () => ({
       title: source?.title ?? "",
       body: source?.body ?? "",
-      startsOn: offer?.startsOn ?? "",
+      startsOn: offer?.startsOn ?? today,
       endsOn: offer?.endsOn ?? "",
     }),
-    [source, offer],
+    [source, offer, today],
   );
   const [values, setValues] = useState(initial);
   const { photo, error: photoError, choose: choosePhoto } = usePhotoPicker();
