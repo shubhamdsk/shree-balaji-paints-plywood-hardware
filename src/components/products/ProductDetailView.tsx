@@ -9,7 +9,8 @@ import BrandWordmark from "@/components/brand/BrandWordmark";
 import AppLink from "@/components/ui/AppLink";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buttonClasses } from "@/components/ui/Button";
-import { productLabel } from "@/lib/catalog";
+import CoverImage from "@/components/ui/CoverImage";
+import { categoryLabel, productLabel } from "@/lib/catalog";
 import { productEnquiryMessage } from "@/lib/enquiry";
 import { isCalculablePaint } from "@/lib/paint-calculator";
 import { ROUTES } from "@/lib/routes";
@@ -22,7 +23,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
   const [activeImage, setActiveImage] = useState(0);
 
   const thumbs =
-    product.gallery?.length ? product.gallery : product.image ? [product.image] : [`/images/categories/${product.category}.jpg`];
+    product.gallery?.length ? product.gallery : product.image ? [product.image] : [];
 
   return (
     <div className="container-page py-8 sm:py-10">
@@ -30,7 +31,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
         items={[
           { label: "Home", href: ROUTES.home },
           { label: "Products", href: ROUTES.products },
-          { label: product.category.charAt(0).toUpperCase() + product.category.slice(1), href: ROUTES.category(product.category) },
+          { label: categoryLabel(product), href: ROUTES.category(product.category) },
           { label: product.name },
         ]}
       />
@@ -38,10 +39,9 @@ export default function ProductDetailView({ product }: { product: Product }) {
       <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-12">
         <div>
           <div className="relative aspect-square overflow-hidden rounded-card border border-line bg-surface-muted">
-            <Image
+            <CoverImage
               src={thumbs[activeImage]}
               alt={product.name}
-              fill
               priority={activeImage === 0}
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"

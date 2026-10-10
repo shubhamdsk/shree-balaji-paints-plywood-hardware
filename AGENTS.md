@@ -39,7 +39,7 @@ Follow these steps for every feature, fix or refactor, however small. A change i
    - `/enquiry`, including the confirm and unsaved-changes popups.
    - `/paint-calculator` and `/paint-calculator/ap-royale-luxury`: calculate, then the confirm before WhatsApp.
    - The WhatsApp and phone links.
-   - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, change the password, and log out. `npm run test:e2e` covers this flow; still check it by hand on a phone-sized screen.
+   - The owner panel: `/admin` redirects to the login, a wrong password shows the error, then log in, add a product with a photo, edit it, flip its stock and home-page switches, hide it (confirm) and show it again, checking the public pages each time, add an offer for today and see it on `/offers`, delete it (confirm), change the password, and log out. `npm run test:e2e` covers this flow; still check it by hand on a phone-sized screen.
 5. **Code review.** Review your own diff against the checklist in `.github/pull_request_template.md` and fix what it finds before committing. Typical problems:
    - Duplicated UI or logic.
    - Data imported directly instead of through a service.
@@ -60,21 +60,21 @@ src/
     admin/              owner panel: login/, and (panel)/ pages that require a session
     api/                REST Route Handlers, one route.ts per resource
   components/
-    admin/              owner panel header, nav, product list, product form, login and change-password forms, ToggleSwitch
+    admin/              owner panel header, nav, product, offer, category, gallery and enquiry lists and forms, PhotoField, login and change-password forms, ToggleSwitch
     brand/              logo and brand wordmarks
     layout/             navbar, mobile bottom bar, footer, floating buttons (WhatsApp, call, back to top), theme button, nav-links.ts (shared links and active-path check)
     home/               home page sections
     products/           catalogue, cards, product detail
     brands/             brand grid (home and /brands)
-    offers/             offer cards and promo banners
+    offers/             offer cards (the owner's live dated offers, then the standing ones) and promo banners
     about/              store photos and details
     contact/            contact details and map
     enquiry/            enquiry form
     calculator/         paint calculator
     ui/                 shared building blocks: icons, AppLink, Button, FormField, SelectMenu, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
-  data/                 categories, brands and demo products, read only by src/services and the database seed
-  hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-theme)
+  data/                 categories, types, brands and demo products that seed an empty database, read only by src/services and the seed
+  hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-theme, use-photo-picker)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
@@ -82,6 +82,11 @@ src/
     sitemap.ts          every public page path for sitemap.xml
     theme.ts            light / dark / system preference, storage and the pre-paint script
     product-input.ts    product form rules, shared by the browser and the server
+    offer-input.ts      offer form rules and the live / starts soon / ended status
+    category-input.ts   category and type form rules; category-list.ts builds the owner list rows
+    legacy-routes.ts    permanent redirects from old category addresses (loaded by next.config.ts, so it imports nothing)
+    dates.ts            today's date in India (offers and backups use it)
+    backup-token.ts     daily backup cron schedule and the token the cron sends to /api/backup
     password-rules.ts   password length limits and change-password checks
     photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
     price.ts            "From ₹520 per litre" / "Ask for price"
@@ -90,8 +95,8 @@ src/
   server/               server-only code
     db/                 Drizzle schema, client (Neon or PGlite), seed, migrations/
     auth/               password hashing, session tokens and cookie, requireOwner guard
-    actions/            Server Actions (auth.ts, products.ts)
-    storage/photos.ts   Neon Object Storage (S3 API through aws4fetch), or a local folder
+    actions/            Server Actions (auth, products, categories, offers, gallery, enquiry)
+    storage/photos.ts   photos and daily backups (backups/YYYY-MM-DD.json) in Neon Object Storage (S3 API through aws4fetch), or a local folder
     audit.ts            audit log writer
   services/             data access used by pages, actions and API routes
   test/                 test setup, render helpers, mocks and setupTestDatabase (db.ts)
@@ -125,7 +130,7 @@ scripts/                db-migrate.ts (build-time migrations) and developer help
 - Client components may import Server Actions from `src/server/actions`, and nothing else from `src/server`.
 - Prices are whole rupees (`integer`). Format them with `formatPrice` from `src/lib/price.ts`.
 - Every API path is defined once in `src/lib/api/endpoints.ts`. Never write an `/api/...` string anywhere else.
-- Every dynamic page path is built with `ROUTES` in `src/lib/routes.ts` (`ROUTES.category("paints", "Interior")`). Never build `/products/...`, `/brands/...`, `/enquiry/...` or `/admin/...` strings by hand.
+- Every dynamic page path is built with `ROUTES` in `src/lib/routes.ts` (`ROUTES.category("paints", "Interior Emulsion")`). Never build `/products/...`, `/brands/...`, `/enquiry/...` or `/admin/...` strings by hand.
 - All HTTP calls go through `httpClient` in `src/lib/api/http-client.ts`. No direct `fetch` in components or services.
 - One `route.ts` per REST resource under `src/app/api`, delegating to a service function.
 - `CATALOG_API_URL` (see `.env.example`) switches the services from the local data to an external backend. Pages don't change when it does.

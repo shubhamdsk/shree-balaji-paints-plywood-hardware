@@ -100,4 +100,14 @@ describe("AdminProductList", () => {
     await user.click(screen.getByRole("button", { name: `Show ${hidden.name}` }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
+
+  it("flags and filters products whose type was removed", async () => {
+    const orphan = { ...products[0], needsCategory: true };
+    const { user } = renderWithProviders(<AdminProductList products={[orphan, ...products.slice(1)]} />);
+    expect(screen.getByText("Needs a category — not on the website")).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Show: All products" }));
+    await user.click(screen.getByRole("option", { name: "Needs a category" }));
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([orphan.name]);
+  });
 });

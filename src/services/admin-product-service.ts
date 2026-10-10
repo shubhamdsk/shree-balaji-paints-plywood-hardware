@@ -1,9 +1,10 @@
-import { asc, desc, eq, max } from "drizzle-orm";
+import { and, asc, desc, eq, max } from "drizzle-orm";
+import { LEGACY_CATEGORY_IDS } from "@/lib/legacy-routes";
 import { createProductId, type ProductInput } from "@/lib/product-input";
 import { writeAudit } from "@/server/audit";
-import { getDb } from "@/server/db/client";
+import { getDb, type Database } from "@/server/db/client";
 import { toAdminProduct } from "@/server/db/product-mapper";
-import { products, type ProductRow } from "@/server/db/schema";
+import { products, subcategories, type ProductRow } from "@/server/db/schema";
 import { getCategoryGroups } from "@/services/catalog-service";
 import type { AdminProduct, AdminUser } from "@/types";
 
@@ -15,8 +16,31 @@ const FLAG_ACTIONS = {
   isVisible: "product_visibility",
 } as const;
 
-function inputColumns(input: ProductInput) {
+type Reader = Pick<Database, "select">;
+
+async function subcategoryIdFor(db: Reader, input: ProductInput) {
+  const [row] = await db
+    .select({ id: subcategories.id })
+    .from(subcategories)
+    .where(and(eq(subcategories.categoryId, input.category), eq(subcategories.name, input.type)));
+  if (!row) throw new Error(`No subcategory ${input.type} in ${input.category}`);
+  return row.id;
+}
+
+function selectWithPlacement(db: Reader) {
+  return db
+    .select({ product: products, category: subcategories.categoryId, type: subcategories.name })
+    .from(products)
+    .leftJoin(subcategories, eq(products.subcategoryId, subcategories.id));
+}
+
+function toAdmin({ product, category, type }: { product: ProductRow; category: string | null; type: string | null }) {
+  return toAdminProduct(product, category !== null && type !== null ? { category, type } : null);
+}
+
+function inputColumns(input: ProductInput, subcategoryId: string) {
   return {
+    subcategoryId,
     name: input.name,
     brand: input.brand,
     category: input.category,
@@ -37,14 +61,14 @@ function featuredSince(wasFeatured: boolean, featured: boolean, now: Date): Pick
 
 export async function listAdminProducts(): Promise<AdminProduct[]> {
   const db = await getDb();
-  const rows = await db.select().from(products).orderBy(desc(products.updatedAt), asc(products.name));
-  return rows.map(toAdminProduct);
+  const rows = await selectWithPlacement(db).orderBy(desc(products.updatedAt), asc(products.name));
+  return rows.map(toAdmin);
 }
 
 export async function getAdminProduct(id: string): Promise<AdminProduct | undefined> {
   const db = await getDb();
-  const [row] = await db.select().from(products).where(eq(products.id, id));
-  return row && toAdminProduct(row);
+  const [row] = await selectWithPlacement(db).where(eq(products.id, id));
+  return row && toAdmin(row);
 }
 
 export async function getProductCounts() {
@@ -59,7 +83,7 @@ export async function getProductCounts() {
 
 export async function createProduct(actor: AdminUser, input: ProductInput, image?: string): Promise<string> {
   const db = await getDb();
-  const reservedIds = (await getCategoryGroups()).map((group) => group.id);
+  const reservedIds = [...(await getCategoryGroups()).map((group) => group.id), ...LEGACY_CATEGORY_IDS];
   return db.transaction(async (tx) => {
     const taken = await tx.select({ id: products.id }).from(products);
     const id = createProductId(input.name, taken.map((row) => row.id), reservedIds);
@@ -68,7 +92,7 @@ export async function createProduct(actor: AdminUser, input: ProductInput, image
       .insert(products)
       .values({
         id,
-        ...inputColumns(input),
+        ...inputColumns(input, await subcategoryIdFor(tx, input)),
         ...featuredSince(false, input.featured, new Date()),
         image: image ?? null,
         sortOrder: (last ?? -1) + 1,
@@ -93,7 +117,7 @@ export async function updateProduct(
     const [after] = await tx
       .update(products)
       .set({
-        ...inputColumns(input),
+        ...inputColumns(input, await subcategoryIdFor(tx, input)),
         ...featuredSince(before.featured, input.featured, now),
         ...(image && { image }),
         updatedAt: now,

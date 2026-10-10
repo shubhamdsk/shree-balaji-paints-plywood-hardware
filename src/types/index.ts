@@ -1,30 +1,39 @@
 export type CategoryId = string;
 
-export interface Category {
+export interface SeoFields {
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface Category extends SeoFields {
   id: CategoryId;
   name: string;
   slug?: string;
   tagline?: string;
   description?: string;
-  image: string;
+  image?: string;
   sortOrder?: number;
   isActive?: boolean;
 }
 
 export type CategoryFilter = CategoryId | "all";
 
-export interface Subcategory {
-  id: string;
-  categoryId: string;
+export interface SubtypeDetails extends SeoFields {
+  name: string;
+  description?: string;
+  image?: string;
+}
+
+export interface CategoryGroup extends SeoFields {
+  id: CategoryId;
   name: string;
   slug?: string;
   description?: string;
-  image?: string;
-  sortOrder?: number;
-  isActive?: boolean;
+  subtypes: string[];
+  subtypeDetails?: SubtypeDetails[];
 }
 
-export interface AdminSubcategoryRecord {
+export interface AdminSubcategoryRecord extends SeoFields {
   id: string;
   categoryId: string;
   name: string;
@@ -36,44 +45,24 @@ export interface AdminSubcategoryRecord {
   productCount: number;
 }
 
-export interface AdminCategoryRecord {
+export interface AdminCategoryRecord extends SeoFields {
   id: string;
   name: string;
   slug: string;
   tagline?: string;
   description?: string;
-  image: string;
+  image?: string;
   sortOrder: number;
   isActive: boolean;
   productCount: number;
   subcategories: AdminSubcategoryRecord[];
 }
 
-export interface CategoryInput {
+export interface CategoryInput extends SeoFields {
   name: string;
-  slug?: string;
   tagline?: string;
   description?: string;
-  image?: string;
-  sortOrder?: number;
-  isActive?: boolean;
-}
-
-export interface SubcategoryInput {
-  categoryId: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  image?: string;
-  sortOrder?: number;
-  isActive?: boolean;
-}
-
-export interface CategoryGroup {
-  id: CategoryId;
-  name: string;
-  slug?: string;
-  subtypes: string[];
+  sortOrder: number;
 }
 
 export interface ProductDownload {
@@ -97,6 +86,7 @@ export interface Product extends Omit<ProductDetails, "colors"> {
   name: string;
   brand: string;
   category: CategoryId;
+  categoryName?: string;
   type: string;
   description: string;
   sizes: string[];
@@ -109,6 +99,7 @@ export interface Product extends Omit<ProductDetails, "colors"> {
 }
 
 export interface AdminProduct extends Product {
+  needsCategory: boolean;
   isVisible: boolean;
   updatedAt: string;
 }
@@ -145,6 +136,16 @@ export interface GalleryItem {
   sortOrder: number;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface Offer {
+  id: string;
+  title: string;
+  body: string;
+  image?: string;
+  startsOn: string;
+  endsOn: string;
   updatedAt: string;
 }
 

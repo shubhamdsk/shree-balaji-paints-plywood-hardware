@@ -45,7 +45,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Search engines** — `/sitemap.xml` lists every page and `/robots.txt` points to it; set `SITE_URL` when the address changes
 - **Security headers** — Content Security Policy and related headers on every response (`next.config.ts`)
 - **Logo** — House, paintbrush and colour swirl mark with a Marathi wordmark (श्री बालाजी), used in the header, footer, favicon and social preview
-- **Owner panel** — `/admin` (password login, locked for 15 minutes after 5 wrong tries) where the owner adds and edits products from his phone: name, brand, category, type, sizes, price in whole rupees, unit, description and a photo taken with the phone (shrunk in the browser before upload). One-tap switches mark a product in or out of stock or put it on the home page, and Hide (after a confirmation) removes it from every public page. Changes show on the website straight away, with no redeploy
+- **Owner panel** — `/admin` (password login, locked for 15 minutes after 5 wrong tries) where the owner adds and edits products from his phone: name, brand, category, type, sizes, price in whole rupees, unit, description and a photo taken with the phone (shrunk in the browser before upload). One-tap switches mark a product in or out of stock or put it on the home page, and Hide (after a confirmation) removes it from every public page. Changes show on the website straight away, with no redeploy. Under **Categories** he adds, renames and reorders the 10 categories and their types, sets a photo and a Google title and description, and hides one (with a confirmation when it has products); products stay linked through a rename
 
 ## Tech stack
 
@@ -144,7 +144,8 @@ Coding rules for people and AI agents: [`AGENTS.md`](AGENTS.md) (also loaded thr
 |------|--------|
 | Shop name, phone, address, hours, map link | `src/config/shop.ts` |
 | Products, photos, prices, stock | The owner panel at `/admin` |
-| Categories, their types and popular brands | `src/data/category-tree.ts`, `src/data/products.ts`, `src/data/brands.ts` (or set `CATALOG_API_URL` to load the catalogue from a backend, see `.env.example`) |
+| Categories and their types | The owner panel, **Categories** (stored in the database; `src/data/category-tree.ts` only seeds an empty database) |
+| Popular brands | `src/data/products.ts`, `src/data/brands.ts` (or set `CATALOG_API_URL` to load the catalogue from a backend, see `.env.example`) |
 | Demo products for a new database | `src/data/products.ts` (copied in once, when the products table is empty) |
 | Real shop photos | Replace `public/images/shop/storefront.jpg`, `interior.jpg`, `counter.jpg` (see `public/images/shop/README.md`) |
 
@@ -177,9 +178,9 @@ To publish changes, open a pull request from `develop` into `main`, wait for CI 
 
 Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sprints):
 
-- Owner panel at `/admin`: products, photos, prices and stock status (**Sprint 1, built**); offers and gallery next
-- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
-- Our work gallery, dated offer banners
+- Owner panel at `/admin`: products, photos, prices and stock status, categories, dated offers and the work gallery (**built**)
+- Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp (**built**)
+- Daily backup to Neon Object Storage at 2:00 AM India time, keeping 30 days (**built**)
 - Google Business Profile and Search Console
 - Data on Neon Postgres, photos on Neon Object Storage ([Architecture](docs/ARCHITECTURE.md))
 

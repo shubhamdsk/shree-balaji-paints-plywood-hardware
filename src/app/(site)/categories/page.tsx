@@ -6,7 +6,7 @@ import { getCategories, getCategoryGroups, getProducts } from "@/services/catalo
 
 export const metadata: Metadata = {
   title: "Categories",
-  description: `Browse paints, plywood, hardware, plumbing, electrical, tools and adhesives at ${shop.shortName}, ${shop.address.city}.`,
+  description: `Browse paints, plywood, laminates, door material, hardware, fasteners, adhesives and painting tools at ${shop.shortName}, ${shop.address.city}.`,
 };
 
 export default async function CategoriesPage() {

@@ -12,7 +12,7 @@ export function setupTestDatabase() {
 
   beforeEach(async () => {
     await db.execute(
-      sql`truncate table products, enquiries, categories, subcategories, gallery, audit_log, sessions, admin_users restart identity cascade`,
+      sql`truncate table products, enquiries, categories, subcategories, gallery, offers, audit_log, sessions, admin_users restart identity cascade`,
     );
     await seedCatalog(db);
     setDatabase(db);

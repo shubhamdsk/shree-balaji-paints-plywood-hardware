@@ -1,58 +1,68 @@
-import { screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdminCategoryList from "@/components/admin/AdminCategoryList";
+import { categoryListItems, typeListItems } from "@/lib/category-list";
+import { ROUTES } from "@/lib/routes";
+import { SESSION_COOKIE } from "@/server/auth/session";
+import { getAdminCategory, listAdminCategories } from "@/services/admin-category-service";
+import { logIn } from "@/services/auth-service";
+import { setupTestDatabase } from "@/test/db";
+import { cookieJar } from "@/test/mocks/next-headers";
 import { renderWithProviders } from "@/test/render";
 import type { AdminCategoryRecord } from "@/types";
 
 vi.mock("next/headers", () => import("@/test/mocks/next-headers"));
+vi.mock("next/link", () => import("@/test/mocks/next-link"));
 vi.mock("next/navigation", () => import("@/test/mocks/next-navigation"));
 
-const sampleCategories: AdminCategoryRecord[] = [
-  {
-    id: "paints",
-    name: "Paints & Wall Care",
-    slug: "paints",
-    tagline: "Authorized Paints Dealer",
-    description: "Interior & Exterior Paints",
-    image: "/images/categories/paints.jpg",
-    sortOrder: 1,
-    isActive: true,
-    productCount: 12,
-    subcategories: [
-      {
-        id: "paints-interior-emulsion",
-        categoryId: "paints",
-        name: "Interior Emulsion",
-        slug: "interior-emulsion",
-        sortOrder: 1,
-        isActive: true,
-        productCount: 5,
-      },
-    ],
-  },
-];
+setupTestDatabase();
+let categories: AdminCategoryRecord[];
+
+beforeEach(async () => {
+  vi.stubEnv("ADMIN_USERNAME", "owner");
+  vi.stubEnv("ADMIN_INITIAL_PASSWORD", "owner-password-123");
+  const result = await logIn("owner", "owner-password-123");
+  if (!result.ok) throw new Error("login failed");
+  cookieJar.set(SESSION_COOKIE, { value: result.token });
+  categories = await listAdminCategories();
+});
 
 describe("AdminCategoryList", () => {
-  it("renders category metrics and categories list with product counts", () => {
-    renderWithProviders(<AdminCategoryList categories={sampleCategories} />);
-    expect(screen.getByText("Category Management")).toBeDefined();
-    expect(screen.getByText("Paints & Wall Care")).toBeDefined();
-    expect(screen.getByText("12 products")).toBeDefined();
-    expect(screen.getByText("Interior Emulsion")).toBeDefined();
-    expect(screen.getByText("5")).toBeDefined();
+  it("lists every category with its type and product counts and an edit link", () => {
+    renderWithProviders(<AdminCategoryList kind="category" items={categoryListItems(categories)} />);
+    expect(screen.getByText(`${categories.length} of ${categories.length} categories`)).toBeDefined();
+    const paints = categories.find((c) => c.id === "paints")!;
+    expect(screen.getByRole("link", { name: "Edit Paints" }).getAttribute("href")).toBe(ROUTES.adminCategory("paints"));
+    expect(screen.getAllByText(new RegExp(`^${paints.subcategories.length} types · `)).length).toBeGreaterThan(0);
   });
 
-  it("filters categories when searching", async () => {
-    const { user } = renderWithProviders(<AdminCategoryList categories={sampleCategories} />);
-    const search = screen.getByPlaceholderText(/Filter categories/);
-    await user.type(search, "NonExistentName");
-    expect(screen.getByText(/No categories found matching/)).toBeDefined();
+  it("finds a category by the name of one of its types", async () => {
+    const { user } = renderWithProviders(<AdminCategoryList kind="category" items={categoryListItems(categories)} />);
+    await user.type(screen.getByLabelText("Search categories"), "wall putty");
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Paint Preparation Material"]);
   });
 
-  it("opens add category modal on button click", async () => {
-    const { user } = renderWithProviders(<AdminCategoryList categories={sampleCategories} />);
-    const addBtn = screen.getByRole("button", { name: /Add Category/ });
-    await user.click(addBtn);
-    expect(screen.getByRole("heading", { name: "Add New Category" })).toBeDefined();
+  it("asks before hiding a category that has products, and hides it once confirmed", async () => {
+    const { user } = renderWithProviders(<AdminCategoryList kind="category" items={categoryListItems(categories)} />);
+    await user.click(screen.getByRole("switch", { name: "Laminates on the website" }));
+    expect(screen.getByRole("dialog", { name: /^Hide Laminates and its 1 product\?$/ })).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect((await getAdminCategory("laminates"))?.isActive).toBe(true);
+
+    await user.click(screen.getByRole("switch", { name: "Laminates on the website" }));
+    await user.click(screen.getByRole("button", { name: "Hide from website" }));
+    await waitFor(async () => expect((await getAdminCategory("laminates"))?.isActive).toBe(false));
+  });
+
+  it("hides an empty type without asking", async () => {
+    const paints = categories.find((c) => c.id === "paints")!;
+    const empty = paints.subcategories.find((s) => s.productCount === 0)!;
+    const { user } = renderWithProviders(<AdminCategoryList kind="type" items={typeListItems(paints.subcategories)} />);
+    await user.click(screen.getByRole("switch", { name: `${empty.name} on the website` }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await waitFor(async () =>
+      expect((await getAdminCategory("paints"))?.subcategories.find((s) => s.id === empty.id)?.isActive).toBe(false),
+    );
   });
 });

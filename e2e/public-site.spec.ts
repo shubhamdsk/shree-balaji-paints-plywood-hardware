@@ -30,6 +30,19 @@ test("a product page shows the product and an unknown one is a 404", async ({ pa
   expect((await page.goto("/products/not-a-real-product"))?.status()).toBe(404);
 });
 
+test("old category addresses move permanently to the new categories", async ({ page }) => {
+  for (const [from, to] of [
+    ["/products/plywood/marine", "/products/plywood-boards/bwp-marine-plywood"],
+    ["/products/paints/putty", "/products/paint-preparation/wall-putty"],
+    ["/products/hardware", "/products/furniture-hardware"],
+    ["/products/plumbing", "/products"],
+  ]) {
+    const response = await page.request.get(from, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(new URL(response.headers().location, "http://x").pathname).toBe(to);
+  }
+});
+
 test("phone and WhatsApp links point at the shop", async ({ page }) => {
   await page.goto("/contact");
   await expect(page.locator('a[href^="tel:"]').first()).toBeVisible();

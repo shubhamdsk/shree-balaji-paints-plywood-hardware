@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CatalogView from "@/components/products/CatalogView";
 import ProductDetailView from "@/components/products/ProductDetailView";
-import { shop } from "@/config/shop";
+import { categoryPageMeta } from "@/lib/catalog";
 import { getCategoryGroups, getProductById, getProducts } from "@/services/catalog-service";
 
 export async function generateStaticParams() {
@@ -17,9 +17,7 @@ async function findGroup(slug: string) {
 export async function generateMetadata({ params }: PageProps<"/products/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const group = await findGroup(slug);
-  if (group) {
-    return { title: group.name, description: `Browse ${group.name.toLowerCase()} at ${shop.shortName}, ${shop.address.city}.` };
-  }
+  if (group) return categoryPageMeta(group);
   const product = await getProductById(slug);
   if (!product) return { title: "Not found" };
   return { title: product.name, description: product.description };

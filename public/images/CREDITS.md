@@ -12,10 +12,13 @@ Royalty-free photos from [Pexels](https://www.pexels.com/) (free for commercial 
 | `categories/paints.jpg` | 6764240 | Paint cans and brushes on wooden boards |
 | `categories/plywood.jpg` | 12278576 | Stacks of wood planks in a warehouse |
 | `categories/hardware.jpg` | 7019603 | Stainless door handle with keyhole |
-| `categories/plumbing.jpg` | 4017967 | Stacked industrial pipes / tubes |
-| `categories/electrical.jpg` | 14129562 | Electric switches mounted on white wall |
-| `categories/tools.jpg` | 30413428 | Cordless power drills on a workbench |
 | `categories/adhesives.jpg` | 7508801 | Close-up of a glue gun |
+| `categories/laminates.jpg` | 6585612 | Bedroom with a sleek wood-grain wardrobe |
+| `categories/doors.jpg` | 8134773 | Modern interior with wooden doors and a silver lever |
+| `categories/fasteners.jpg` | 5583084 | Metal screws scattered on a wooden surface |
+| `categories/edge-finishing.jpg` | 19227209 | Modern kitchen with wooden and black cabinets |
+| `categories/paint-preparation.jpg` | 5691622 | Gloved hand smoothing a wall with a trowel |
+| `categories/painting-tools.jpg` | 5799096 | Paint roller and brushes on a paint tray |
 | `banners/interior-living.jpg` | 1571460 | Living room interior |
 | `banners/exterior-house.jpg` | 106399 | House exterior |
 | `shop/storefront.jpg` | 24862481 | Modern stock aisle with racked boards and boxes, no people (placeholder) |
@@ -37,10 +40,7 @@ Royalty-free photos from [Pexels](https://www.pexels.com/) (free for commercial 
 | `products/padlock.jpg` | 4170142 | Close-up padlock on wood |
 | `products/hinges-handles.jpg` | 6480707 | Door hardware |
 | `products/hettich-handle.jpg` | 6480707 | Door hardware |
-| `products/power-drill.jpg` | 30413428 | Power drills on workbench |
 | `products/paint-tools.jpg` | 6764240 | Paint cans and brushes |
-| `products/plumbing-pipes.jpg` | 4017967 | Stacked pipes |
-| `products/pvc-pipe-finolex.jpg` | 4017967 | Stacked pipes |
 | `products/wood-adhesive.jpg` | 7508801 | Glue gun |
 | `products/interior-room.jpg` | 1571460 | Living room |
 | `products/exterior-house.jpg` | 106399 | House exterior |
@@ -48,7 +48,6 @@ Royalty-free photos from [Pexels](https://www.pexels.com/) (free for commercial 
 | `products/primer-wall.jpg` | 6764240 | Paint supplies |
 | `products/putty-smooth-wall.jpg` | 1669754 | Painting work |
 | `products/waterproofing-roof.jpg` | 106399 | House exterior |
-| `products/electrical-switch.jpg` | 14129562 | Wall switches |
 
 ## Previously wrong assets (replaced)
 

@@ -23,12 +23,15 @@ export type AuditAction =
   | "gallery_update"
   | "gallery_status"
   | "gallery_delete"
+  | "offer_create"
+  | "offer_update"
+  | "offer_delete"
   | "enquiry_update_status";
 
 interface AuditEntry {
   userId: number | null;
   action: AuditAction;
-  entity: "admin_user" | "product" | "category" | "subcategory" | "enquiry" | "gallery";
+  entity: "admin_user" | "product" | "category" | "subcategory" | "enquiry" | "gallery" | "offer";
   entityId?: string | null;
   before?: unknown;
   after?: unknown;
