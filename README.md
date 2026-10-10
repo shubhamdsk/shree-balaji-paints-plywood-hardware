@@ -4,26 +4,26 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 
 ## Live app
 
-**[shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)**
+**[shree-balaji.shreebalajipaints.workers.dev](https://shree-balaji.shreebalajipaints.workers.dev/)**
 
 | Page | Link |
 |------|------|
-| Home | [/](https://shree-balaji-paints-plywood-hardware.netlify.app/) |
-| Products catalogue | [/products](https://shree-balaji-paints-plywood-hardware.netlify.app/products) |
-| Paints | [/products/paints](https://shree-balaji-paints-plywood-hardware.netlify.app/products/paints) |
-| Interior paints | [/products/paints/interior](https://shree-balaji-paints-plywood-hardware.netlify.app/products/paints/interior) |
-| Plywood | [/products/plywood](https://shree-balaji-paints-plywood-hardware.netlify.app/products/plywood) |
-| Hardware | [/products/hardware](https://shree-balaji-paints-plywood-hardware.netlify.app/products/hardware) |
-| Sample product | [Royale Luxury Emulsion](https://shree-balaji-paints-plywood-hardware.netlify.app/products/ap-royale-luxury) |
-| Brands | [/brands](https://shree-balaji-paints-plywood-hardware.netlify.app/brands) |
-| Sample brand | [Asian Paints](https://shree-balaji-paints-plywood-hardware.netlify.app/brands/asian-paints) |
-| Offers | [/offers](https://shree-balaji-paints-plywood-hardware.netlify.app/offers) |
-| About | [/about](https://shree-balaji-paints-plywood-hardware.netlify.app/about) |
-| Contact | [/contact](https://shree-balaji-paints-plywood-hardware.netlify.app/contact) |
-| Send an enquiry | [/enquiry](https://shree-balaji-paints-plywood-hardware.netlify.app/enquiry) |
-| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji-paints-plywood-hardware.netlify.app/enquiry/ap-royale-luxury) |
-| Paint calculator | [/paint-calculator](https://shree-balaji-paints-plywood-hardware.netlify.app/paint-calculator) |
-| Products API | [/api/products](https://shree-balaji-paints-plywood-hardware.netlify.app/api/products) |
+| Home | [/](https://shree-balaji.shreebalajipaints.workers.dev/) |
+| Products catalogue | [/products](https://shree-balaji.shreebalajipaints.workers.dev/products) |
+| Paints | [/products/paints](https://shree-balaji.shreebalajipaints.workers.dev/products/paints) |
+| Interior paints | [/products/paints/interior](https://shree-balaji.shreebalajipaints.workers.dev/products/paints/interior) |
+| Plywood | [/products/plywood](https://shree-balaji.shreebalajipaints.workers.dev/products/plywood) |
+| Hardware | [/products/hardware](https://shree-balaji.shreebalajipaints.workers.dev/products/hardware) |
+| Sample product | [Royale Luxury Emulsion](https://shree-balaji.shreebalajipaints.workers.dev/products/ap-royale-luxury) |
+| Brands | [/brands](https://shree-balaji.shreebalajipaints.workers.dev/brands) |
+| Sample brand | [Asian Paints](https://shree-balaji.shreebalajipaints.workers.dev/brands/asian-paints) |
+| Offers | [/offers](https://shree-balaji.shreebalajipaints.workers.dev/offers) |
+| About | [/about](https://shree-balaji.shreebalajipaints.workers.dev/about) |
+| Contact | [/contact](https://shree-balaji.shreebalajipaints.workers.dev/contact) |
+| Send an enquiry | [/enquiry](https://shree-balaji.shreebalajipaints.workers.dev/enquiry) |
+| Quote for a product | [/enquiry/ap-royale-luxury](https://shree-balaji.shreebalajipaints.workers.dev/enquiry/ap-royale-luxury) |
+| Paint calculator | [/paint-calculator](https://shree-balaji.shreebalajipaints.workers.dev/paint-calculator) |
+| Products API | [/api/products](https://shree-balaji.shreebalajipaints.workers.dev/api/products) |
 
 ## Features
 
@@ -56,7 +56,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 | Styling | Tailwind CSS v4 |
 | UI | React 19, [Lucide](https://lucide.dev) icons, [Framer Motion](https://www.framer.com/motion/) |
 | Data | Postgres through [Drizzle ORM](https://orm.drizzle.team): [Neon](https://neon.tech) (free plan) in production, [PGlite](https://pglite.dev) locally and in tests |
-| Photos | [Netlify Blobs](https://docs.netlify.com/build/data-and-storage/netlify-blobs/) in production, the `.data/photos` folder locally |
+| Photos | [Cloudflare R2](https://developers.cloudflare.com/r2/) in production, the `.data/photos` folder locally |
 | Validation | [Zod](https://zod.dev) |
 
 ## Getting started
@@ -96,7 +96,10 @@ The project is linked in the git-ignored `.neon` file, and [`neon.ts`](neon.ts) 
 | `npm run test:e2e` | Browser tests (Playwright) against a fresh production build; run `npx playwright install chromium` once first |
 | `npm run check` | Lint, typecheck, tests and build: run before every commit |
 | `npm run db:generate -- --name <change>` | Create a migration after editing `src/server/db/schema.ts` |
-| `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL`, read from `.env.local` when present (Netlify runs it before every build) |
+| `npm run db:migrate` | Apply migrations and the first seed to `DATABASE_URL`, read from `.env.local` when present (Cloudflare runs it before every build) |
+| `npm run preview` | Build the Cloudflare worker and run it locally |
+| `npm run deploy` | Build the Cloudflare worker and deploy it (after `npx wrangler login`) |
+| `npm run upload` | Build the Cloudflare worker and upload a new version without making it live |
 
 Every push and pull request to `develop` or `main` runs the same checks in GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)), plus the browser tests and the migration script against a real PostgreSQL. The required workflow for each change (tests, regression check, code review) is in [`AGENTS.md`](AGENTS.md).
 
@@ -147,19 +150,26 @@ Image credits and Pexels IDs: [`public/images/CREDITS.md`](public/images/CREDITS
 
 ## Deployment
 
-The site is hosted on **[Netlify](https://www.netlify.com)**'s free plan, which allows commercial sites. It is connected to the GitHub repo [`shubhamdsk/shree-balaji-paints-plywood-hardware`](https://github.com/shubhamdsk/shree-balaji-paints-plywood-hardware).
+The site runs on **[Cloudflare Workers](https://developers.cloudflare.com/workers/)** (free plan, commercial use allowed) through the [OpenNext Cloudflare adapter](https://opennext.js.org/cloudflare). Cloudflare Workers Builds is connected to the GitHub repo [`shubhamdsk/shree-balaji-paints-plywood-hardware`](https://github.com/shubhamdsk/shree-balaji-paints-plywood-hardware).
 
-- **Production:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)
-- **Automatic deploys:** every push to the production branch (`main`) redeploys the live site. Every pull request into `main` gets a Deploy Preview (visible to members of the Netlify team) and a status check on GitHub.
-- **Environment variables** (Netlify → Site configuration → Environment variables, never in Git):
-  - `DATABASE_URL`: Neon's pooled connection string. Give deploy previews a separate Neon branch so they never touch production data. The build fails without it.
-  - `SESSION_SECRET`: at least 32 random characters.
-  - `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD`: used once, on the first owner login.
-  - Netlify's secret scanning fails the build if a secret value appears in the repo or the build output. `ADMIN_USERNAME` is left out of the scan because the login name is usually a shop word, and so is the build cache (`.next/cache`), where Turbopack records the env values a build reads. The other values must be random, not words from the site.
-- **Settings:** [`netlify.toml`](netlify.toml) sets the build command (`npm run db:migrate && npm run build`), the publish directory (`.next`), Node 22, `SITE_URL`, the secret-scan exception and the Next.js runtime (`@netlify/plugin-nextjs`). Leave the dashboard build settings empty and the base directory at the project root. Keep the plugin entry: without it Netlify publishes the raw `.next` folder and every page returns 404.
-- **Credits:** the free plan has 300 credits a month. A production deploy uses about 15, so batch changes before merging into `main`.
+- **Production:** [shree-balaji.shreebalajipaints.workers.dev](https://shree-balaji.shreebalajipaints.workers.dev/)
+- **Automatic deploys:** every push to `main` builds and deploys the live site. Builds for other branches are off, because preview versions share the production secrets and database.
+- **Build settings** (Workers & Pages → `shree-balaji` → Settings → Build):
+  - Build command: `npm run db:migrate && npx opennextjs-cloudflare build`
+  - Deploy command: `npx opennextjs-cloudflare deploy`
+  - Build variables: `DATABASE_URL` (Neon's pooled connection string; pages are prerendered from it and the build fails without it) and `SITE_URL`.
+- **Runtime secrets** (Settings → Variables and Secrets, type *Secret*, never in Git): `DATABASE_URL`, `SESSION_SECRET` (at least 32 random characters), and `ADMIN_USERNAME` and `ADMIN_INITIAL_PASSWORD` (used once, on the first owner login). Add `SITE_URL` there as a plain variable.
+- **Config:** [`wrangler.jsonc`](wrangler.jsonc) names the worker and its bindings:
+  - the R2 buckets `shree-balaji-photos` (uploaded photos) and `shree-balaji-next-cache` (page cache);
+  - the Durable Objects that store cache tags, so owner saves show on the public site straight away;
+  - Cloudflare Images, for `next/image`;
+  - a cron trigger every 3 minutes that calls `/api/health` to keep Neon awake.
 
-To publish changes, open a pull request from `develop` into `main`, check its Deploy Preview, then merge.
+  [`open-next.config.ts`](open-next.config.ts) sets the cache, and [`worker.ts`](worker.ts) adds the cron handler to the generated worker.
+- **Size limit:** the free plan rejects workers over 3 MiB gzipped. The `cloudflare` CI job builds the worker and fails above that.
+- `npm run preview` runs the built worker locally, and `npm run deploy` deploys from your machine after `npx wrangler login`. On Windows the adapter needs symlinks, so turn on Developer Mode or use WSL.
+
+To publish changes, open a pull request from `develop` into `main`, wait for CI to pass, then merge.
 
 ## Roadmap
 
@@ -169,7 +179,7 @@ Part 2 is planned in [`docs/SPRINT-PLAN.md`](docs/SPRINT-PLAN.md) (3 one-week sp
 - Enquiry inbox: enquiries saved for the owner and still sent to WhatsApp
 - Our work gallery, dated offer banners
 - Google Business Profile and Search Console
-- Data on Neon Postgres, photos on Netlify Blobs ([Architecture](docs/ARCHITECTURE.md))
+- Data on Neon Postgres, photos on Cloudflare R2 ([Architecture](docs/ARCHITECTURE.md))
 
 ## Legal note
 

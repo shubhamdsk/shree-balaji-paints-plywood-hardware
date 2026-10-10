@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://shree-balaji-paints-plywood-hardware.netlify.app";
+const DEFAULT_SITE_URL = "https://shree-balaji.shreebalajipaints.workers.dev";
 
 export const siteUrl = (process.env.SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
 

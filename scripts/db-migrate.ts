@@ -8,8 +8,8 @@ async function main() {
   const url = process.env.DATABASE_URL;
 
   if (!url) {
-    if (process.env.NETLIFY === "true") {
-      console.error("DATABASE_URL is not set for this Netlify deploy context.");
+    if (process.env.WORKERS_CI === "1") {
+      console.error("DATABASE_URL is not set in the Cloudflare build variables.");
       process.exit(1);
     }
     console.log("DATABASE_URL is not set: skipping migrations (the app uses the local in-process database).");
