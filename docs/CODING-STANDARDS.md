@@ -72,7 +72,9 @@ Related: [Architecture](ARCHITECTURE.md) · [Security](SECURITY.md)
   1. `await requireOwner()`
   2. `schema.parse(input)` with Zod
 - The public enquiry action validates with Zod, checks the honeypot and the rate limit, and never needs a session.
-- Share Zod schemas between form validation (client) and the server, but **always validate again on the server**.
+- Share Zod schemas between form validation (client) and the server, but **always validate again on the server**. The rules live in `src/lib` (`product-input.ts`, `offer-input.ts`, `category-input.ts`, `gallery-input.ts`, `enquiry.ts`, `password-rules.ts`).
+- Every form validates in the browser before it submits, through `useFormValidation` from `@/hooks/use-form-validation`: a field is checked when it loses focus, the whole form on submit (the first invalid field gets focus), and each error clears as the field is edited. Each error shows under its field, linked with `aria-describedby`, and the count shows in a `FormAlert` above the save button.
+- Fixed choices (price unit, sizes, category) are `SelectMenu` lists, not free text. Sizes come from the unit's list in `src/lib/price-units.ts`; a product's already-saved unit and sizes stay valid when it's edited, so old data never blocks a save.
 - Expected errors (duplicate product name, file too large) return a typed result such as `{ ok: false, code: "DUPLICATE_ID", message }`. Don't throw them.
 - Unexpected errors are logged with a reference ID and shown as "Something went wrong (ref ABC123)". Never show stack traces or SQL to users.
 - No empty `catch` blocks.

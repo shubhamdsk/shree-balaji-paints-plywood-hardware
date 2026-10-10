@@ -2,26 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Plus, Trash2, X } from "@/components/ui/icons";
+import GalleryForm from "@/components/admin/GalleryForm";
+import { Plus, Trash2 } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
-import FormField, { fieldClasses } from "@/components/ui/FormField";
-import SelectMenu from "@/components/ui/SelectMenu";
 import ToggleSwitch from "@/components/admin/ToggleSwitch";
 import { useConfirm } from "@/hooks/use-confirm";
-import {
-  deleteGalleryItemAction,
-  saveGalleryItemAction,
-  toggleGalleryActiveAction,
-} from "@/server/actions/gallery";
+import { deleteGalleryItemAction, toggleGalleryActiveAction } from "@/server/actions/gallery";
 import type { GalleryItem } from "@/types";
-
-const categoryOptions = [
-  { value: "Painting Works", label: "Painting Works" },
-  { value: "Plywood & Interior", label: "Plywood & Interior" },
-  { value: "Laminates & Finish", label: "Laminates & Finish" },
-  { value: "Hardware & Fittings", label: "Hardware & Fittings" },
-  { value: "General Work", label: "General Work" },
-];
 
 interface AdminGalleryListProps {
   initialItems: GalleryItem[];
@@ -29,33 +16,23 @@ interface AdminGalleryListProps {
 
 export default function AdminGalleryList({ initialItems }: AdminGalleryListProps) {
   const [items, setItems] = useState(initialItems);
+  const [shownItems, setShownItems] = useState(initialItems);
+  if (initialItems !== shownItems) {
+    setShownItems(initialItems);
+    setItems(initialItems);
+  }
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
-  const [errorMsg, setErrorMsg] = useState("");
   const confirm = useConfirm();
-
-  const [form, setForm] = useState({
-    title: "",
-    category: "Painting Works",
-    caption: "",
-  });
 
   const openAddModal = () => {
     setEditingItem(null);
-    setForm({ title: "", category: "Painting Works", caption: "" });
-    setErrorMsg("");
     setModalOpen(true);
   };
 
   const openEditModal = (item: GalleryItem) => {
     setEditingItem(item);
-    setForm({
-      title: item.title,
-      category: item.category,
-      caption: item.caption || "",
-    });
-    setErrorMsg("");
     setModalOpen(true);
   };
 
@@ -159,94 +136,7 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
         </div>
       )}
 
-      {/* Add / Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-card border border-line bg-card p-6 card-shadow space-y-4">
-            <div className="flex items-center justify-between border-b border-line pb-3">
-              <h3 className="text-lg font-bold text-heading">
-                {editingItem ? "Edit Work Photo" : "Upload Work Photo"}
-              </h3>
-              <button type="button" onClick={() => setModalOpen(false)} className="rounded-lg p-1 text-muted hover:bg-surface-muted">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {errorMsg && (
-              <p className="rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 dark:bg-red-950/50 dark:text-red-300">
-                {errorMsg}
-              </p>
-            )}
-
-            <form
-              action={async (formData) => {
-                startTransition(async () => {
-                  const res = await saveGalleryItemAction(editingItem?.id || null, {}, formData);
-                  if (res.errors || res.message) {
-                    setErrorMsg(res.message || "Validation failed.");
-                  } else {
-                    setModalOpen(false);
-                  }
-                });
-              }}
-              className="space-y-4 text-sm"
-            >
-              <FormField label="Project Title" htmlFor="title" required>
-                <input
-                  id="title"
-                  name="title"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className={fieldClasses}
-                  placeholder="e.g. Living Room Wall Painting at Kotul"
-                />
-              </FormField>
-
-              <FormField label="Category" htmlFor="category" required>
-                <SelectMenu
-                  id="category"
-                  label="Category"
-                  value={form.category}
-                  onChange={(val) => setForm({ ...form, category: val })}
-                  options={categoryOptions}
-                />
-                <input type="hidden" name="category" value={form.category} />
-              </FormField>
-
-              <FormField label="Caption / Description" htmlFor="caption">
-                <textarea
-                  id="caption"
-                  name="caption"
-                  rows={3}
-                  value={form.caption}
-                  onChange={(e) => setForm({ ...form, caption: e.target.value })}
-                  className={`${fieldClasses} resize-y`}
-                  placeholder="Details about products used, finish quality or customer requirements"
-                />
-              </FormField>
-
-              <FormField label={editingItem ? "Replace Photo (optional)" : "Upload Photo"} htmlFor="photo">
-                <input
-                  id="photo"
-                  name="photo"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className={fieldClasses}
-                />
-              </FormField>
-
-              <div className="flex justify-end gap-2 border-t border-line pt-4">
-                <Button variant="secondary" onClick={() => setModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" variant="cta" disabled={isPending}>
-                  {isPending ? "Uploading..." : "Save Work Photo"}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {modalOpen && <GalleryForm item={editingItem} onClose={() => setModalOpen(false)} />}
     </div>
   );
 }

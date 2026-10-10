@@ -71,10 +71,10 @@ src/
     contact/            contact details and map
     enquiry/            enquiry form
     calculator/         paint calculator
-    ui/                 shared building blocks: icons, AppLink, Button, FormField, SelectMenu, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
+    ui/                 shared building blocks: icons, AppLink, Button, FormField, FormAlert, SelectMenu, ConfirmDialog, Breadcrumbs, PageHeader, SectionHeader, Reveal
   config/               site constants (shop.ts: name, phone, address, hours; site.ts: public site URL)
   data/                 categories, types, brands and demo products that seed an empty database, read only by src/services and the seed
-  hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-theme, use-photo-picker)
+  hooks/                shared React hooks (use-confirm, use-unsaved-changes, use-form-validation, use-theme, use-photo-picker)
   lib/
     api/                endpoints.ts (every API path) and http-client.ts (fetch wrapper)
     routes.ts           every page path (clean URLs, no query strings)
@@ -82,12 +82,14 @@ src/
     sitemap.ts          every public page path for sitemap.xml
     theme.ts            light / dark / system preference, storage and the pre-paint script
     product-input.ts    product form rules, shared by the browser and the server
+    price-units.ts      price units (per litre, per kg, ...) and the sizes offered for each
     offer-input.ts      offer form rules and the live / starts soon / ended status
+    gallery-input.ts    gallery form rules and categories
     category-input.ts   category and type form rules; category-list.ts builds the owner list rows
     legacy-routes.ts    permanent redirects from old category addresses (loaded by next.config.ts, so it imports nothing)
     dates.ts            today's date in India (offers and backups use it)
     backup-token.ts     daily backup cron schedule and the token the cron sends to /api/backup
-    password-rules.ts   password length limits and change-password checks
+    password-rules.ts   password length limits, login and change-password checks
     photo.ts            photo type checks and storage keys; resize-photo.ts shrinks photos in the browser
     price.ts            "From ₹520 per litre" / "Ask for price"
     cache-tags.ts       cache tag names for unstable_cache and updateTag
@@ -117,7 +119,8 @@ scripts/                db-migrate.ts (build-time migrations) and developer help
 
 - Check `src/components/ui`, `src/hooks` and `src/lib` before writing new UI or logic. Extend an existing piece with a prop instead of copying it.
 - Icons: import from `@/components/ui/icons`, never from `lucide-react` directly. To use a new icon, add it to the export list in `icons.ts`. A custom SVG icon goes in the same file as a component that takes `IconProps`. Logo artwork stays in `components/brand`.
-- Buttons: `Button` (or `buttonClasses()` for links styled as buttons). Inputs: `FormField` with `fieldClasses`. Dropdowns: `SelectMenu` (themed list, search box on lists over 8 options, full keyboard support), never a native `<select>`.
+- Buttons: `Button` (or `buttonClasses()` for links styled as buttons). Inputs: `FormField` with `fieldClasses`. Dropdowns: `SelectMenu` (themed list, search box on lists over 8 options, full keyboard support, `multiple` for tick-several lists, `placeholder`, `disabled`), never a native `<select>`.
+- Form validation: put the rules in `src/lib/*-input.ts` (or another `src/lib` module) so the browser and the server run the same checks. In the form, use `useFormValidation(validate)`: put `onBlur={checkField}` on the `<form>`, call `checkForm(form)` before saving (it shows every error and focuses the first field), `clearError(field)` on change, and show `summary` (or the server's message) in a `FormAlert`. Give each field an `id` equal to its rule name, and link its error with `aria-describedby`.
 - Internal links: always `AppLink`, never `next/link` directly. ESLint blocks `next/link` elsewhere.
 - Confirmation for any destructive or irreversible action: `const confirm = useConfirm();` then `if (await confirm({ title, message, confirmLabel, tone: "danger" }))`. Never use `window.confirm`, and never build a one-off modal.
 - Forms with user input: call `useUnsavedChanges(isDirty)`. Navigating through `AppLink`, reloading, or closing the tab then asks before discarding. For in-page actions that would lose input, use the `confirmDiscard` it returns.

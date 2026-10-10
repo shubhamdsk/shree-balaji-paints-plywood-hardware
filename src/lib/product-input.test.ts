@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createProductId, parsePrice, parseSizes, readProductForm, validateProductInput } from "@/lib/product-input";
+import { createProductId, parsePrice, readProductForm, validateProductInput } from "@/lib/product-input";
 import type { CategoryGroup } from "@/types";
 
 const groups = [
@@ -19,12 +19,6 @@ const valid = {
   inStock: true,
   featured: false,
 };
-
-describe("parseSizes", () => {
-  it("splits on commas and new lines, trims and drops repeats", () => {
-    expect(parseSizes(" 1 L, 4 L\n10 L,, 4 L ")).toEqual(["1 L", "4 L", "10 L"]);
-  });
-});
 
 describe("parsePrice", () => {
   it("reads whole rupees and ignores grouping commas", () => {
@@ -49,13 +43,14 @@ describe("readProductForm", () => {
       brand: "Nippon Paint",
       category: "paints",
       type: "Exterior",
-      sizes: "1 L, 4 L",
       priceFrom: "295",
       unit: "per litre",
       inStock: "on",
     })) {
       formData.set(key, value);
     }
+    formData.append("sizes", "1 L");
+    formData.append("sizes", "4 L");
     expect(readProductForm(formData)).toEqual(valid);
   });
 });
@@ -72,7 +67,7 @@ describe("validateProductInput", () => {
 
   it("reports one message per field", () => {
     const result = validateProductInput(
-      { ...valid, name: " ", brand: "", category: "tiles", sizes: [], priceFrom: Number.NaN },
+      { ...valid, name: " ", brand: "", category: "tiles", sizes: [], priceFrom: Number.NaN, unit: "" },
       groups,
     );
     expect(result).toEqual({
@@ -81,10 +76,36 @@ describe("validateProductInput", () => {
         name: "Enter the product name",
         brand: "Enter the brand",
         category: "Choose a category",
-        sizes: "Add at least one size",
+        sizes: "Choose at least one size",
         priceFrom: "Enter the price in whole rupees, like 520",
+        unit: "Choose a price unit",
       },
     });
+  });
+
+  it("puts sizes in the unit's list order", () => {
+    expect(validateProductInput({ ...valid, sizes: ["20 L", "1 L"] }, groups)).toMatchObject({
+      ok: true,
+      input: { sizes: ["1 L", "20 L"] },
+    });
+  });
+
+  it("rejects a unit outside the list and sizes that belong to another unit", () => {
+    expect(validateProductInput({ ...valid, unit: "per bucket" }, groups)).toEqual({
+      ok: false,
+      errors: { unit: "Choose a price unit" },
+    });
+    expect(validateProductInput({ ...valid, unit: "per kg" }, groups)).toEqual({
+      ok: false,
+      errors: { sizes: "Choose sizes from the list for this unit" },
+    });
+  });
+
+  it("keeps a product's own saved unit and sizes valid when editing", () => {
+    const saved = { unit: "per 500 g", sizes: ["500 g", "Tin"] };
+    const fevicol = { ...valid, unit: "per 500 g", sizes: ["Tin", "500 g"] };
+    expect(validateProductInput(fevicol, groups, saved)).toMatchObject({ ok: true, input: { sizes: ["500 g", "Tin"] } });
+    expect(validateProductInput(fevicol, groups).ok).toBe(false);
   });
 
   it("rejects a type from another category", () => {

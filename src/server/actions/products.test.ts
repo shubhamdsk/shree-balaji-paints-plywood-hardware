@@ -7,7 +7,7 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import { ROUTES } from "@/lib/routes";
 import { saveProductAction, setProductFlagAction } from "@/server/actions/products";
 import { SESSION_COOKIE } from "@/server/auth/session";
-import { getAdminProduct } from "@/services/admin-product-service";
+import { getAdminProduct, listAdminProducts } from "@/services/admin-product-service";
 import { logIn } from "@/services/auth-service";
 import { getProducts } from "@/services/catalog-service";
 import { setupTestDatabase } from "@/test/db";
@@ -56,7 +56,10 @@ function productForm(fields: Record<string, string> = {}, photo?: Blob) {
     inStock: "on",
     ...fields,
   };
-  for (const [key, value] of Object.entries(values)) formData.set(key, value);
+  for (const [key, value] of Object.entries(values)) {
+    if (key === "sizes") value.split(", ").filter(Boolean).forEach((size) => formData.append(key, size));
+    else formData.set(key, value);
+  }
   if (photo) formData.set("photo", photo, "photo.jpg");
   return formData;
 }
@@ -82,9 +85,23 @@ describe("saveProductAction", () => {
     const state = await saveProductAction(null, {}, productForm({ name: "", sizes: "" }));
     expect(state).toEqual({
       message: "Please fix the highlighted fields.",
-      errors: { name: "Enter the product name", sizes: "Add at least one size" },
+      errors: { name: "Enter the product name", sizes: "Choose at least one size" },
     });
     expect(updateTag).not.toHaveBeenCalled();
+  });
+
+  it("keeps a product's own unit and sizes valid when it is edited", async () => {
+    const fevicol = (await listAdminProducts()).find((p) => p.unit === "per 500 g")!;
+    const form = productForm({
+      name: fevicol.name,
+      brand: fevicol.brand,
+      category: fevicol.category,
+      type: fevicol.type,
+      sizes: fevicol.sizes.join(", "),
+      unit: fevicol.unit,
+    });
+    await expect(saveProductAction(fevicol.id, {}, form)).rejects.toEqual(redirectsTo(ROUTES.adminProducts));
+    await expect(saveProductAction(null, {}, form)).resolves.toMatchObject({ errors: { unit: "Choose a price unit" } });
   });
 
   it("rejects a file that is not a photo", async () => {

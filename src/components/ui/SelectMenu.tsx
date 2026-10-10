@@ -10,32 +10,40 @@ export interface SelectOption {
   label: string;
 }
 
-interface SelectMenuProps {
+interface BaseProps {
   /** Names the field for screen readers; the trigger reads as "label: selected option". */
   label: string;
-  value: string;
   options: SelectOption[];
-  onChange: (value: string) => void;
   id?: string;
   searchable?: boolean;
   invalid?: boolean;
   describedBy?: string;
+  /** Shown on the trigger while nothing is selected. */
+  placeholder?: string;
+  disabled?: boolean;
 }
+
+type SelectMenuProps = BaseProps &
+  (
+    | { multiple?: false; value: string; onChange: (value: string) => void }
+    | { multiple: true; value: string[]; onChange: (value: string[]) => void }
+  );
 
 const SEARCH_MIN_OPTIONS = 8;
 const MENU_HEIGHT_PX = 330;
 const BOTTOM_BAR_PX = 80;
 
-export default function SelectMenu({
-  label,
-  value,
-  options,
-  onChange,
-  id,
-  searchable = options.length > SEARCH_MIN_OPTIONS,
-  invalid = false,
-  describedBy,
-}: SelectMenuProps) {
+export default function SelectMenu(props: SelectMenuProps) {
+  const {
+    label,
+    options,
+    id,
+    searchable = options.length > SEARCH_MIN_OPTIONS,
+    invalid = false,
+    describedBy,
+    placeholder,
+    disabled = false,
+  } = props;
   const baseId = useId();
   const listId = `${baseId}-list`;
   const optionId = (index: number) => `${baseId}-option-${index}`;
@@ -49,8 +57,11 @@ export default function SelectMenu({
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
+  const selectedValues = props.multiple ? props.value : [props.value];
+  const isSelected = (value: string) => selectedValues.includes(value);
   const filtered = useMemo(() => options.filter((o) => matchesQuery(o.label, query)), [options, query]);
-  const selected = options.find((o) => o.value === value);
+  const selectedLabels = options.filter((o) => isSelected(o.value)).map((o) => o.label);
+  const display = selectedLabels.length > 0 ? selectedLabels.join(", ") : (placeholder ?? "");
   const activeId = filtered[active] ? optionId(active) : undefined;
 
   const openMenu = () => {
@@ -60,7 +71,7 @@ export default function SelectMenu({
       setDropUp(spaceBelow < MENU_HEIGHT_PX && rect.top > spaceBelow);
     }
     setQuery("");
-    setActive(Math.max(0, options.findIndex((o) => o.value === value)));
+    setActive(Math.max(0, options.findIndex((o) => isSelected(o.value))));
     setOpen(true);
   };
 
@@ -70,8 +81,15 @@ export default function SelectMenu({
   };
 
   const choose = (option: SelectOption) => {
-    onChange(option.value);
-    close();
+    if (!props.multiple) {
+      props.onChange(option.value);
+      close();
+      return;
+    }
+    const next = new Set(props.value);
+    if (next.has(option.value)) next.delete(option.value);
+    else next.add(option.value);
+    props.onChange(options.filter((o) => next.has(o.value)).map((o) => o.value));
   };
 
   useEffect(() => {
@@ -130,8 +148,9 @@ export default function SelectMenu({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
-        aria-label={`${label}: ${selected?.label ?? "none"}`}
+        aria-label={`${label}: ${display || "none"}`}
         aria-describedby={describedBy}
+        disabled={disabled}
         onClick={() => (open ? close() : openMenu())}
         onKeyDown={(event) => {
           if (!open && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
@@ -139,9 +158,9 @@ export default function SelectMenu({
             openMenu();
           }
         }}
-        className={`${fieldClasses} flex items-center justify-between gap-2 text-left ${invalid ? "border-accent-600" : ""}`}
+        className={`${fieldClasses} flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 ${invalid ? "border-accent-600" : ""}`}
       >
-        <span className="truncate">{selected?.label}</span>
+        <span className={`truncate ${selectedLabels.length === 0 && placeholder ? "text-subtle" : ""}`}>{display}</span>
         <ChevronDown
           aria-hidden
           className={`h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
@@ -183,6 +202,7 @@ export default function SelectMenu({
             id={listId}
             role="listbox"
             aria-label={label}
+            aria-multiselectable={props.multiple || undefined}
             tabIndex={-1}
             aria-activedescendant={searchable ? undefined : activeId}
             onKeyDown={searchable ? undefined : onMenuKeyDown}
@@ -194,26 +214,48 @@ export default function SelectMenu({
               </li>
             ) : (
               filtered.map((option, index) => {
-                const isSelected = option.value === value;
+                const selected = isSelected(option.value);
                 return (
                   <li
                     key={option.value}
                     id={optionId(index)}
                     role="option"
-                    aria-selected={isSelected}
+                    aria-selected={selected}
                     onPointerMove={() => setActive(index)}
                     onClick={() => choose(option)}
-                    className={`flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 text-[15px] ${
-                      index === active ? "bg-surface-muted text-heading" : "text-ink"
-                    } ${isSelected ? "font-semibold" : ""}`}
+                    className={`flex min-h-10 cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-[15px] ${
+                      props.multiple ? "" : "justify-between"
+                    } ${index === active ? "bg-surface-muted text-heading" : "text-ink"} ${selected ? "font-semibold" : ""}`}
                   >
+                    {props.multiple && (
+                      <span
+                        aria-hidden
+                        className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border ${
+                          selected ? "border-heading bg-heading text-card" : "border-line"
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5" />}
+                      </span>
+                    )}
                     <span>{option.label}</span>
-                    {isSelected && <Check aria-hidden className="h-4 w-4 shrink-0 text-accent-600" />}
+                    {!props.multiple && selected && <Check aria-hidden className="h-4 w-4 shrink-0 text-accent-600" />}
                   </li>
                 );
               })
             )}
           </ul>
+          {props.multiple && (
+            <div className="flex items-center justify-between gap-3 border-t border-line px-3 py-2">
+              <span className="text-sm text-muted">{props.value.length} selected</span>
+              <button
+                type="button"
+                onClick={close}
+                className="min-h-10 rounded-lg px-3 text-sm font-bold text-heading hover:bg-surface-muted"
+              >
+                Done
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

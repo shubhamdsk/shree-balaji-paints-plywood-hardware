@@ -2,9 +2,9 @@
 
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { readGalleryForm, validateGalleryInput, type GalleryFieldErrors } from "@/lib/gallery-input";
 import { photoKeyFromImage, readPhotoUpload } from "@/lib/photo";
 import { ROUTES } from "@/lib/routes";
 import { requireOwner } from "@/server/auth/guard";
@@ -17,22 +17,9 @@ import {
 } from "@/services/gallery-service";
 
 export interface GalleryFormState {
-  errors?: {
-    title?: string;
-    category?: string;
-    caption?: string;
-    photo?: string;
-  };
+  errors?: GalleryFieldErrors;
   message?: string;
 }
-
-const inputSchema = z.strictObject({
-  title: z.string().min(1, "Title is required").max(120),
-  category: z.string().min(1, "Category is required").max(80),
-  caption: z.string().max(300).optional(),
-  sortOrder: z.number().int().optional(),
-  isActive: z.boolean().optional(),
-});
 
 export async function saveGalleryItemAction(
   id: string | null,
@@ -40,27 +27,14 @@ export async function saveGalleryItemAction(
   formData: FormData,
 ): Promise<GalleryFormState> {
   const owner = await requireOwner();
-  const title = String(formData.get("title") ?? "");
-  const category = String(formData.get("category") ?? "");
-  const caption = String(formData.get("caption") ?? "");
-
-  const parsed = inputSchema.safeParse({ title, category, caption });
   const upload = await readPhotoUpload(formData.get("photo"));
+  const parsed = validateGalleryInput(readGalleryForm(formData), { needsPhoto: !id && upload.ok && !upload.photo });
 
-  if (!parsed.success || !upload.ok || (!id && !upload.photo)) {
-    const fieldErrors: GalleryFormState["errors"] = {};
-    if (!parsed.success) {
-      const formatted = parsed.error.format();
-      if (formatted.title?._errors[0]) fieldErrors.title = formatted.title._errors[0];
-      if (formatted.category?._errors[0]) fieldErrors.category = formatted.category._errors[0];
-      if (formatted.caption?._errors[0]) fieldErrors.caption = formatted.caption._errors[0];
-    }
-    if (!upload.ok) {
-      fieldErrors.photo = upload.error;
-    } else if (!id && !upload.photo) {
-      fieldErrors.photo = "Photo is required for a new gallery item.";
-    }
-    return { errors: fieldErrors, message: "Please check the highlighted fields." };
+  if (!parsed.ok || !upload.ok) {
+    return {
+      errors: { ...(!parsed.ok && parsed.errors), ...(!upload.ok && { photo: upload.error }) },
+      message: "Please fix the highlighted fields.",
+    };
   }
 
   let image: string | undefined;
@@ -70,14 +44,14 @@ export async function saveGalleryItemAction(
   }
 
   if (id) {
-    const updated = await updateGalleryItem(owner, id, parsed.data, image);
+    const updated = await updateGalleryItem(owner, id, parsed.input, image);
     if (!updated) return { message: "Gallery item not found." };
     if (image && updated.image) {
       const oldKey = photoKeyFromImage(updated.image);
       if (oldKey) await deletePhoto(oldKey);
     }
   } else {
-    await createGalleryItem(owner, parsed.data, image || "/images/gallery/villa-painting.jpg");
+    await createGalleryItem(owner, parsed.input, image || "/images/gallery/villa-painting.jpg");
   }
 
   updateTag(CACHE_TAGS.gallery);

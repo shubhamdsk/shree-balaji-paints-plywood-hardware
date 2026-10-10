@@ -45,6 +45,14 @@ describe("ChangePasswordForm", () => {
     expect(confirm.getAttribute("aria-invalid")).toBe("true");
   });
 
+  it("checks a too-short new password as soon as the field is left", async () => {
+    const { user } = renderWithProviders(<ChangePasswordForm />);
+    await user.type(screen.getByLabelText(/Current password/), PASSWORD);
+    await user.type(screen.getByLabelText(/^New password/), "short");
+    await user.tab();
+    expect(screen.getByText("Use at least 10 characters")).toHaveProperty("id", "newPassword-error");
+  });
+
   it("says when the current password is wrong", async () => {
     const { user } = renderWithProviders(<ChangePasswordForm />);
     await user.type(screen.getByLabelText(/Current password/), "wrong-password");

@@ -50,10 +50,43 @@ describe("ProductForm", () => {
       "Enter the brand": screen.getByLabelText(/Brand/),
       "Choose a category": screen.getByRole("button", { name: "Category: Choose a category" }),
       "Choose a type": screen.getByRole("button", { name: "Type: Choose a category first" }),
-      "Add at least one size": screen.getByLabelText(/Sizes/),
+      "Choose a price unit": screen.getByRole("button", { name: "Price unit: Choose a price unit" }),
+      "Choose at least one size": screen.getByRole("button", { name: "Sizes: Choose a price unit first" }),
     };
     for (const [message, field] of Object.entries(fields)) expect(description(field)).toBe(message);
     expect(screen.getByLabelText(/Product name/).getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByRole("alert").textContent).toBe("Fix the 6 highlighted fields to continue.");
+    expect(document.activeElement).toBe(screen.getByLabelText(/Product name/));
+  });
+
+  it("offers the sizes of the chosen price unit and lets several be ticked", async () => {
+    const { user } = renderWithProviders(<ProductForm categoryGroups={groups} />);
+    expect(screen.getByRole("button", { name: "Sizes: Choose a price unit first" })).toHaveProperty("disabled", true);
+
+    await user.click(screen.getByRole("button", { name: "Price unit: Choose a price unit" }));
+    await user.click(screen.getByRole("option", { name: "Kilogram (kg)" }));
+    await user.click(screen.getByRole("button", { name: "Sizes: Choose sizes" }));
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toContain("20 kg");
+    expect(screen.queryByRole("option", { name: "4 L" })).toBeNull();
+
+    await user.click(screen.getByRole("option", { name: "20 kg" }));
+    await user.click(screen.getByRole("option", { name: "5 kg" }));
+    await user.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.getByRole("button", { name: "Sizes: 5 kg, 20 kg" })).toBeDefined();
+  });
+
+  it("drops sizes that don't fit a newly chosen unit", async () => {
+    const { user } = renderWithProviders(<ProductForm product={product} categoryGroups={groups} />);
+    await user.click(screen.getByRole("button", { name: "Price unit: Litre (L)" }));
+    await user.click(screen.getByRole("option", { name: "Kilogram (kg)" }));
+    expect(screen.getByRole("button", { name: "Sizes: Choose sizes" })).toBeDefined();
+  });
+
+  it("checks the price as soon as the field is left", async () => {
+    const { user } = renderWithProviders(<ProductForm categoryGroups={groups} />);
+    await user.type(screen.getByLabelText(/Starting price/), "520.50");
+    await user.tab();
+    expect(description(screen.getByLabelText(/Starting price/))).toBe("Enter the price in whole rupees, like 520");
   });
 
   it("offers only the types of the chosen category and clears a type that no longer fits", async () => {
@@ -69,7 +102,9 @@ describe("ProductForm", () => {
   it("fills in the saved product when editing", () => {
     renderWithProviders(<ProductForm product={product} categoryGroups={groups} />);
     expect(screen.getByLabelText(/Product name/)).toHaveProperty("value", "Weatherbond Advance");
-    expect(screen.getByLabelText(/Sizes/)).toHaveProperty("value", "1 L, 4 L");
+    expect(screen.getByRole("button", { name: "Sizes: 1 L, 4 L" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Price unit: Litre (L)" })).toBeDefined();
+    expect(screen.getByText('Shows as "From ₹295 per litre"')).toBeDefined();
     expect(screen.getByLabelText(/Starting price/)).toHaveProperty("value", "295");
     expect(screen.getByLabelText("In stock")).toHaveProperty("checked", true);
     expect(screen.getByLabelText("Show on the home page").getAttribute("aria-describedby")).toBe("featured-hint");

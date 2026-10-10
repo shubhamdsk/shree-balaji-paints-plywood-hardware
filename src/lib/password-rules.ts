@@ -1,6 +1,20 @@
 export const MIN_PASSWORD_LENGTH = 10;
 export const MAX_PASSWORD_LENGTH = 200;
 
+export interface LoginInput {
+  username: string;
+  password: string;
+}
+
+export type LoginErrors = Partial<Record<keyof LoginInput, string>>;
+
+export function validateLogin(input: LoginInput): LoginErrors {
+  const errors: LoginErrors = {};
+  if (!input.username.trim()) errors.username = "Enter your username";
+  if (!input.password) errors.password = "Enter your password";
+  return errors;
+}
+
 export interface PasswordChangeInput {
   currentPassword: string;
   newPassword: string;
