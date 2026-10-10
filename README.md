@@ -32,7 +32,7 @@ A modern demo site for **Shree Balaji Paints Plywood and Hardware**, an authoriz
 - **Products catalogue** — Browse by category (only categories with products are listed), search, filter by brand, sort by name or price, and "Show more products" after the first 12
 - **Product cards** — Brand, category, type, sizes and the starting price ("From ₹520 per litre", or "Ask for price" when none is set), with a WhatsApp "Enquire" button that names the product
 - **Product detail pages** — Starting price, size picker, "Ask on WhatsApp" (includes the chosen size), Call Us, then technical details, how to apply and downloads when the product has them
-- **Gallery** — Photos of finished work at `/gallery`, linked from the footer, each with an "Ask about similar work" WhatsApp link
+- **Gallery** — Photos of finished work at `/gallery`, linked from the footer, each with an "Ask about similar work" WhatsApp link, each with an "Ask about similar work" WhatsApp link
 - **Brands** — `/brands` lists every brand with product counts; each brand has its own page at `/brands/<brand>`
 - **Offers, About, Contact** — Separate pages with clean URLs; the navbar highlights the current page
 - **WhatsApp enquiry** — One-tap message to the shop (`7038499108`)
