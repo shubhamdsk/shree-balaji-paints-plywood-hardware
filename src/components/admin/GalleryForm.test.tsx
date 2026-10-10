@@ -25,9 +25,9 @@ describe("GalleryForm", () => {
   it("asks for a title and a photo before uploading a new work photo", async () => {
     const onClose = vi.fn();
     const { user } = renderWithProviders(<GalleryForm item={null} onClose={onClose} />);
-    await user.click(screen.getByRole("button", { name: "Save Work Photo" }));
+    await user.click(screen.getByRole("button", { name: "Save photo" }));
 
-    expect(description(screen.getByLabelText(/Project Title/))).toBe("Enter a project title");
+    expect(description(screen.getByLabelText(/^Title/))).toBe("Enter a project title");
     expect(description(screen.getByLabelText("Photo"))).toBe("Choose a photo of the finished work");
     expect(screen.getByRole("alert").textContent).toBe("Fix the 2 highlighted fields to continue.");
     expect(onClose).not.toHaveBeenCalled();
@@ -35,8 +35,8 @@ describe("GalleryForm", () => {
 
   it("keeps the current photo when editing, so only the text is checked", async () => {
     const { user } = renderWithProviders(<GalleryForm item={item} onClose={vi.fn()} />);
-    await user.clear(screen.getByLabelText(/Project Title/));
-    await user.click(screen.getByRole("button", { name: "Save Work Photo" }));
+    await user.clear(screen.getByLabelText(/^Title/));
+    await user.click(screen.getByRole("button", { name: "Save photo" }));
     expect(screen.getByRole("alert").textContent).toBe("Fix the highlighted field to continue.");
     expect(screen.getByLabelText("Photo").getAttribute("aria-describedby")).toBeNull();
   });
@@ -44,7 +44,7 @@ describe("GalleryForm", () => {
   it("asks before closing with unsaved changes", async () => {
     const onClose = vi.fn();
     const { user } = renderWithProviders(<GalleryForm item={item} onClose={onClose} />);
-    await user.type(screen.getByLabelText(/Project Title/), " at Kotul");
+    await user.type(screen.getByLabelText(/^Title/), " at Kotul");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.getByRole("dialog", { name: "Discard unsaved changes?" })).toBeDefined();
     expect(onClose).not.toHaveBeenCalled();

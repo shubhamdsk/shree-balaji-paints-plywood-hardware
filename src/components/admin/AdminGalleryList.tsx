@@ -50,8 +50,8 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
   const handleDelete = async (item: GalleryItem) => {
     const confirmed = await confirm({
       title: `Delete "${item.title}"?`,
-      message: "This work photo will be permanently removed from the website.",
-      confirmLabel: "Delete Photo",
+      message: "The photo will be removed from the website for good.",
+      confirmLabel: "Delete photo",
       tone: "danger",
     });
     if (!confirmed) return;
@@ -69,21 +69,16 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
       {/* Header Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-heading sm:text-3xl">Our Work Gallery Management</h1>
-          <p className="mt-1 text-sm text-muted">
-            Upload and manage photos of finished local projects to showcase on the website.
-          </p>
+          <h1 className="text-2xl font-bold text-heading sm:text-3xl">Gallery</h1>
+          <p className="mt-1 text-sm text-muted">Photos of finished work, shown on the website&apos;s Gallery page.</p>
         </div>
         <Button variant="cta" onClick={openAddModal}>
-          <Plus className="h-4 w-4" /> Upload Work Photo
+          <Plus className="h-4 w-4" aria-hidden /> Add photo
         </Button>
       </div>
 
-      {/* Gallery Cards Grid */}
       {items.length === 0 ? (
-        <div className="rounded-card border border-line bg-card p-12 text-center text-muted">
-          No work photos uploaded yet. Click &quot;Upload Work Photo&quot; above to add your first project photo!
-        </div>
+        <div className="rounded-card border border-line bg-card p-12 text-center text-muted">No photos yet.</div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
@@ -108,7 +103,8 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
 
                 <div className="flex items-center justify-between border-t border-line pt-3">
                   <ToggleSwitch
-                    label={`${item.title} status`}
+                    label="On the website"
+                    ariaLabel={`${item.title} on the website`}
                     checked={item.isActive}
                     disabled={isPending}
                     onChange={(val) => handleToggle(item, val)}
@@ -117,6 +113,7 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
                     <button
                       type="button"
                       onClick={() => openEditModal(item)}
+                      aria-label={`Edit ${item.title}`}
                       className="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-heading hover:bg-surface-muted"
                     >
                       Edit
@@ -124,9 +121,10 @@ export default function AdminGalleryList({ initialItems }: AdminGalleryListProps
                     <button
                       type="button"
                       onClick={() => handleDelete(item)}
+                      aria-label={`Delete ${item.title}`}
                       className="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
                     </button>
                   </div>
                 </div>
