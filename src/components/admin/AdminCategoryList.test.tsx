@@ -30,7 +30,7 @@ beforeEach(async () => {
 describe("AdminCategoryList", () => {
   it("lists every category with its type and product counts and an edit link", () => {
     renderWithProviders(<AdminCategoryList kind="category" items={categoryListItems(categories)} />);
-    expect(screen.getByText(`${categories.length} of ${categories.length} categories`)).toBeDefined();
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(categories.length);
     const paints = categories.find((c) => c.id === "paints")!;
     expect(screen.getByRole("link", { name: "Edit Paints" }).getAttribute("href")).toBe(ROUTES.adminCategory("paints"));
     expect(screen.getAllByText(new RegExp(`^${paints.subcategories.length} types · `)).length).toBeGreaterThan(0);
@@ -40,6 +40,7 @@ describe("AdminCategoryList", () => {
     const { user } = renderWithProviders(<AdminCategoryList kind="category" items={categoryListItems(categories)} />);
     await user.type(screen.getByLabelText("Search categories"), "wall putty");
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Paint Preparation Material"]);
+    expect(screen.getByText(`1 of ${categories.length} categories`)).toBeDefined();
   });
 
   it("asks before hiding a category that has products, and hides it once confirmed", async () => {

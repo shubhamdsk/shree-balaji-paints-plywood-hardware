@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import FilterButtons from "@/components/admin/FilterButtons";
 import Button from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { MessageCircle, Phone, Search, WhatsAppIcon } from "@/components/ui/icons";
@@ -130,21 +131,11 @@ export default function AdminEnquiryList({ initialPage, initialCounts }: AdminEn
             />
           </div>
         </FormField>
-        <div role="group" aria-label="Show" className="flex flex-wrap items-end gap-1.5">
-          {STATUS_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              aria-pressed={statusFilter === f.value}
-              onClick={() => chooseStatus(f.value)}
-              className={`min-h-11 rounded-xl px-3 text-sm font-bold transition ${
-                statusFilter === f.value ? "bg-heading text-card" : "border border-line bg-card text-heading hover:bg-surface-muted"
-              }`}
-            >
-              {f.label} <span className="font-extrabold">{counts[f.value]}</span>
-            </button>
-          ))}
-        </div>
+        <FilterButtons
+          filters={STATUS_FILTERS.map((f) => ({ ...f, count: counts[f.value] }))}
+          value={statusFilter}
+          onChange={chooseStatus}
+        />
       </div>
 
       {error && (

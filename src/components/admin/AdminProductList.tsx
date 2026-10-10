@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useMemo, useOptimistic, useRef, useState, useTransition } from "react";
+import FilterButtons from "@/components/admin/FilterButtons";
 import ToggleSwitch from "@/components/admin/ToggleSwitch";
 import AppLink from "@/components/ui/AppLink";
 import { buttonClasses } from "@/components/ui/Button";
 import FormField, { fieldClasses } from "@/components/ui/FormField";
 import { PackageSearch, Search } from "@/components/ui/icons";
-import SelectMenu from "@/components/ui/SelectMenu";
 import { useConfirm } from "@/hooks/use-confirm";
 import { formatPrice } from "@/lib/price";
 import { ROUTES } from "@/lib/routes";
@@ -15,15 +15,13 @@ import { matchesQuery } from "@/lib/search";
 import { setProductFlagAction } from "@/server/actions/products";
 import type { AdminProduct } from "@/types";
 
-type Filter = "all" | "visible" | "hidden" | "out-of-stock" | "featured" | "needs-category";
+type Filter = "all" | "out-of-stock" | "hidden" | "needs-category";
 type Flag = "inStock" | "featured" | "isVisible";
 
 const FILTERS: { value: Filter; label: string; test: (p: AdminProduct) => boolean }[] = [
-  { value: "all", label: "All products", test: () => true },
-  { value: "visible", label: "On the website", test: (p) => p.isVisible },
-  { value: "hidden", label: "Hidden", test: (p) => !p.isVisible },
+  { value: "all", label: "All", test: () => true },
   { value: "out-of-stock", label: "Out of stock", test: (p) => !p.inStock },
-  { value: "featured", label: "On the home page", test: (p) => p.featured === true },
+  { value: "hidden", label: "Hidden", test: (p) => !p.isVisible },
   { value: "needs-category", label: "Needs a category", test: (p) => p.needsCategory },
 ];
 
@@ -41,6 +39,9 @@ export default function AdminProductList({ products }: { products: AdminProduct[
       current.map((p) => (p.id === change.id ? { ...p, [change.flag]: change.value } : p)),
   );
 
+  const filters = FILTERS.map(({ value, label, test }) => ({ value, label, count: list.filter(test).length })).filter(
+    (f) => f.value !== "needs-category" || f.count > 0 || filter === f.value,
+  );
   const visible = useMemo(() => {
     const test = FILTERS.find((f) => f.value === filter)?.test ?? (() => true);
     return list.filter((p) => test(p) && matchesQuery(`${p.name} ${p.brand} ${p.type}`, query));
@@ -80,7 +81,7 @@ export default function AdminProductList({ products }: { products: AdminProduct[
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-[1fr_16rem]">
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <FormField label="Search products" htmlFor="product-search">
           <div className="relative">
             <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-subtle" />
@@ -94,20 +95,9 @@ export default function AdminProductList({ products }: { products: AdminProduct[
             />
           </div>
         </FormField>
-        <div className="space-y-1.5">
-          <span className="block text-sm font-bold text-heading">Show</span>
-          <SelectMenu
-            label="Show"
-            value={filter}
-            options={FILTERS.map(({ value, label }) => ({ value, label }))}
-            onChange={(value) => setFilter(value as Filter)}
-          />
-        </div>
+        <FilterButtons filters={filters} value={filter} onChange={setFilter} />
       </div>
 
-      <p className="text-sm text-muted" aria-live="polite">
-        {visible.length} of {list.length} products
-      </p>
       {error && (
         <p role="alert" className="rounded-xl bg-accent-50 px-4 py-3 text-sm font-semibold text-accent-700">
           {error}
@@ -134,11 +124,7 @@ export default function AdminProductList({ products }: { products: AdminProduct[
                 {product.image && <Image src={product.image} alt="" fill sizes="64px" className="object-cover" />}
               </div>
               <div className="min-w-0">
-                <h2 className="font-bold text-heading">
-                  <AppLink href={ROUTES.adminProduct(product.id)} className="hover:underline">
-                    {product.name}
-                  </AppLink>
-                </h2>
+                <h2 className="font-bold text-heading">{product.name}</h2>
                 <p className="text-sm text-muted">
                   {product.brand} · {product.type} · {formatPrice(product.priceFrom, product.unit)}
                 </p>

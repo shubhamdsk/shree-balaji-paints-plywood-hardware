@@ -170,10 +170,10 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
     await page.goto("/admin");
     await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Offers" }).click();
-    await page.getByRole("link", { name: "Add an offer" }).click();
+    await page.getByRole("link", { name: "Add offer" }).click();
     await page.getByLabel(/Offer title/).fill(offerTitle);
     await page.getByLabel(/Offer details/).fill("10% off on Royale this week");
-    await page.getByLabel(/Start date/).fill(today);
+    await expect(page.getByLabel(/Start date/)).toHaveValue(today);
     await page.getByLabel(/End date/).fill(today);
     await page.getByRole("button", { name: "Save offer" }).click();
     await expect(page).toHaveURL(/\/admin\/offers$/);
