@@ -161,6 +161,33 @@ test("the owner manages a product from login to logout", async ({ page }) => {
     });
   });
 
+  await test.step("runs a dated offer, then deletes it after confirming", async () => {
+    const offerTitle = `E2E Diwali offer ${Date.now()}`;
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+    await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Offers" }).click();
+    await page.getByRole("link", { name: "Add an offer" }).click();
+    await page.getByLabel(/Offer title/).fill(offerTitle);
+    await page.getByLabel(/Offer details/).fill("10% off on Royale this week");
+    await page.getByLabel(/Start date/).fill(today);
+    await page.getByLabel(/End date/).fill(today);
+    await page.getByRole("button", { name: "Save offer" }).click();
+    await expect(page).toHaveURL(/\/admin\/offers$/);
+    await expect(productRow(page, offerTitle)).toContainText("Live");
+
+    await expectPublicPage(page, "/offers", async (publicPage) => {
+      await expect(publicPage.getByRole("heading", { name: offerTitle })).toBeVisible();
+    });
+
+    await page.goto("/admin/offers");
+    await page.getByRole("button", { name: `Delete ${offerTitle}` }).click();
+    const dialog = page.getByRole("dialog", { name: `Delete "${offerTitle}"?` });
+    await clickAndSave(page, () => dialog.getByRole("button", { name: "Delete offer" }).click());
+    await expect(page.getByRole("heading", { name: offerTitle })).toHaveCount(0);
+    await expectPublicPage(page, "/offers", async (publicPage) => {
+      await expect(publicPage.getByRole("heading", { name: offerTitle })).toHaveCount(0);
+    });
+  });
+
   await test.step("changes the password", async () => {
     await page.goto("/admin");
     await page.getByRole("navigation", { name: "Owner panel" }).getByRole("link", { name: "Password" }).click();

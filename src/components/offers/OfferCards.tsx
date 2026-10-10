@@ -1,10 +1,15 @@
 import Image from "next/image";
-import { HandCoins, Palette, WhatsAppIcon } from "@/components/ui/icons";
+import { HandCoins, Palette, Tag, WhatsAppIcon } from "@/components/ui/icons";
 import { buttonClasses } from "@/components/ui/Button";
 import { shop, whatsappLink } from "@/config/shop";
+import { formatOfferDate } from "@/lib/offer-input";
+import type { Offer } from "@/types";
 
-const offers = [
+const DATED_OFFER_IMAGE = "/images/banners/interior-living.jpg";
+
+const standingOffers = [
   {
+    key: "bulk",
     icon: HandCoins,
     eyebrow: "For Painters & Contractors",
     title: "Better rates on bulk orders",
@@ -15,6 +20,7 @@ const offers = [
     imageAlt: "Painter rolling paint onto a wall",
   },
   {
+    key: "colour",
     icon: Palette,
     eyebrow: "Free Colour Advice",
     title: "Need help choosing colours?",
@@ -26,12 +32,27 @@ const offers = [
   },
 ];
 
-export default function OfferCards() {
+function toCard(offer: Offer) {
+  return {
+    key: offer.id,
+    icon: Tag,
+    eyebrow: `Valid till ${formatOfferDate(offer.endsOn)}`,
+    title: offer.title,
+    body: offer.body,
+    cta: "Ask About This Offer",
+    message: `Hello ${shop.shortName}, I'd like to know more about your offer: ${offer.title}.`,
+    image: offer.image ?? DATED_OFFER_IMAGE,
+    imageAlt: offer.title,
+  };
+}
+
+export default function OfferCards({ datedOffers = [] }: { datedOffers?: Offer[] }) {
+  const cards = [...datedOffers.map(toCard), ...standingOffers];
   return (
     <ul className="grid gap-4 sm:gap-6 md:grid-cols-2">
-      {offers.map(({ icon: Icon, ...offer }) => (
+      {cards.map(({ icon: Icon, key, ...offer }) => (
         <li
-          key={offer.title}
+          key={key}
           className="group relative flex min-h-[19rem] overflow-hidden rounded-card bg-brand-950 shadow-card-hover"
         >
           <Image src={offer.image} alt={offer.imageAlt} fill sizes="(max-width: 768px) 100vw, 50vw" className="img-zoom object-cover" />

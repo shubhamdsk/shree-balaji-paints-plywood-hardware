@@ -56,14 +56,14 @@ flowchart LR
 | Piece | Technology | Notes |
 |-------|-----------|-------|
 | Hosting | Cloudflare Workers (free plan) with `@opennextjs/cloudflare` | Pages are cached in Workers KV, and cache tags are kept in Durable Objects, which are always checked before a cached page is served, so `updateTag` refreshes pages across the network. The free plan caps the worker at 3 MiB gzipped (checked in CI) |
-| Database | Neon Postgres (free plan) | Products, admin users, sessions and audit log (Sprint 1); offers, gallery and enquiries next |
+| Database | Neon Postgres (free plan) | Products, categories, offers, gallery, enquiries, admin users, sessions and audit log |
 | Local database | PGlite (Postgres compiled to WebAssembly) | Used when `DATABASE_URL` is not set: saved in `.data/pglite` while developing, in memory for tests and CI. Migrated and seeded with the demo catalogue automatically |
 | Data access | Drizzle ORM over Neon's HTTP driver (`@neondatabase/serverless`) | A Worker can't reuse a connection opened by another request, so each query is one HTTP request. SQL migrations in `src/server/db/migrations`, applied with `pg` by `npm run db:migrate` before every Cloudflare build |
 | Photos | Neon Object Storage | Uploaded photos in the `product-photos` bucket (declared in `neon.ts`, one per Neon branch), reached over the S3 API with `aws4fetch` because the AWS SDK would not fit the worker size limit. Without the `AWS_*` variables, photos are saved in `.data/photos` |
 | Images | `next/image` through Cloudflare Images (the `IMAGES` binding) | The browser shrinks a photo to at most 1600 px before upload; Cloudflare serves WebP or AVIF |
 | Validation | Zod | Every admin action and the enquiry action, with the same rules in the browser and on the server |
-| Caching | `unstable_cache` with the `catalog` tag on product reads, `updateTag("catalog")` after each owner save | Pages stay cached until the owner changes something |
-| Scheduled jobs | Cloudflare cron trigger in `wrangler.jsonc`, handled in `worker.ts` | Calls `/api/health` every 3 minutes to keep Neon awake; daily backup later |
+| Caching | `unstable_cache` with a tag per area (`catalog`, `offers`, `gallery`, ...), `updateTag` after each owner save | Pages stay cached until the owner changes something. The home and offers pages also refresh every hour, so dated offers start and end at midnight on their own |
+| Scheduled jobs | Cloudflare cron triggers in `wrangler.jsonc`, handled in `worker.ts` | Calls `/api/health` every 3 minutes to keep Neon awake, and `/api/backup` daily at 2:00 AM India time |
 
 Before building, read the relevant guides in `node_modules/next/dist/docs/` (caching, revalidation, Server Actions, authentication). Next.js 16 has breaking changes; see [AGENTS.md](../AGENTS.md).
 
@@ -82,24 +82,28 @@ src/
       (panel)/layout.tsx          # requires a session; owner navigation
       (panel)/page.tsx            # dashboard: counts and quick links
       (panel)/products/...        # list, new, [id] edit
-      (panel)/offers/...          # later
-      (panel)/gallery/...         # later
-      (panel)/enquiries/page.tsx  # later
+      (panel)/offers/...          # list, new, [id] edit, [id]/copy
+      (panel)/gallery/...
+      (panel)/enquiries/page.tsx
     api/photos/[key]/route.ts     # serves uploaded photos
+    api/backup/route.ts           # daily backup, called by the cron with a token derived from SESSION_SECRET
     sitemap.ts  robots.ts
   components/
     admin/                        # owner panel forms and lists
   lib/
     product-input.ts              # product form rules shared by browser and server
+    offer-input.ts                # offer form rules and the live / starts soon / ended status
+    dates.ts                      # today's date in India
+    backup-token.ts               # daily backup cron schedule and token
     photo.ts  resize-photo.ts     # photo type checks; browser-side resizing
     cache-tags.ts
   server/
     db/schema.ts  db/client.ts  db/seed.ts  db/migrations/
     auth/password.ts  auth/session-token.ts  auth/session.ts  auth/guard.ts
-    actions/                      # Server Actions: auth.ts, products.ts
-    storage/photos.ts             # Neon Object Storage, or a local folder
+    actions/                      # Server Actions: auth, products, categories, offers, gallery, enquiry
+    storage/photos.ts             # photos and daily backups in Neon Object Storage, or a local folder
     audit.ts
-  services/                       # catalog-service, admin-product-service, auth-service
+  services/                       # catalog, admin-product, auth, offer, gallery, enquiry, backup
 scripts/db-migrate.ts             # applies migrations and the first seed at build time
 worker.ts                         # Cloudflare entry: the generated Next.js worker plus the cron handler
 ```
@@ -122,7 +126,7 @@ erDiagram
 | `admin_users` | username, password_hash, failed_attempts, locked_until | One owner account in v1 |
 | `sessions` | token_hash, user_id, expires_at | Only a hash of the token is stored |
 | `products` | id (slug), name, brand, category, type, description, sizes (jsonb), price_from (whole rupees; empty means "Ask for price"), unit, image, details (jsonb: colours, features, technical data), featured, featured_at, in_stock, is_visible, sort_order, updated_at | `id` unique and never equal to a category id. `in_stock` is true or false only. The home page shows the 8 featured products with the latest `featured_at` |
-| `offers` | title, body, image_key, starts_on, ends_on | Shown only between the two dates (Asia/Kolkata) |
+| `offers` | title, body, image (optional), starts_on, ends_on | Shown only from the start of `starts_on` to the end of `ends_on` (Asia/Kolkata). A copied offer shares its photo, which is deleted only when no offer uses it |
 | `gallery_items` | caption, image_key, sort_order | |
 | `enquiries` | name, phone, product_id, quantity, message, source (`form` / `calculator`), status (`NEW` / `CALLED` / `DONE`), created_at | Owner-only. Deleted after 12 months |
 | `audit_log` | user_id, action, entity, entity_id, before (jsonb), after (jsonb), at | Append-only |
@@ -175,7 +179,7 @@ Coverage per litre for each paint type is in `COVERAGE_SQFT_PER_LITRE`. The page
 
 ### 6.4 Daily backup
 
-Later: a cron trigger exports all tables (except sessions) to `backups/YYYY-MM-DD.json` in Neon Object Storage and keeps the last 30. Postgres also keeps its own short restore window.
+Neon's automatic snapshots aren't available on the free plan, so the app makes its own. At 20:30 UTC (2:00 AM in India) a cron trigger in `worker.ts` posts to `/api/backup` with an HMAC token derived from `SESSION_SECRET`. The route writes categories, subcategories, products, offers, gallery and enquiries to `backups/YYYY-MM-DD.json` in the private `product-photos` bucket and deletes the file from 30 days earlier. Admin users, sessions and the audit log are left out. The photo route only serves keys shaped like photo keys, so backups can't be downloaded through it. Postgres also keeps its own short restore window.
 
 ---
 

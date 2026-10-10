@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/routes";
 
 const banners = [
   {
-    href: ROUTES.category("paints", "Interior"),
+    href: ROUTES.category("paints", "Interior Emulsion"),
     image: "/images/banners/interior-living.jpg",
     alt: "Cosy interior living room",
     eyebrow: "Collection",
@@ -13,7 +13,7 @@ const banners = [
     body: "Washable emulsions and shade matching in store.",
   },
   {
-    href: ROUTES.category("paints", "Exterior"),
+    href: ROUTES.category("paints", "Exterior Emulsion"),
     image: "/images/banners/exterior-house.jpg",
     alt: "Modern house exterior",
     eyebrow: "Weather shield",

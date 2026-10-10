@@ -50,6 +50,13 @@
       "when": 1791615225028,
       "tag": "0006_fix_product_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791620229938,
+      "tag": "0007_add_offers_table",
+      "breakpoints": true
     }
   ]
 }

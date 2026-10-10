@@ -148,6 +148,16 @@ export interface GalleryItem {
   updatedAt: string;
 }
 
+export interface Offer {
+  id: string;
+  title: string;
+  body: string;
+  image?: string;
+  startsOn: string;
+  endsOn: string;
+  updatedAt: string;
+}
+
 export interface GalleryInput {
   title: string;
   category: string;

@@ -59,6 +59,7 @@ Related: [Architecture](ARCHITECTURE.md) · [Coding standards](CODING-STANDARDS.
 - The owner panel sends `noindex`, and `robots.txt` disallows `/admin` and `/api/` (uploaded photos stay allowed).
 - Server Actions use Next.js's built-in Origin check against CSRF. Admin Route Handlers that change data check the `Origin` header.
 - Deleting an offer, a gallery photo or hiding a product asks for confirmation through the shared `ConfirmDialog`.
+- `/api/backup` accepts only a POST carrying an HMAC-SHA256 token derived from `SESSION_SECRET` (compared in constant time), so only the worker's own cron can start a backup. Backups contain enquiries (customer names and phones), live in the private bucket under `backups/`, never include password hashes or sessions, and can't be read through the photo route.
 
 ### 3.4 Audit
 
