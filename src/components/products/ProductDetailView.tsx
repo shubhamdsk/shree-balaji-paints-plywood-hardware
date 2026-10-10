@@ -13,14 +13,13 @@ import CoverImage from "@/components/ui/CoverImage";
 import { categoryLabel, productLabel } from "@/lib/catalog";
 import { productEnquiryMessage } from "@/lib/enquiry";
 import { isCalculablePaint } from "@/lib/paint-calculator";
+import { formatPrice } from "@/lib/price";
 import { ROUTES } from "@/lib/routes";
-
-const tabs = ["Description", "Technical Details", "Application", "Downloads"] as const;
 
 export default function ProductDetailView({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] ?? "");
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Description");
   const [activeImage, setActiveImage] = useState(0);
+  const hasMoreDetails = Boolean(product.technical || product.application || product.downloads?.length);
 
   const thumbs =
     product.gallery?.length ? product.gallery : product.image ? [product.image] : [];
@@ -73,6 +72,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
             <span aria-hidden className={`h-2 w-2 rounded-full ${product.inStock ? "bg-success" : "bg-subtle"}`} />
             {product.inStock ? "Available in store" : "Out of stock — ask for availability"}
           </p>
+          <p className="mt-4 text-2xl font-extrabold text-heading">{formatPrice(product.priceFrom, product.unit)}</p>
           <p className="mt-4 text-base leading-relaxed text-muted">
             {product.longDescription ?? product.description}
           </p>
@@ -126,10 +126,8 @@ export default function ProductDetailView({ product }: { product: Product }) {
           )}
 
           <div className="mt-8 rounded-card border border-line bg-surface-muted p-4 sm:p-5">
-            <p className="text-[15px] font-semibold text-heading">Get the latest price</p>
-            <p className="mt-0.5 text-sm text-muted">
-              Prices change with size, shade and quantity. Message us and we&apos;ll reply with today&apos;s rate.
-            </p>
+            <p className="text-[15px] font-semibold text-heading">Ask for today&apos;s rate</p>
+            <p className="mt-0.5 text-sm text-muted">Prices change with size, shade and quantity.</p>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               <a
                 href={whatsappLink(productEnquiryMessage(productLabel(product), selectedSize || undefined))}
@@ -138,7 +136,7 @@ export default function ProductDetailView({ product }: { product: Product }) {
                 className={buttonClasses("whatsapp", "w-full", "lg")}
               >
                 <WhatsAppIcon className="h-5 w-5" />
-                Enquire for Price on WhatsApp
+                Ask on WhatsApp
               </a>
               <a href={shop.phoneLink} className={buttonClasses("secondary", "w-full", "lg")}>
                 <Phone className="h-5 w-5 text-accent-600" />
@@ -166,56 +164,42 @@ export default function ProductDetailView({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="mt-12 rounded-2xl border border-line bg-card card-shadow">
-        <div className="flex flex-wrap gap-1 border-b border-line p-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`rounded-lg px-4 py-2 text-sm font-bold transition ${
-                activeTab === tab ? "bg-accent-50 text-accent-600" : "text-muted hover:bg-surface-muted"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        <div className="p-5 text-sm leading-relaxed text-muted sm:p-6">
-          {activeTab === "Description" && (
-            <p>{product.longDescription ?? product.description}</p>
-          )}
-          {activeTab === "Technical Details" && (
-            <dl className="grid gap-3 sm:grid-cols-2">
-              {product.technical ? (
-                Object.entries(product.technical).map(([k, v]) => (
+      {hasMoreDetails && (
+        <div className="mt-12 grid gap-8 rounded-2xl border border-line bg-card p-5 text-sm leading-relaxed text-muted card-shadow sm:p-6">
+          {product.technical && (
+            <section>
+              <h2 className="text-base font-bold text-heading">Technical details</h2>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                {Object.entries(product.technical).map(([k, v]) => (
                   <div key={k}>
                     <dt className="font-bold text-heading">{k}</dt>
                     <dd>{v}</dd>
                   </div>
-                ))
-              ) : (
-                <p>Technical datasheet available on request at the shop or via WhatsApp.</p>
-              )}
-            </dl>
+                ))}
+              </dl>
+            </section>
           )}
-          {activeTab === "Application" && (
-            <p>{product.application ?? "Ask our team for surface preparation and application tips for your site."}</p>
+          {product.application && (
+            <section>
+              <h2 className="text-base font-bold text-heading">How to apply</h2>
+              <p className="mt-3">{product.application}</p>
+            </section>
           )}
-          {activeTab === "Downloads" && (
-            <ul className="space-y-2">
-              {(product.downloads ?? [{ label: "Shade card / datasheet", note: "Message us on WhatsApp" }]).map(
-                (d) => (
+          {product.downloads && product.downloads.length > 0 && (
+            <section>
+              <h2 className="text-base font-bold text-heading">Downloads</h2>
+              <ul className="mt-3 space-y-2">
+                {product.downloads.map((d) => (
                   <li key={d.label}>
                     <span className="font-semibold text-heading">{d.label}</span>
-                    {d.note ? <span className="text-muted"> — {d.note}</span> : null}
+                    {d.note ? <span> — {d.note}</span> : null}
                   </li>
-                ),
-              )}
-            </ul>
+                ))}
+              </ul>
+            </section>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

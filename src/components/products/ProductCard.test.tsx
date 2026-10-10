@@ -45,6 +45,16 @@ describe("ProductCard", () => {
     expect(decodeURIComponent(href)).toContain("Product: Asian Paints Royale Luxury Emulsion");
   });
 
+  it("shows the starting price with its unit", () => {
+    renderWithProviders(<ProductCard product={{ ...product, priceFrom: 520, unit: "per litre" }} />);
+    expect(screen.getByText("From ₹520 per litre")).toBeDefined();
+  });
+
+  it("asks for the price when none is set", () => {
+    renderWithProviders(<ProductCard product={{ ...product, priceFrom: undefined }} />);
+    expect(screen.getByText("Ask for price")).toBeDefined();
+  });
+
   it("flags products that are out of stock", () => {
     renderWithProviders(<ProductCard product={{ ...product, inStock: false }} />);
     expect(screen.getByText("Out of stock")).toBeDefined();

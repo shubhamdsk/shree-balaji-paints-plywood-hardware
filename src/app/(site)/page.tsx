@@ -47,7 +47,7 @@ export default async function Home() {
         <SectionHeader
           eyebrow="Featured"
           title="Featured Products"
-          description="Popular picks from our shelves. Message us on WhatsApp for the latest price and availability."
+          description="Popular picks from our shelves."
           href={ROUTES.products}
           linkLabel="View all products"
         />
