@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "shree-balaji",
   "main": "worker.ts",
+  "workers_dev": true,
+  // Preview versions would share the production secrets and database.
+  "preview_urls": false,
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {

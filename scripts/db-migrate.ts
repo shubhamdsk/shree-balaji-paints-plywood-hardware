@@ -19,7 +19,7 @@ async function main() {
   const db = drizzle({ connection: { connectionString: url, max: 1 }, schema });
   await migrate(db, { migrationsFolder: "src/server/db/migrations" });
   console.log("Migrations applied.");
-  if (await seedCatalog(db as unknown as Database)) console.log("Empty catalogue seeded with the demo products.");
+  if (await seedCatalog(db as unknown as Database)) console.log("Empty catalogue tables seeded with the demo data.");
   await db.$client.end();
 }
 
