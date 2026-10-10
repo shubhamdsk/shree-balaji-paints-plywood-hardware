@@ -23,7 +23,7 @@ describe("EnquiryForm", () => {
 
   it("shows linked validation errors when submitted empty", async () => {
     const { user } = renderForm();
-    await user.click(screen.getByRole("button", { name: "Submit Enquiry" }));
+    await user.click(screen.getByRole("button", { name: "Send enquiry" }));
 
     const name = screen.getByLabelText(/Your name/);
     expect(name.getAttribute("aria-invalid")).toBe("true");
@@ -52,10 +52,10 @@ describe("EnquiryForm", () => {
     const { user } = renderForm("ap-royale-luxury");
     await user.type(screen.getByLabelText(/Your name/), "Ramesh Patil");
     await user.type(screen.getByLabelText("Quantity"), "2 x 20 L");
-    await user.click(screen.getByRole("button", { name: "Submit Enquiry" }));
+    await user.click(screen.getByRole("button", { name: "Send enquiry" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain("Enquiry Submitted Successfully!");
+      expect(screen.getByRole("status").textContent).toContain("Enquiry sent");
     });
 
     expect(screen.getByLabelText(/Your name/)).toHaveProperty("value", "");

@@ -19,6 +19,7 @@ export default function CategoryDirectory({ categories, groups, products }: Prop
           (s) => countProducts(products, category.id, s) > 0,
         );
         const total = countProducts(products, category.id);
+        if (total === 0) return null;
         return (
           <li key={category.id} className="flex flex-col overflow-hidden rounded-card border border-line bg-card shadow-card">
             <AppLink href={ROUTES.category(category.id)} className="group relative block aspect-[16/9] overflow-hidden bg-surface-muted">

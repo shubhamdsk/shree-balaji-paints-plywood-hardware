@@ -76,7 +76,7 @@ src/
     home/               home page sections
     products/           catalogue, cards, product detail
     brands/             brand grid (home and /brands)
-    offers/             offer cards (the owner's live dated offers, then the standing ones) and promo banners
+    offers/             offer cards (the owner's live dated offers, then the standing ones)
     about/              store photos and details
     contact/            contact details and map
     enquiry/            enquiry form

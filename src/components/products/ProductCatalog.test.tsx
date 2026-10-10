@@ -41,7 +41,9 @@ describe("ProductCatalog", () => {
   it("opens clean category paths from the sidebar", async () => {
     const { user } = renderWithProviders(<ProductCatalog products={products} index={products} categoryGroups={groups} />);
     const sidebar = within(screen.getAllByRole("complementary")[0]);
+    expect(sidebar.queryByRole("button", { name: /^Interior/ })).toBeNull();
 
+    await user.click(sidebar.getByRole("button", { name: /^Paints/ }));
     await user.click(sidebar.getByRole("button", { name: /^Interior/ }));
     expect(router.push).toHaveBeenLastCalledWith("/products/paints/interior", { scroll: false });
 
@@ -50,5 +52,23 @@ describe("ProductCatalog", () => {
 
     await user.click(sidebar.getByRole("button", { name: /^All Products/ }));
     expect(router.push).toHaveBeenLastCalledWith("/products", { scroll: false });
+  });
+
+  it("hides categories that have no products", () => {
+    const withEmpty = [...groups, { id: "hardware", name: "Hardware", subtypes: ["Locks"] }];
+    renderWithProviders(<ProductCatalog products={products} index={products} categoryGroups={withEmpty} />);
+    const sidebar = within(screen.getAllByRole("complementary")[0]);
+    expect(sidebar.queryByRole("button", { name: /^Hardware/ })).toBeNull();
+  });
+
+  it("counts the products shown and loads more on request", async () => {
+    const many = Array.from({ length: 14 }, (_, i) => product(`p${i}`, `Paint ${String(i).padStart(2, "0")}`, "Interior"));
+    const { user } = renderWithProviders(<ProductCatalog products={many} index={many} categoryGroups={groups} />);
+    expect(screen.getByText("14 products")).toBeDefined();
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(12);
+
+    await user.click(screen.getByRole("button", { name: "Show more products" }));
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(14);
+    expect(screen.queryByRole("button", { name: "Show more products" })).toBeNull();
   });
 });

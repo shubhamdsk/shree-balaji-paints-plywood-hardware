@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import OfferCards from "@/components/offers/OfferCards";
-import PromoBanners from "@/components/offers/PromoBanners";
 import PageHeader from "@/components/ui/PageHeader";
 import { shop } from "@/config/shop";
 import { getLiveOffers } from "@/services/offer-service";
@@ -21,9 +20,8 @@ export default async function OffersPage() {
         title="Offers"
         description="Bulk rates for painters and builders, free colour help, and seasonal paint deals."
       />
-      <section className="container-page space-y-10 py-8 sm:py-12">
+      <section className="container-page py-8 sm:py-12">
         <OfferCards datedOffers={datedOffers} />
-        <PromoBanners />
       </section>
     </div>
   );

@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, PackageSearch, SlidersHorizontal } from "@/components/ui/icons";
+import { PackageSearch, SlidersHorizontal } from "@/components/ui/icons";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSidebar from "@/components/products/ProductSidebar";
+import Button from "@/components/ui/Button";
 import { fieldClasses } from "@/components/ui/FormField";
 import SelectMenu from "@/components/ui/SelectMenu";
 import { compareByPrice, getBrandNames } from "@/lib/catalog";
@@ -40,15 +41,9 @@ export default function ProductCatalog({
   const [brand, setBrand] = useState("");
   const [sort, setSort] = useState<SortOption>("name");
   const filterKey = `${category}|${subtype}`;
-  const [pagination, setPagination] = useState({ key: filterKey, page: 1 });
-  const page = pagination.key === filterKey ? pagination.page : 1;
-  const setPage = (next: number | ((prev: number) => number)) => {
-    setPagination((prev) => {
-      const currentPage = prev.key === filterKey ? prev.page : 1;
-      const newPage = typeof next === "function" ? next(currentPage) : next;
-      return { key: filterKey, page: newPage };
-    });
-  };
+  const [shown, setShown] = useState({ key: filterKey, count: PAGE_SIZE });
+  const shownCount = shown.key === filterKey ? shown.count : PAGE_SIZE;
+  const resetShown = () => setShown({ key: filterKey, count: PAGE_SIZE });
   const [mobileFilters, setMobileFilters] = useState(false);
 
   const inCategory = useMemo(
@@ -76,15 +71,12 @@ export default function ProductCatalog({
     return list;
   }, [inCategory, query, brand, subtype, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageSafe = Math.min(page, totalPages);
-  const pageItems = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
+  const pageItems = filtered.slice(0, shownCount);
 
   const pushFilters = (nextCategory: CategoryFilter, nextSubtype: string) => {
     const href =
       nextCategory === "all" ? ROUTES.products : ROUTES.category(nextCategory, nextSubtype || undefined);
     router.push(href, { scroll: false });
-    setPage(1);
   };
 
   const sidebarProps = { index, categoryGroups, category, subtype };
@@ -103,7 +95,7 @@ export default function ProductCatalog({
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line bg-card text-sm font-semibold text-heading lg:hidden"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          Filters & Categories
+          Categories
         </button>
 
         {mobileFilters && (
@@ -124,7 +116,7 @@ export default function ProductCatalog({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setPage(1);
+              resetShown();
             }}
             placeholder="Search products..."
             aria-label="Search products"
@@ -135,7 +127,7 @@ export default function ProductCatalog({
             value={brand}
             onChange={(value) => {
               setBrand(value);
-              setPage(1);
+              resetShown();
             }}
             options={brandOptions}
           />
@@ -144,15 +136,14 @@ export default function ProductCatalog({
             value={sort}
             onChange={(value) => {
               setSort(value as SortOption);
-              setPage(1);
+              resetShown();
             }}
             options={SORT_OPTIONS}
           />
         </div>
 
-        <p className="text-sm text-muted">
-          Showing <span className="font-semibold text-heading">{filtered.length}</span> of{" "}
-          {inCategory.length} products
+        <p className="text-sm text-muted" aria-live="polite">
+          {filtered.length} {filtered.length === 1 ? "product" : "products"}
         </p>
 
         {filtered.length === 0 ? (
@@ -170,29 +161,15 @@ export default function ProductCatalog({
               ))}
             </ul>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 pt-4">
-                <button
+            {filtered.length > shownCount && (
+              <div className="flex justify-center pt-4">
+                <Button
                   type="button"
-                  disabled={pageSafe <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-card transition enabled:hover:border-brand-200 disabled:opacity-40"
-                  aria-label="Previous page"
+                  variant="secondary"
+                  onClick={() => setShown({ key: filterKey, count: shownCount + PAGE_SIZE })}
                 >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <span className="text-sm font-semibold text-muted">
-                  Page {pageSafe} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={pageSafe >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-card transition enabled:hover:border-brand-200 disabled:opacity-40"
-                  aria-label="Next page"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
+                  Show more products
+                </Button>
               </div>
             )}
           </>
