@@ -103,14 +103,8 @@ export default function PaintCalculator({ products, initialProductId = "" }: Pai
     setEstimate(product && Object.keys(validationErrors).length === 0 ? estimatePaint(values, product) : null);
   };
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!estimate || !product) return;
-    const confirmed = await confirm({
-      title: "Send this estimate on WhatsApp?",
-      message: "WhatsApp will open with your room size and estimate ready. Press Send there to ask the shop for a price.",
-      confirmLabel: "Open WhatsApp",
-    });
-    if (!confirmed) return;
     window.open(whatsappLink(buildEstimateMessage(values, estimate, product.label)), "_blank", "noopener,noreferrer");
   };
 

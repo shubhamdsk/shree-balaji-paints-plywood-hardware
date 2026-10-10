@@ -13,7 +13,7 @@ export default async function EnquiryView({ productId = "" }: { productId?: stri
       <PageHeader
         title="Enquiry"
         width="narrow"
-        description="Tell us what you need. Your enquiry opens in WhatsApp so you can send it straight to the shop."
+        description="Tell us what you need and send it straight to the shop."
       />
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
         <EnquiryForm key={productId} products={options} initialProductId={productId} />

@@ -57,27 +57,16 @@ describe("PaintCalculator", () => {
     expect(screen.getByLabelText("Length (m)")).toBeDefined();
   });
 
-  it("confirms before opening WhatsApp with the estimate", async () => {
+  it("opens WhatsApp with the estimate straight away", async () => {
     const open = vi.spyOn(window, "open").mockReturnValue(null);
     const { user } = renderCalculator();
     await fillRoom(user);
     await user.click(screen.getByRole("button", { name: "Send estimate on WhatsApp" }));
 
-    expect(screen.getByRole("dialog", { name: "Send this estimate on WhatsApp?" })).toBeDefined();
-    await user.click(screen.getByRole("button", { name: "Open WhatsApp" }));
-
+    expect(screen.queryByRole("dialog")).toBeNull();
     const url = new URL(String(open.mock.calls[0][0]));
     expect(url.hostname).toBe("wa.me");
     expect(url.searchParams.get("text")).toContain("Estimate: about 8 L (2 × 4 L)");
-  });
-
-  it("does not open WhatsApp when the confirmation is cancelled", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
-    const { user } = renderCalculator();
-    await fillRoom(user);
-    await user.click(screen.getByRole("button", { name: "Send estimate on WhatsApp" }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(open).not.toHaveBeenCalled();
   });
 
   it("asks before clearing the entered sizes", async () => {
