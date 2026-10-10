@@ -57,6 +57,25 @@ jobs:
       - name: Run again on the migrated database
         run: npm run db:migrate
 
+  cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx opennextjs-cloudflare build
+      # The Workers Free plan rejects workers over 3 MiB gzipped.
+      - name: Check the worker fits the free plan
+        run: |
+          npx wrangler deploy --dry-run --outdir .wrangler/dry-run | tee dry-run.log
+          gzip_kib=$(grep -oP 'gzip: \K[0-9.]+' dry-run.log | tail -1)
+          echo "Worker size: ${gzip_kib} KiB gzipped (limit 3072 KiB)"
+          awk -v size="$gzip_kib" 'BEGIN { exit !(size < 3072) }'
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20

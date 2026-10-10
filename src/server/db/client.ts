@@ -53,9 +53,9 @@ export function setDatabase(db: Database) {
 async function connect(): Promise<Database> {
   const url = process.env.DATABASE_URL;
   if (url) {
-    const { drizzle } = await import("drizzle-orm/node-postgres");
-    // Serverless functions each hold their own pool, so keep it small for Neon's connection limit.
-    return drizzle({ connection: { connectionString: url, max: 3 }, schema }) as unknown as Database;
+    const { drizzle } = await import("drizzle-orm/neon-http");
+    // Cloudflare Workers can't reuse a socket opened by another request, so queries go over HTTP, one request each.
+    return drizzle({ connection: url, schema }) as unknown as Database;
   }
   return createLocalDatabase(process.env.NODE_ENV === "development" ? LOCAL_DATA_DIR : undefined);
 }

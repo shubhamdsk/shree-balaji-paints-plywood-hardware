@@ -1,13 +1,13 @@
 # श्री बालाजी पेंट्स्, प्लायवूड अँड हार्डवेअर - मालक मार्गदर्शिका (Owner Guide)
 
-**वेबसाईट पत्ता:** [shree-balaji-paints-plywood-hardware.netlify.app](https://shree-balaji-paints-plywood-hardware.netlify.app/)  
-**मालक पॅनेल (Owner Panel):** [shree-balaji-paints-plywood-hardware.netlify.app/admin](https://shree-balaji-paints-plywood-hardware.netlify.app/admin)
+**वेबसाईट पत्ता:** [shree-balaji.shreebalajipaints.workers.dev](https://shree-balaji.shreebalajipaints.workers.dev/)  
+**मालक पॅनेल (Owner Panel):** [shree-balaji.shreebalajipaints.workers.dev/admin](https://shree-balaji.shreebalajipaints.workers.dev/admin)
 
 ---
 
 ## १. मालक पॅनेलमध्ये लॉगिन कसे करावे (How to Login)
 
-1. आपल्या मोबाईल किंवा संगणकावर `shree-balaji-paints-plywood-hardware.netlify.app/admin` ही लिंक उघडा.
+1. आपल्या मोबाईल किंवा संगणकावर `shree-balaji.shreebalajipaints.workers.dev/admin` ही लिंक उघडा.
 2. आपला **वापरकर्ता नाव (Username)** आणि **पासवर्ड (Password)** टाका.
 3. **"लॉगिन करा" (Log In)** वर क्लिक करा.
 

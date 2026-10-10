@@ -121,7 +121,7 @@ Vitest with React Testing Library (`npm run test`), with tests next to the code 
   - `feature/*` and `fix/*` branches start from `develop`.
 - **Commits:** follow [Conventional Commits](https://www.conventionalcommits.org/), for example `feat(admin): add product photo upload` or `fix(enquiry): open WhatsApp when saving fails`.
 - **Pull requests:** keep them small, ideally under about 400 changed lines. Use the checklist in [`.github/pull_request_template.md`](../.github/pull_request_template.md).
-- **Releases:** batch production deploys, because each one uses free-plan credits ([Scalability § 3](SCALABILITY.md#3-free-plan-budget-netlify)).
+- **Releases:** merge into `main` only through a pull request with green CI; every push to `main` deploys to Cloudflare ([Scalability § 3](SCALABILITY.md#3-free-plan-budget-cloudflare-and-neon)).
 - **Never commit:** `.env*` (except `.env.example`), database dumps, backups, real customer data, or the `.next/` and `out/` build output.
 
 ## 11. Continuous integration (GitHub Actions, free)
@@ -135,7 +135,8 @@ On every push and pull request to `develop` and `main`, three jobs run in parall
   4. `npm test`
   5. `npm run build`
   6. `npm audit --omit=dev --audit-level=high`
-- **migrate:** starts a PostgreSQL service container and runs `npm run db:migrate` twice, on an empty database and then on the migrated one. This is the script Netlify runs before each build, so a broken migration fails here first.
+- **migrate:** starts a PostgreSQL service container and runs `npm run db:migrate` twice, on an empty database and then on the migrated one. This is the script Cloudflare runs before each build, so a broken migration fails here first.
+- **cloudflare:** builds the worker with `opennextjs-cloudflare build`, then runs `wrangler deploy --dry-run` and fails if the worker is over the free plan's 3 MiB gzipped limit.
 - **e2e:** installs Chromium and runs `npm run test:e2e`. On failure the Playwright report is uploaded as an artifact.
 
 Unit, service and action tests run against PGlite, which is real Postgres, so they don't need the service container.

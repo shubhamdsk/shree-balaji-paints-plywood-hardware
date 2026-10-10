@@ -18,7 +18,7 @@ const eslintConfig = defineConfig([
   { files: ["src/services/**/*.ts", "src/server/db/seed.ts"], rules: restrictImports({ patterns: [relativeImports] }) },
   { files: ["src/components/ui/AppLink.tsx"], rules: restrictImports({ paths: [iconImport] }) },
   { files: ["src/components/ui/icons.ts"], rules: restrictImports({ paths: [linkImport] }) },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", ".open-next/**", ".wrangler/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
 export default eslintConfig;

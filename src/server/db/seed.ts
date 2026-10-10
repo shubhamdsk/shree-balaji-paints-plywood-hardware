@@ -8,8 +8,10 @@ import { toProductRow } from "@/server/db/product-mapper";
 import { categories, gallery, products, subcategories } from "@/server/db/schema";
 
 export async function seedCatalog(db: Database) {
+  let seeded = false;
   const [{ total: catCount }] = await db.select({ total: count() }).from(categories);
   if (catCount === 0) {
+    seeded = true;
     await db.insert(categories).values(
       masterCategories.map((cat, idx) => ({
         id: cat.id,
@@ -46,6 +48,7 @@ export async function seedCatalog(db: Database) {
 
   const [{ total: prodCount }] = await db.select({ total: count() }).from(products);
   if (prodCount === 0) {
+    seeded = true;
     await db.insert(products).values(
       demoProducts.map((product, index) => ({
         ...toProductRow(product),
@@ -56,6 +59,7 @@ export async function seedCatalog(db: Database) {
 
   const [{ total: galCount }] = await db.select({ total: count() }).from(gallery);
   if (galCount === 0) {
+    seeded = true;
     await db.insert(gallery).values([
       {
         id: "gal_demo_1",
@@ -78,5 +82,5 @@ export async function seedCatalog(db: Database) {
     ]);
   }
 
-  return true;
+  return seeded;
 }

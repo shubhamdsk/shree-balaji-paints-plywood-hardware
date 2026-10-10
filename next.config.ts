@@ -34,22 +34,12 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
-    // Netlify functions reject requests over 6 MB; photos are shrunk in the browser to stay under 3 MB.
+    // Photos are shrunk in the browser to stay under 3 MB before upload.
     serverActions: { bodySizeLimit: "4mb" },
   },
   async headers() {
-    return [
-      { source: "/(.*)", headers: securityHeaders },
-      {
-        source: "/images/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-    ];
+    // Cloudflare serves files in public/ without running the app; their cache headers are in public/_headers.
+    return [{ source: "/(.*)", headers: securityHeaders }];
   },
 };
 

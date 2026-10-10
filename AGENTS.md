@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Project rules
 
-Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Netlify (`netlify.toml`). Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
+Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, hosted on Cloudflare Workers through the OpenNext adapter (`wrangler.jsonc`, `open-next.config.ts`, `worker.ts`). Full standards: [docs/CODING-STANDARDS.md](docs/CODING-STANDARDS.md).
 
 ## Commands
 
@@ -22,7 +22,7 @@ Website for Shree Balaji Paints, Plywood and Hardware. Next.js 16 (App Router), 
 - `npm run build`: production build
 - `npm run check`: all four above in order. It must pass before every commit and push.
 - `npm run db:generate -- --name <change>`: create a migration after editing `src/server/db/schema.ts`
-- `npm run db:migrate`: apply migrations to `DATABASE_URL`, read from `.env.local` when present (Netlify runs it before each build). Without `DATABASE_URL` the app uses PGlite and migrates itself, including while `npm run dev` is running. With a Neon branch in `.env.local` (`neon checkout dev --create`), run it after every new migration. Never point `.env.local` at the `production` branch.
+- `npm run db:migrate`: apply migrations to `DATABASE_URL`, read from `.env.local` when present (Cloudflare runs it before each build). Without `DATABASE_URL` the app uses PGlite and migrates itself, including while `npm run dev` is running. With a Neon branch in `.env.local` (`neon checkout dev --create`), run it after every new migration. Never point `.env.local` at the `production` branch.
 
 ## Workflow for every change (required)
 
@@ -91,7 +91,7 @@ src/
     db/                 Drizzle schema, client (Neon or PGlite), seed, migrations/
     auth/               password hashing, session tokens and cookie, requireOwner guard
     actions/            Server Actions (auth.ts, products.ts)
-    storage/photos.ts   Netlify Blobs, or a local folder
+    storage/photos.ts   Neon Object Storage (S3 API through aws4fetch), or a local folder
     audit.ts            audit log writer
   services/             data access used by pages, actions and API routes
   test/                 test setup, render helpers, mocks and setupTestDatabase (db.ts)
@@ -162,7 +162,7 @@ scripts/                db-migrate.ts (build-time migrations) and developer help
 
 ## Git
 
-- Work on `develop` or a `feature/*` branch. `main` is production: Netlify deploys every push to it. Merge through a pull request so its Netlify Deploy Preview can be checked first.
+- Work on `develop` or a `feature/*` branch. `main` is production: Cloudflare Workers Builds deploys every push to it. Merge through a pull request once CI is green, including the `cloudflare` job that keeps the worker under the free plan's 3 MiB limit.
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`.
 - Never commit `.env*` (except `.env.example`), secrets, customer data or build output.
 - Update `docs/` and `README.md` in the same commit when structure or behaviour changes.
